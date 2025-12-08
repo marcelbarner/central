@@ -5,6 +5,7 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/src/">
+    <Project Path="src/Central.AppHost/Central.AppHost.csproj" />
     <Project Path="src/Central.Domain/Central.Domain.csproj" />
     <Project Path="src/Central.Infrastructure/Central.Infrastructure.csproj" />
     <Project Path="src/Central.Server/Central.Server.csproj" />
