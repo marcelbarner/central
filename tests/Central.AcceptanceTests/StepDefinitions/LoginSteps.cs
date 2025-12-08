@@ -15,7 +15,6 @@ namespace Central.AcceptanceTests.StepDefinitions;
 public class LoginSteps(EnvironmentFixture fixture)
 {
     private IPage? _page;
-    private IBrowser? _browser;
     private string? _clientUrl;
     private LoginPage? _loginPage;
     private HomePage? _homePage;
@@ -26,13 +25,8 @@ public class LoginSteps(EnvironmentFixture fixture)
         // Get client endpoint URL
         _clientUrl = fixture.App.GetEndpoint("client").ToString().TrimEnd('/');
 
-        var playwright = await Playwright.CreateAsync();
-        _browser = await playwright.Chromium.LaunchAsync(new()
-        {
-            Headless = true
-        });
-
-        _page = await _browser.NewPageAsync();
+        // Create a new page from the shared browser
+        _page = await fixture.Browser.NewPageAsync();
         
         // Initialize page objects
         _loginPage = new LoginPage(_page, _clientUrl);
@@ -103,11 +97,6 @@ public class LoginSteps(EnvironmentFixture fixture)
         if (_page != null)
         {
             await _page.CloseAsync();
-        }
-
-        if (_browser != null)
-        {
-            await _browser.CloseAsync();
         }
     }
 }

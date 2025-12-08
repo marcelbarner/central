@@ -122,7 +122,6 @@ using Microsoft.Playwright;
 public class UiSteps(EnvironmentFixture fixture)
 {
     private IPage? _page;
-    private IBrowser? _browser;
     private string? _clientUrl;
 
     [Given(@"I navigate to the page")]
@@ -131,14 +130,8 @@ public class UiSteps(EnvironmentFixture fixture)
         // Get client URL from Aspire endpoint
         _clientUrl = fixture.App.GetEndpoint("client").ToString().TrimEnd('/');
 
-        // Launch browser
-        var playwright = await Playwright.CreateAsync();
-        _browser = await playwright.Chromium.LaunchAsync(new()
-        {
-            Headless = true
-        });
-
-        _page = await _browser.NewPageAsync();
+        // Create a new page from the shared browser
+        _page = await fixture.Browser.NewPageAsync();
         await _page.GotoAsync($"{_clientUrl}/path");
         await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
     }
@@ -174,11 +167,6 @@ public class UiSteps(EnvironmentFixture fixture)
         if (_page != null)
         {
             await _page.CloseAsync();
-        }
-
-        if (_browser != null)
-        {
-            await _browser.CloseAsync();
         }
     }
 }
@@ -252,9 +240,10 @@ The `EnvironmentFixture` is an assembly-level fixture that:
 - Starts Aspire distributed application once for all tests
 - Provides access to orchestrated services via `fixture.App`
 - Creates HTTP clients for server and client endpoints
+- Initializes a shared Playwright browser (`fixture.Browser`) for all browser tests
 - Automatically disposed after all tests complete
 
-**Do not modify the fixture** unless changing the Aspire orchestration setup.
+**Do not modify the fixture** unless changing the Aspire orchestration or browser setup.
 
 ## Running Tests
 
@@ -368,7 +357,6 @@ public class LoginPage
 public class LoginSteps(EnvironmentFixture fixture)
 {
     private IPage? _page;
-    private IBrowser? _browser;
     private LoginPage? _loginPage;
 
     [Given(@"I navigate to the login page")]
@@ -376,9 +364,8 @@ public class LoginSteps(EnvironmentFixture fixture)
     {
         var clientUrl = fixture.App.GetEndpoint("client").ToString().TrimEnd('/');
 
-        var playwright = await Playwright.CreateAsync();
-        _browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
-        _page = await _browser.NewPageAsync();
+        // Create a new page from the shared browser
+        _page = await fixture.Browser.NewPageAsync();
         
         _loginPage = new LoginPage(_page, clientUrl);
         await _loginPage.NavigateAsync();
@@ -437,6 +424,8 @@ public class LoginSteps(EnvironmentFixture fixture)
 ✅ Keep page objects focused on single page/component
 ✅ Provide semantic methods in page objects (not just raw Playwright calls)
 ✅ Use `GetEndpoint("client")` for browser tests, `CreateHttpClient("server")` for API tests
+✅ Use shared browser from `fixture.Browser` (created once per test run)
+✅ Create new page per scenario using `fixture.Browser.NewPageAsync()`
 
 ### DON'T
 
@@ -446,17 +435,20 @@ public class LoginSteps(EnvironmentFixture fixture)
 ❌ Don't mix backend and frontend testing in same steps
 ❌ Don't create dependencies between scenarios
 ❌ Don't use brittle selectors (prefer semantic/role-based)
-❌ Don't forget to dispose browser resources
+❌ Don't forget to dispose page resources in `[AfterScenario]`
 ❌ Don't use direct Playwright selectors in step definitions (use page objects)
 ❌ Don't duplicate page interactions across multiple step classes
 ❌ Don't use `CreateHttpClient` for browser URL extraction (use `GetEndpoint` instead)
+❌ Don't create new browsers in step definitions (use `fixture.Browser`)
 
 ## Debugging
 
 ### Run with Headed Browser
 
+To debug with a visible browser, modify `EnvironmentFixture.cs`:
+
 ```csharp
-_browser = await playwright.Chromium.LaunchAsync(new()
+Browser = await playwright.Chromium.LaunchAsync(new()
 {
     Headless = false,
     SlowMo = 500  // Slow down actions
@@ -477,7 +469,10 @@ public async Task AfterScenario(ScenarioContext scenarioContext)
         });
     }
     
-    // ... cleanup
+    if (_page != null)
+    {
+        await _page.CloseAsync();
+    }
 }
 ```
 
