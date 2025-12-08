@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 
 using Aspire.Hosting.Testing;
+using AwesomeAssertions;
 
 using Central.AcceptanceTests.Fixture;
 
@@ -31,25 +32,24 @@ public sealed class SayHelloSteps(EnvironmentFixture fixture)
     [Then(@"the response should be successful")]
     public void ThenTheResponseShouldBeSuccessful()
     {
-        Assert.NotNull(_response);
-        Assert.True(_response.IsSuccessStatusCode, $"Expected successful response but got {_response.StatusCode}");
+        _response.Should().NotBeNull();
+        _response!.IsSuccessStatusCode.Should().BeTrue($"Expected successful response but got {_response.StatusCode}");
     }
 
     [Then(@"the greeting message should be ""(.*)""")]
     public async Task ThenTheGreetingMessageShouldBe(string expectedMessage)
     {
-        Assert.NotNull(_response);
-        
-        var content = await _response.Content.ReadFromJsonAsync<GreetingResponse>();
-        Assert.NotNull(content);
-        Assert.Equal(expectedMessage, content.Message);
+        _response.Should().NotBeNull();
+        var content = await _response!.Content.ReadFromJsonAsync<GreetingResponse>();
+        content.Should().NotBeNull();
+        content!.Message.Should().Be(expectedMessage);
     }
 
     [Then(@"the response should indicate validation error")]
     public void ThenTheResponseShouldIndicateValidationError()
     {
-        Assert.NotNull(_response);
-        Assert.Equal(HttpStatusCode.BadRequest, _response.StatusCode);
+        _response.Should().NotBeNull();
+        _response!.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     private sealed class GreetingResponse
