@@ -30,4 +30,8 @@
     <PackageReference Include="xunit.runner.visualstudio" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Central.Infrastructure\Central.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>
