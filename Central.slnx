@@ -1,0 +1,19 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/src/">
+    <Project Path="src/Central.Domain/Central.Domain.csproj" />
+    <Project Path="src/Central.Infrastructure/Central.Infrastructure.csproj" />
+    <Project Path="src/Central.Server/Central.Server.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Central.AcceptanceTests/Central.AcceptanceTests.csproj" />
+    <Project Path="tests/Central.ArchitectureTests/Central.ArchitectureTests.csproj" />
+    <Project Path="tests/Central.Domain.Tests/Central.Domain.Tests.csproj" />
+    <Project Path="tests/Central.Infrastructure.Tests/Central.Infrastructure.Tests.csproj" />
+    <Project Path="tests/Central.Server.Tests/Central.Server.Tests.csproj" />
+  </Folder>
+</Solution>
