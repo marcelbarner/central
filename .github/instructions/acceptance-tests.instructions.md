@@ -128,9 +128,8 @@ public class UiSteps(EnvironmentFixture fixture)
     [Given(@"I navigate to the page")]
     public async Task GivenINavigateToThePage()
     {
-        // Get client URL from Aspire
-        var clientHttpClient = fixture.App.CreateHttpClient("client");
-        _clientUrl = clientHttpClient.BaseAddress!.ToString().TrimEnd('/');
+        // Get client URL from Aspire endpoint
+        _clientUrl = fixture.App.GetEndpoint("client").ToString().TrimEnd('/');
 
         // Launch browser
         var playwright = await Playwright.CreateAsync();
@@ -375,8 +374,7 @@ public class LoginSteps(EnvironmentFixture fixture)
     [Given(@"I navigate to the login page")]
     public async Task GivenINavigateToTheLoginPage()
     {
-        var clientHttpClient = fixture.App.CreateHttpClient("client");
-        var clientUrl = clientHttpClient.BaseAddress!.ToString().TrimEnd('/');
+        var clientUrl = fixture.App.GetEndpoint("client").ToString().TrimEnd('/');
 
         var playwright = await Playwright.CreateAsync();
         _browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
@@ -438,6 +436,7 @@ public class LoginSteps(EnvironmentFixture fixture)
 ✅ Use Page Object Pattern for all browser interactions
 ✅ Keep page objects focused on single page/component
 ✅ Provide semantic methods in page objects (not just raw Playwright calls)
+✅ Use `GetEndpoint("client")` for browser tests, `CreateHttpClient("server")` for API tests
 
 ### DON'T
 
@@ -450,6 +449,7 @@ public class LoginSteps(EnvironmentFixture fixture)
 ❌ Don't forget to dispose browser resources
 ❌ Don't use direct Playwright selectors in step definitions (use page objects)
 ❌ Don't duplicate page interactions across multiple step classes
+❌ Don't use `CreateHttpClient` for browser URL extraction (use `GetEndpoint` instead)
 
 ## Debugging
 

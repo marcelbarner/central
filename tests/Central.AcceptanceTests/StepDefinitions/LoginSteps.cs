@@ -23,9 +23,8 @@ public class LoginSteps(EnvironmentFixture fixture)
     [Given(@"I navigate to the login page")]
     public async Task GivenINavigateToTheLoginPage()
     {
-        // Get client HTTP client and extract base URL
-        var clientHttpClient = fixture.App.CreateHttpClient("client");
-        _clientUrl = clientHttpClient.BaseAddress!.ToString().TrimEnd('/');
+        // Get client endpoint URL
+        _clientUrl = fixture.App.GetEndpoint("client").ToString().TrimEnd('/');
 
         var playwright = await Playwright.CreateAsync();
         _browser = await playwright.Chromium.LaunchAsync(new()
