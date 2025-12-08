@@ -39,8 +39,10 @@ apphost.cs          → Aspire single-file host used only for local development
 
 * Backend unit tests use **xUnit v3** + **AwesomeAssertions**.
 * Architecture tests belong in `/tests/ArchitectureTests`.
-* Acceptance tests belong in `/tests/Central.AcceptanceTests` using Reqnroll.
+* Acceptance tests belong in `/tests/Central.AcceptanceTests` using **Reqnroll** + **Playwright**.
 * Each backend project has a matching test project inside `/tests`.
+* Browser tests use **Microsoft.Playwright** for UI automation.
+* All acceptance tests use **Aspire.Hosting.Testing** for service orchestration.
 
 ---
 
@@ -133,6 +135,13 @@ Forbidden:
 
 * Follow existing patterns for architecture validation.
 * Use ArchitectureTests project under `/tests/Central.ArchitectureTests`.
+
+### Acceptance Tests
+
+* Use Reqnroll for BDD scenarios with Gherkin syntax.
+* Use Playwright for browser automation testing.
+* Use Aspire.Hosting.Testing for service orchestration.
+* See `.github/instructions/acceptance-tests.instructions.md` for detailed guidelines.
 
 ### Code generation
 
