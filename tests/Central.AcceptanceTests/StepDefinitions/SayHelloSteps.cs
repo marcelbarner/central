@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 
 using Aspire.Hosting.Testing;
+
 using AwesomeAssertions;
 
 using Central.AcceptanceTests.Fixture;
