@@ -2,6 +2,7 @@ using ArchUnitNET.Domain;
 using ArchUnitNET.Fluent;
 using ArchUnitNET.Loader;
 using ArchUnitNET.xUnitV3;
+
 using static ArchUnitNET.Fluent.ArchRuleDefinition;
 
 namespace Central.ArchitectureTests;
@@ -34,7 +35,7 @@ public class NamingConventionTests
     {
         // Skip this test as we don't have IRepository interface yet
         // When we add repositories, this test will validate naming conventions
-        
+
         // var rule = Classes()
         //     .That()
         //     .ResideInNamespaceMatching("Central.Infrastructure")
