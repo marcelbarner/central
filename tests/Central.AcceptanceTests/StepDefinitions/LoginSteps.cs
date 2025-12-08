@@ -3,6 +3,7 @@ using Aspire.Hosting.Testing;
 using AwesomeAssertions;
 
 using Central.AcceptanceTests.Fixture;
+using Central.AcceptanceTests.PageObjects;
 
 using Microsoft.Playwright;
 
@@ -16,6 +17,8 @@ public class LoginSteps(EnvironmentFixture fixture)
     private IPage? _page;
     private IBrowser? _browser;
     private string? _clientUrl;
+    private LoginPage? _loginPage;
+    private HomePage? _homePage;
 
     [Given(@"I navigate to the login page")]
     public async Task GivenINavigateToTheLoginPage()
@@ -31,30 +34,27 @@ public class LoginSteps(EnvironmentFixture fixture)
         });
 
         _page = await _browser.NewPageAsync();
-        await _page.GotoAsync($"{_clientUrl}/auth/login");
-        await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+        
+        // Initialize page objects
+        _loginPage = new LoginPage(_page, _clientUrl);
+        _homePage = new HomePage(_page, _clientUrl);
+        
+        await _loginPage.NavigateAsync();
     }
 
     [When(@"I enter username ""(.*)"" and password ""(.*)""")]
     public async Task WhenIEnterUsernameAndPassword(string username, string password)
     {
-        _page.Should().NotBeNull();
-
-        // Find and fill username field
-        await _page!.FillAsync("input[formcontrolname='username']", username);
-
-        // Find and fill password field
-        await _page.FillAsync("input[formcontrolname='password']", password);
+        _loginPage.Should().NotBeNull();
+        await _loginPage!.FillCredentialsAsync(username, password);
     }
 
     [When(@"I click the login button")]
     public async Task WhenIClickTheLoginButton()
     {
-        _page.Should().NotBeNull();
-
-        // Click the login button
-        await _page!.ClickAsync("button:has-text('login')");
-
+        _loginPage.Should().NotBeNull();
+        await _loginPage!.ClickLoginAsync();
+        
         // Wait for navigation or error
         await Task.Delay(1000);
     }
@@ -62,48 +62,39 @@ public class LoginSteps(EnvironmentFixture fixture)
     [Then(@"I should be redirected to the home page")]
     public async Task ThenIShouldBeRedirectedToTheHomePage()
     {
-        _page.Should().NotBeNull();
-
-        await _page!.WaitForURLAsync($"{_clientUrl}/", new() { Timeout = 5000 });
-        _page.Url.Should().Be($"{_clientUrl}/");
+        _homePage.Should().NotBeNull();
+        await _homePage!.WaitForPageLoadAsync();
+        _homePage.GetCurrentUrl().Should().Be($"{_clientUrl}/");
     }
 
     [Then(@"I should see the user menu")]
     public async Task ThenIShouldSeeTheUserMenu()
     {
-        _page.Should().NotBeNull();
-
-        var userButton = await _page!.QuerySelectorAsync("app-user-button");
-        userButton.Should().NotBeNull();
+        _homePage.Should().NotBeNull();
+        var isVisible = await _homePage!.IsUserButtonVisibleAsync();
+        isVisible.Should().BeTrue();
     }
 
     [Then(@"I should see an error message")]
     public async Task ThenIShouldSeeAnErrorMessage()
     {
-        _page.Should().NotBeNull();
-
-        // Wait for error message to appear
-        var errorElement = await _page!.WaitForSelectorAsync("mat-error", new() { Timeout = 5000 });
-        errorElement.Should().NotBeNull();
+        _loginPage.Should().NotBeNull();
+        var hasError = await _loginPage!.HasErrorMessageAsync();
+        hasError.Should().BeTrue();
     }
 
     [Then(@"I should remain on the login page")]
-    public async Task ThenIShouldRemainOnTheLoginPage()
+    public void ThenIShouldRemainOnTheLoginPage()
     {
-        _page.Should().NotBeNull();
-
-        _page!.Url.Should().Contain("/auth/login");
+        _loginPage.Should().NotBeNull();
+        _loginPage!.GetCurrentUrl().Should().Contain("/auth/login");
     }
 
     [Then(@"the login button should be disabled")]
     public async Task ThenTheLoginButtonShouldBeDisabled()
     {
-        _page.Should().NotBeNull();
-
-        var loginButton = await _page!.QuerySelectorAsync("button:has-text('login')");
-        loginButton.Should().NotBeNull();
-
-        var isDisabled = await loginButton!.IsDisabledAsync();
+        _loginPage.Should().NotBeNull();
+        var isDisabled = await _loginPage!.IsLoginButtonDisabledAsync();
         isDisabled.Should().BeTrue();
     }
 

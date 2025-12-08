@@ -279,6 +279,151 @@ dotnet test tests/Central.AcceptanceTests/ --filter "FullyQualifiedName~Login"
 dotnet test tests/Central.AcceptanceTests/ --logger "console;verbosity=detailed"
 ```
 
+## Page Object Pattern
+
+For browser tests, use the **Page Object Pattern** to encapsulate UI interactions and improve maintainability.
+
+### Structure
+
+Place page objects in `PageObjects/` directory:
+
+```
+/tests/Central.AcceptanceTests
+└── PageObjects/
+    ├── LoginPage.cs
+    ├── HomePage.cs
+    └── ...
+```
+
+### Page Object Implementation
+
+```csharp
+using Microsoft.Playwright;
+
+namespace Central.AcceptanceTests.PageObjects;
+
+public class LoginPage
+{
+    private readonly IPage _page;
+    private readonly string _baseUrl;
+
+    // Locators as constants
+    private const string UsernameInput = "input[formcontrolname='username']";
+    private const string PasswordInput = "input[formcontrolname='password']";
+    private const string LoginButton = "button:has-text('login')";
+    private const string ErrorMessage = "mat-error";
+
+    public LoginPage(IPage page, string baseUrl)
+    {
+        _page = page;
+        _baseUrl = baseUrl;
+    }
+
+    // Navigation
+    public async Task NavigateAsync()
+    {
+        await _page.GotoAsync($"{_baseUrl}/auth/login");
+        await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+    }
+
+    // Actions
+    public async Task FillCredentialsAsync(string username, string password)
+    {
+        await _page.FillAsync(UsernameInput, username);
+        await _page.FillAsync(PasswordInput, password);
+    }
+
+    public async Task ClickLoginAsync()
+    {
+        await _page.ClickAsync(LoginButton);
+    }
+
+    // Queries
+    public async Task<bool> IsLoginButtonDisabledAsync()
+    {
+        var button = await _page.QuerySelectorAsync(LoginButton);
+        return button != null && await button.IsDisabledAsync();
+    }
+
+    public async Task<bool> HasErrorMessageAsync()
+    {
+        try
+        {
+            await _page.WaitForSelectorAsync(ErrorMessage, new() { Timeout = 5000 });
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public string GetCurrentUrl() => _page.Url;
+}
+```
+
+### Using Page Objects in Steps
+
+```csharp
+[Binding]
+public class LoginSteps(EnvironmentFixture fixture)
+{
+    private IPage? _page;
+    private IBrowser? _browser;
+    private LoginPage? _loginPage;
+
+    [Given(@"I navigate to the login page")]
+    public async Task GivenINavigateToTheLoginPage()
+    {
+        var clientHttpClient = fixture.App.CreateHttpClient("client");
+        var clientUrl = clientHttpClient.BaseAddress!.ToString().TrimEnd('/');
+
+        var playwright = await Playwright.CreateAsync();
+        _browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
+        _page = await _browser.NewPageAsync();
+        
+        _loginPage = new LoginPage(_page, clientUrl);
+        await _loginPage.NavigateAsync();
+    }
+
+    [When(@"I enter username ""(.*)"" and password ""(.*)""")]
+    public async Task WhenIEnterUsernameAndPassword(string username, string password)
+    {
+        await _loginPage!.FillCredentialsAsync(username, password);
+    }
+
+    [When(@"I click the login button")]
+    public async Task WhenIClickTheLoginButton()
+    {
+        await _loginPage!.ClickLoginAsync();
+    }
+
+    [Then(@"the login button should be disabled")]
+    public async Task ThenTheLoginButtonShouldBeDisabled()
+    {
+        var isDisabled = await _loginPage!.IsLoginButtonDisabledAsync();
+        isDisabled.Should().BeTrue();
+    }
+}
+```
+
+### Page Object Benefits
+
+✅ **Centralized locators** - Change selector in one place when UI changes
+✅ **Reusable actions** - Share page interactions across multiple tests
+✅ **Readable tests** - Step definitions focus on business logic, not technical details
+✅ **Type safety** - Compile-time checks for page methods
+✅ **Maintainability** - UI changes require updates only in page objects
+
+### Page Object Naming Conventions
+
+- **Class names**: `{PageName}Page.cs` (e.g., `LoginPage`, `HomePage`)
+- **Methods**: 
+  - Navigation: `NavigateAsync()`, `NavigateToTabAsync()`
+  - Actions: `FillCredentialsAsync()`, `ClickLoginAsync()`, `SubmitFormAsync()`
+  - Queries: `IsButtonDisabledAsync()`, `HasErrorMessageAsync()`, `GetErrorTextAsync()`
+- **Locators**: Descriptive constants (`UsernameInput`, `ErrorMessage`)
+
 ## Best Practices
 
 ### DO
@@ -290,6 +435,9 @@ dotnet test tests/Central.AcceptanceTests/ --logger "console;verbosity=detailed"
 ✅ Use meaningful step names matching business language
 ✅ Reuse step definitions across features when appropriate
 ✅ Use headless browsers for CI/CD pipelines
+✅ Use Page Object Pattern for all browser interactions
+✅ Keep page objects focused on single page/component
+✅ Provide semantic methods in page objects (not just raw Playwright calls)
 
 ### DON'T
 
@@ -300,6 +448,8 @@ dotnet test tests/Central.AcceptanceTests/ --logger "console;verbosity=detailed"
 ❌ Don't create dependencies between scenarios
 ❌ Don't use brittle selectors (prefer semantic/role-based)
 ❌ Don't forget to dispose browser resources
+❌ Don't use direct Playwright selectors in step definitions (use page objects)
+❌ Don't duplicate page interactions across multiple step classes
 
 ## Debugging
 
@@ -343,4 +493,6 @@ public async Task AfterScenario(ScenarioContext scenarioContext)
 
 See existing tests:
 - `Features/SayHello.feature` - Backend API testing
-- `Features/Login.feature` - Frontend browser testing with Playwright
+- `Features/Login.feature` - Frontend browser testing with Playwright and Page Object Pattern
+- `PageObjects/LoginPage.cs` - Example page object implementation
+- `PageObjects/HomePage.cs` - Example page object for post-login verification
