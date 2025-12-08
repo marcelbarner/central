@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <OutputType>Exe</OutputType>
     <RootNamespace>Central.ArchitectureTests</RootNamespace>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <!--
     This template uses native xUnit.net command line options when using 'dotnet run' and
     VSTest by default when using 'dotnet test'. For more information on how to enable support
@@ -27,6 +27,12 @@
     <PackageReference Include="TngTech.ArchUnitNET.xUnitV3" />
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Central.Domain\Central.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Central.Infrastructure\Central.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Central.Server\Central.Server.csproj" />
   </ItemGroup>
 
 </Project>

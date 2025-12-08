@@ -4,8 +4,8 @@ namespace SayHello;
 
 sealed class Request
 {
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
+    public required string FirstName { get; set; }
+    public required string LastName { get; set; }
 
     internal sealed class Validator : Validator<Request>
     {

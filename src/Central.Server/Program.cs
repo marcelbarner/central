@@ -11,7 +11,6 @@ app.UseAuthentication()
    .UseFastEndpoints(
        c =>
        {
-           c.Binding.ReflectionCache.AddFromCentral.Server();
            c.Errors.UseProblemDetails();
        })
    .UseSwaggerGen();
