@@ -70,15 +70,22 @@ Copilot must follow this sequence when generating or modifying code:
 * Backend: place tests in the matching project under `/tests`.
 * Frontend: create/update `.spec.ts` files next to the Angular component.
 
-## 5. Validate that all tests pass
+## 5. Update instructions and documentation
 
-## 6. Validate that code coverage is at least 80%
+* When introducing new patterns, libraries, or architectural decisions, update `.github/instructions/` files
+* Update `/docs` arc42 documentation if architecture changes
+* Keep examples in instructions current with actual implementation
+* Document best practices and anti-patterns discovered during development
 
-## 7. Validate `dotnet format`
+## 6. Validate that all tests pass
 
-## 8. Validate that frontend has no format or lint issues
+## 7. Validate that code coverage is at least 80%
 
-## 9. Validate that backend and frontend builds have no errors or warnings
+## 8. Validate `dotnet format`
+
+## 9. Validate that frontend has no format or lint issues
+
+## 10. Validate that backend and frontend builds have no errors or warnings
 
 ---
 
@@ -114,6 +121,15 @@ Forbidden:
 * Generate maintainable, clean code.
 * Avoid unused code or commented-out blocks.
 * Only generate documentation comments when helpful.
+
+### Documentation Maintenance
+
+* **Always update documentation when code patterns change**
+* When refactoring or introducing new patterns, update corresponding instruction files in `.github/instructions/`
+* Keep code examples in documentation synchronized with actual implementation
+* Document architectural decisions and their rationale
+* Update best practices lists when discovering new patterns or anti-patterns
+* If creating new reusable patterns, add them to relevant instruction files
 
 ### Tests
 
