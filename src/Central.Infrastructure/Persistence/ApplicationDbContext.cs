@@ -1,0 +1,43 @@
+using Central.Domain.Users;
+
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+
+namespace Central.Infrastructure.Persistence;
+
+/// <summary>
+/// Application database context with Identity support.
+/// Uses long as the primary key type for all Identity entities.
+/// </summary>
+public sealed class ApplicationDbContext : IdentityDbContext<
+    User,
+    IdentityRole<long>,
+    long,
+    IdentityUserClaim<long>,
+    IdentityUserRole<long>,
+    IdentityUserLogin<long>,
+    IdentityRoleClaim<long>,
+    IdentityUserToken<long>>
+{
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        : base(options)
+    {
+    }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+
+        // Apply all IEntityTypeConfiguration implementations from this assembly
+        builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+
+        // Configure Identity tables with custom names
+        builder.Entity<IdentityRole<long>>().ToTable("Roles");
+        builder.Entity<IdentityUserClaim<long>>().ToTable("UserClaims");
+        builder.Entity<IdentityUserRole<long>>().ToTable("UserRoles");
+        builder.Entity<IdentityUserLogin<long>>().ToTable("UserLogins");
+        builder.Entity<IdentityRoleClaim<long>>().ToTable("RoleClaims");
+        builder.Entity<IdentityUserToken<long>>().ToTable("UserTokens");
+    }
+}

@@ -13,7 +13,7 @@ import { TranslateModule } from '@ngx-translate/core';
     <div class="matero-user-panel" routerLink="/profile/overview">
       <img class="matero-user-panel-avatar" [src]="user()?.avatar" alt="avatar" width="64" />
       <div class="matero-user-panel-info">
-        <h4>{{ user()?.name }}</h4>
+        <h4>{{ user()?.displayName || user()?.username }}</h4>
         <h5>{{ user()?.email }}</h5>
       </div>
     </div>

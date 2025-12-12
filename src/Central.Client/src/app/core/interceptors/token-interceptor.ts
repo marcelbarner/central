@@ -1,14 +1,18 @@
 import { HttpErrorResponse, HttpHandlerFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { TokenService } from '@core/authentication';
+import { AuthService } from '@core/authentication';
 import { catchError, tap, throwError } from 'rxjs';
 import { BASE_URL, hasHttpScheme } from './base-url-interceptor';
 
+/**
+ * Cookie authentication interceptor.
+ * Ensures cookies are sent with requests and handles authentication errors.
+ */
 export function tokenInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) {
   const router = inject(Router);
   const baseUrl = inject(BASE_URL, { optional: true });
-  const tokenService = inject(TokenService);
+  const authService = inject(AuthService);
 
   const includeBaseUrl = (url: string) => {
     if (!baseUrl) {
@@ -17,7 +21,7 @@ export function tokenInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn)
     return new RegExp(`^${baseUrl.replace(/\/$/, '')}`, 'i').test(url);
   };
 
-  const shouldAppendToken = (url: string) => !hasHttpScheme(url) || includeBaseUrl(url);
+  const shouldIncludeCredentials = (url: string) => !hasHttpScheme(url) || includeBaseUrl(url);
 
   const handler = () => {
     if (req.url.includes('/auth/logout')) {
@@ -29,22 +33,19 @@ export function tokenInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn)
     }
   };
 
-  if (tokenService.valid() && shouldAppendToken(req.url)) {
-    return next(
-      req.clone({
-        headers: req.headers.append('Authorization', tokenService.getBearerToken()),
-        withCredentials: true,
-      })
-    ).pipe(
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          tokenService.clear();
-        }
-        return throwError(() => error);
-      }),
-      tap(() => handler())
-    );
-  }
+  // Clone request with credentials enabled for same-origin or baseUrl requests
+  const clonedReq = shouldIncludeCredentials(req.url)
+    ? req.clone({ withCredentials: true })
+    : req;
 
-  return next(req).pipe(tap(() => handler()));
+  return next(clonedReq).pipe(
+    catchError((error: HttpErrorResponse) => {
+      if (error.status === 401) {
+        authService.logout();
+        router.navigateByUrl('/auth/login');
+      }
+      return throwError(() => error);
+    }),
+    tap(() => handler())
+  );
 }

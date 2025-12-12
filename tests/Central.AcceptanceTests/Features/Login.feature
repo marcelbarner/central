@@ -6,7 +6,7 @@ Feature: User Login
 Scenario: Successfully login with valid credentials
     Given the application is running
     And I navigate to the login page
-    When I enter username "ng-matero" and password "ng-matero"
+    When I enter username "testuser" and password "Test123!"
     And I click the login button
     Then I should be redirected to the home page
     And I should see the user menu
@@ -22,4 +22,5 @@ Scenario: Cannot login with invalid credentials
 Scenario: Cannot submit login form with empty fields
     Given the application is running
     And I navigate to the login page
+    When I enter username "" and password ""
     Then the login button should be disabled

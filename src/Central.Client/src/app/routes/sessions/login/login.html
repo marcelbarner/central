@@ -7,14 +7,14 @@
     <mat-card-content>
       <form class="form-field-full" [formGroup]="loginForm">
         <mat-form-field appearance="outline">
-          <mat-label>{{ 'username' | translate }}: ng-matero</mat-label>
-          <input matInput placeholder="ng-matero" formControlName="username" required />
+          <mat-label>{{ 'username' | translate }}: testuser</mat-label>
+          <input matInput placeholder="testuser" formControlName="username" required />
           @if (username.invalid) {
             <mat-error>
               @if (username.errors?.required) {
                 <span>
                   {{ 'please_enter' | translate }}
-                  <strong>ng-matero</strong>
+                  <strong>testuser</strong>
                 </span>
               }
               @if (username.errors?.remote) {
@@ -25,10 +25,10 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>{{ 'password' | translate }}: ng-matero</mat-label>
+          <mat-label>{{ 'password' | translate }}: Test123!</mat-label>
           <input
             matInput
-            placeholder="ng-matero"
+            placeholder="Test123!"
             type="password"
             formControlName="password"
             required
@@ -38,7 +38,7 @@
               @if (password.errors?.required) {
                 <span>
                   {{ 'please_enter' | translate }}
-                  <strong>ng-matero</strong>
+                  <strong>Test123!</strong>
                 </span>
               }
               @if (password.errors?.remote) {
@@ -47,7 +47,15 @@
             </mat-error>
           }
         </mat-form-field>
-
+        @if (loginForm.invalid) {
+          <mat-error>
+            @if (loginForm.errors?.invalidLogin) {
+              <span>
+                {{ 'validation.invalid_login' | translate }}
+              </span>
+            }
+          </mat-error>
+        }
         <mat-checkbox formControlName="rememberMe">{{ 'remember_me' | translate }}</mat-checkbox>
 
         <button

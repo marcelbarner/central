@@ -4,26 +4,53 @@
 
 ### ASP.NET Core Identity
 
-* **User Management**: ASP.NET Core Identity for user registration, login, and profile management
-* **Password Storage**: Secure hashing with built-in password policies
-* **Database**: User data stored in PostgreSQL via Identity tables
+The application uses **ASP.NET Core Identity** for authentication with a clean architecture approach:
+
+**Layer Responsibilities**:
+* **Domain Layer**: 
+  - Defines `User` entity model (with `long` as ID type)
+  - Depends only on `UserManager<User>` from Identity
+  - Contains domain logic related to users
+  
+* **Infrastructure Layer**:
+  - Implements `UserStore<User>` for data persistence
+  - Configures EF Core mappings for Identity tables
+  - PostgreSQL as the database backend
+  
+* **Server Layer**:
+  - Uses `SignInManager<User>` for authentication operations
+  - Exposes authentication endpoints (login, logout, get current user)
+  - Manages migrations and database seeding via background jobs
+  - Configures cookie authentication middleware
+
+**Identity Configuration**:
+* User ID type: `long` (instead of default `string`)
+* Password hashing with built-in security policies
+* Identity tables stored in PostgreSQL database
 
 ### Authentication Methods
 
-**1. Cookie Authentication** (Primary for web UI)
-* Session-based authentication for Angular frontend
-* Secure, HTTP-only cookies
-* Automatic renewal on activity
+**Cookie Authentication** (Implemented)
+* Session-based authentication for web application
+* Secure, HTTP-only cookies with SameSite protection
+* Sliding expiration for active sessions
+* No separate token management required
 
-**2. API Tokens**
+**API Tokens** (Future)
 * Users can generate personal API tokens
 * Long-lived tokens for programmatic API access
 * Token management (create, revoke, list) via user profile
 
-**3. Basic Authentication**
+**Basic Authentication** (Future)
 * Username/password in Authorization header
 * Supported for simple integrations and scripts
 * Less preferred, but available for compatibility
+
+### Supported Operations
+
+1. **Login**: Authenticate user with username/password
+2. **Logout**: Clear authentication session
+3. **Get Current User**: Retrieve authenticated user information
 
 ## Authorization
 

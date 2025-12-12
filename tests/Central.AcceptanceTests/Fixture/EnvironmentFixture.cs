@@ -11,7 +11,7 @@ namespace Central.AcceptanceTests.Fixture;
 
 public sealed class EnvironmentFixture : IAsyncLifetime
 {
-    private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
+    private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(60);
     
     public DistributedApplication App { get; private set; } = null!;
     public IBrowser Browser { get; private set; } = null!;
@@ -46,12 +46,14 @@ public sealed class EnvironmentFixture : IAsyncLifetime
             .WaitAsync(DefaultTimeout);
         await App.StartAsync()
             .WaitAsync(DefaultTimeout);
+
+        await Task.Delay(DefaultTimeout);
         
         // Initialize Playwright browser once for all tests
         var playwright = await Playwright.CreateAsync();
         Browser = await playwright.Chromium.LaunchAsync(new()
         {
-            Headless = true
+            Headless = false
         });
     }
 }

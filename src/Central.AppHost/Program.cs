@@ -6,12 +6,13 @@ var postgresdb = postgres.AddDatabase("centraldb");
 // Use absolute path resolution for the project
 var server = builder.AddProject<Projects.Central_Server>("server")
     .WithReference(postgresdb)
-    .WithHttpsEndpoint(port: 5001, name: "https");
-
+    .WaitFor(postgresdb)
+    .WithHttpHealthCheck("/health");
 var client = builder.AddJavaScriptApp("client", Path.Combine("..", "Central.Client"), "start")
     .WithNpm()
     .WithReference(server)
     .WithHttpEndpoint(env: "PORT")
-    .WithExternalHttpEndpoints();
+    .WithExternalHttpEndpoints()
+    .WithHttpHealthCheck();
 
 builder.Build().Run();

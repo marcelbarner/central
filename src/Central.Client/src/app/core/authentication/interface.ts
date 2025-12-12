@@ -2,11 +2,12 @@ export interface User {
   [prop: string]: any;
 
   id?: number | string | null;
-  name?: string;
+  username?: string;
+  displayName?: string;
   email?: string;
   avatar?: string;
-  roles?: any[];
-  permissions?: any[];
+  roles?: string[];
+  lastLoginAt?: string | null;
 }
 
 export interface Token {

@@ -1,7 +1,10 @@
 using ArchUnitNET.Domain;
+using ArchUnitNET.Domain.Dependencies;
 using ArchUnitNET.Fluent;
 using ArchUnitNET.Loader;
 using ArchUnitNET.xUnitV3;
+
+using FastEndpoints;
 
 using static ArchUnitNET.Fluent.ArchRuleDefinition;
 
@@ -68,6 +71,8 @@ public class NamingConventionTests
         var rule = Classes()
             .That()
             .ResideInNamespaceMatching("Central.Server.Features")
+            .And()
+            .AreAssignableTo(typeof(Endpoint<,>)!)
             .Should()
             .HaveNameEndingWith("Endpoint")
             .Because("FastEndpoints should use 'Endpoint' suffix")

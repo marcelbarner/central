@@ -38,8 +38,8 @@ export class Login {
   isSubmitting = false;
 
   loginForm = this.fb.nonNullable.group({
-    username: ['ng-matero', [Validators.required]],
-    password: ['ng-matero', [Validators.required]],
+    username: ['testuser', [Validators.required]],
+    password: ['Test123!', [Validators.required]],
     rememberMe: [false],
   });
 
@@ -60,10 +60,14 @@ export class Login {
 
     this.auth
       .login(this.username.value, this.password.value, this.rememberMe.value)
-      .pipe(filter(authenticated => authenticated))
       .subscribe({
-        next: () => {
+        next: (result) => {
+          if(result){
           this.router.navigateByUrl('/');
+          } else {
+            this.loginForm.setErrors({ invalidLogin: true });
+          this.isSubmitting = false;
+          }
         },
         error: (errorRes: HttpErrorResponse) => {
           if (errorRes.status === 422) {

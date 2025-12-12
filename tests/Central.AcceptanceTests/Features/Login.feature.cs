@@ -162,7 +162,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
     await testRunner.AndAsync("I navigate to the login page", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 9
-    await testRunner.WhenAsync("I enter username \"ng-matero\" and password \"ng-matero\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+    await testRunner.WhenAsync("I enter username \"testuser\" and password \"Test123!\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 10
     await testRunner.AndAsync("I click the login button", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
@@ -248,6 +248,9 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
     await testRunner.AndAsync("I navigate to the login page", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 25
+    await testRunner.WhenAsync("I enter username \"\" and password \"\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 26
     await testRunner.ThenAsync("the login button should be disabled", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }

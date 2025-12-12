@@ -46,7 +46,6 @@
     "@ngx-translate/core": "^17.0.0",
     "@ngx-translate/http-loader": "^17.0.0",
     "@ngxpert/hot-toast": "^6.0.0",
-    "base64-js": "^1.5.1",
     "date-fns": "^4.1.0",
     "ng-matero": "^20.2.0",
     "ngx-permissions": "^19.0.0",

@@ -87,7 +87,8 @@
     "max": "This value should be no more than {{number}}",
     "exist": "The {{value}} has exists",
     "inconsistent": "Inconsistent with {{value}}",
-    "invalid_email": "Invalid email"
+    "invalid_email": "Invalid email",
+    "invalid_login": "Invalid username or password"
   },
   "paginator": {
     "items_per_page_label": "Items per page:",

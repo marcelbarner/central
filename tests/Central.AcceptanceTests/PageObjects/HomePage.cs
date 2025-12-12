@@ -8,7 +8,7 @@ public class HomePage
     private readonly string _baseUrl;
 
     // Locators
-    private const string UserButton = "app-user-button";
+    private const string UserButton = "app-user";
     private const string UserMenu = "[role='menu']";
     private const string LogoutButton = "button:has-text('Logout')";
 
@@ -36,7 +36,7 @@ public class HomePage
 
     public async Task WaitForPageLoadAsync()
     {
-        await _page.WaitForURLAsync($"{_baseUrl}/", new() { Timeout = 5000 });
+        await _page.WaitForURLAsync($"{_baseUrl}/dashboard", new() { Timeout = 5000 });
     }
 
     // Actions

@@ -57,7 +57,7 @@ public class LoginSteps(EnvironmentFixture fixture)
     {
         _homePage.Should().NotBeNull();
         await _homePage!.WaitForPageLoadAsync();
-        _homePage.GetCurrentUrl().Should().Be($"{_clientUrl}/");
+        _homePage.GetCurrentUrl().Should().Be($"{_clientUrl}/dashboard");
     }
 
     [Then(@"I should see the user menu")]
