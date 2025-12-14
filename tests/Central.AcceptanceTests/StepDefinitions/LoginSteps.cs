@@ -27,11 +27,11 @@ public class LoginSteps(EnvironmentFixture fixture)
 
         // Create a new page from the shared browser
         _page = await fixture.Browser.NewPageAsync();
-        
+
         // Initialize page objects
         _loginPage = new LoginPage(_page, _clientUrl);
         _homePage = new HomePage(_page, _clientUrl);
-        
+
         await _loginPage.NavigateAsync();
     }
 
@@ -47,7 +47,7 @@ public class LoginSteps(EnvironmentFixture fixture)
     {
         _loginPage.Should().NotBeNull();
         await _loginPage!.ClickLoginAsync();
-        
+
         // Wait for navigation or error
         await Task.Delay(1000);
     }

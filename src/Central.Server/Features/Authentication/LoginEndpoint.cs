@@ -13,7 +13,7 @@ public sealed record LoginRequest
     public required string Username { get; set; }
     public required string Password { get; set; }
     public bool RememberMe { get; set; }
-    
+
     internal sealed class Validator : Validator<LoginRequest>
     {
         public Validator(UserManager<User> userManager)
@@ -46,7 +46,7 @@ public sealed class LoginEndpoint(
         var user = await userManager.FindByNameAsync(req.Username);
         if (user is null)
         {
-            await Send.ErrorsAsync(statusCode:422, cancellation:ct);
+            await Send.ErrorsAsync(statusCode: 422, cancellation: ct);
             return;
         }
 
@@ -58,7 +58,7 @@ public sealed class LoginEndpoint(
 
         if (!result.Succeeded)
         {
-            await Send.ErrorsAsync(statusCode:422,cancellation: ct);
+            await Send.ErrorsAsync(statusCode: 422, cancellation: ct);
             return;
         }
 

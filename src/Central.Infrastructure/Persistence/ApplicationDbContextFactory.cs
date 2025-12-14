@@ -11,7 +11,7 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
     public ApplicationDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        
+
         // Use a dummy connection string for design-time operations
         optionsBuilder.UseNpgsql("Host=localhost;Database=central_design;Username=postgres;Password=postgres");
 

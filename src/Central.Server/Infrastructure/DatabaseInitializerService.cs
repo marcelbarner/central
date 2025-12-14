@@ -67,7 +67,7 @@ public sealed class DatabaseInitializerService(
         }
         else
         {
-            logger.LogError("Failed to create test user: {Errors}", 
+            logger.LogError("Failed to create test user: {Errors}",
                 string.Join(", ", result.Errors.Select(e => e.Description)));
         }
     }

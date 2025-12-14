@@ -5,7 +5,7 @@ using Central.Server.Infrastructure;
 var bld = WebApplication.CreateBuilder(args);
 
 // Add Infrastructure layer (DbContext, Identity stores)
-var connectionString = bld.Configuration.GetConnectionString("centraldb") 
+var connectionString = bld.Configuration.GetConnectionString("centraldb")
     ?? throw new InvalidOperationException("Connection string 'centraldb' not found.");
 bld.Services.AddInfrastructure(connectionString);
 
