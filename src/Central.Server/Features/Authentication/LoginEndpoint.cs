@@ -53,7 +53,7 @@ public sealed class LoginEndpoint(
         var result = await signInManager.PasswordSignInAsync(
             user,
             req.Password,
-            req.RememberMe,
+            isPersistent: req.RememberMe,
             lockoutOnFailure: false);
 
         if (!result.Succeeded)

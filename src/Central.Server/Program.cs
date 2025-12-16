@@ -25,7 +25,9 @@ bld.Services.AddAuthentication(Microsoft.AspNetCore.Identity.IdentityConstants.A
         options.Cookie.Name = "Central.Auth";
         options.Cookie.HttpOnly = true;
         options.Cookie.SameSite = SameSiteMode.Lax;
-        options.ExpireTimeSpan = TimeSpan.FromHours(24);
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        // When isPersistent is true (RememberMe), cookie expires after this timespan
+        options.ExpireTimeSpan = TimeSpan.FromDays(14);
         options.SlidingExpiration = true;
         options.Events.OnRedirectToLogin = context =>
         {

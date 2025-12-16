@@ -31,6 +31,7 @@ import {
   StartupService,
   TranslateLangService,
   DocumentsState,
+  AuthService,
 } from '@core';
 import { environment } from '@env/environment';
 import { formlyConfigFactory, PaginatorI18nService } from '@shared';
@@ -41,6 +42,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     { provide: BASE_URL, useValue: environment.baseUrl },
+    provideAppInitializer(() => inject(AuthService).init()),
     provideAppInitializer(() => inject(TranslateLangService).load()),
     provideAppInitializer(() => inject(StartupService).load()),
     provideHttpClient(withInterceptors(interceptors)),
