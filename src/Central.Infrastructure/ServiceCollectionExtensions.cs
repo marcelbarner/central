@@ -1,9 +1,15 @@
+using Central.Domain.Documents.Ports;
+using Central.Domain.Documents.Services;
 using Central.Domain.Users;
+using Central.Infrastructure.Configuration;
 using Central.Infrastructure.Persistence;
+using Central.Infrastructure.Repositories;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Central.Infrastructure;
 
@@ -14,7 +20,8 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
-        string connectionString)
+        string connectionString,
+        IConfiguration configuration)
     {
         // Register DbContext with PostgreSQL
         services.AddDbContext<ApplicationDbContext>(options =>
@@ -35,6 +42,23 @@ public static class ServiceCollectionExtensions
             })
             .AddRoles<IdentityRole<long>>()
             .AddEntityFrameworkStores<ApplicationDbContext>();
+
+        // Configure FileSystemConfiguration
+        var fileSystemSection = configuration.GetSection("FileSystem");
+        var fileSystemConfig = new FileSystemConfiguration
+        {
+            Media = fileSystemSection["Media"] ?? "./Media"
+        };
+        services.AddSingleton(Options.Create(fileSystemConfig));
+
+        // Register repositories
+        services.AddScoped<IDocumentRepository, DocumentRepository>();
+        services.AddScoped<IOriginalFileRepository, OriginalFileRepository>();
+        services.AddScoped<IArchiveFileRepository, ArchiveFileRepository>();
+        services.AddScoped<IThumbnailFileRepository, ThumbnailFileRepository>();
+
+        // Register domain services
+        services.AddScoped<IDocumentService, DocumentService>();
 
         return services;
     }

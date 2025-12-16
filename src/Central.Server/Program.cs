@@ -1,16 +1,22 @@
 using Central.Domain.Users;
+using Central.Domain.Users.Ports;
 using Central.Infrastructure;
 using Central.Server.Infrastructure;
+using Central.Server.Infrastructure.Services;
 
 var bld = WebApplication.CreateBuilder(args);
 
 // Add Infrastructure layer (DbContext, Identity stores)
 var connectionString = bld.Configuration.GetConnectionString("centraldb")
     ?? throw new InvalidOperationException("Connection string 'centraldb' not found.");
-bld.Services.AddInfrastructure(connectionString);
+bld.Services.AddInfrastructure(connectionString, bld.Configuration);
 
 // Add SignInManager for authentication operations
 bld.Services.AddScoped<Microsoft.AspNetCore.Identity.SignInManager<User>>();
+
+// Add HTTP context accessor and current user service
+bld.Services.AddHttpContextAccessor();
+bld.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 // Configure cookie authentication with Identity
 bld.Services.AddAuthentication(Microsoft.AspNetCore.Identity.IdentityConstants.ApplicationScheme)

@@ -2,12 +2,6 @@ import { Routes } from '@angular/router';
 import { authGuard } from '@core';
 import { AdminLayout } from '@theme/admin-layout/admin-layout';
 import { AuthLayout } from '@theme/auth-layout/auth-layout';
-import { Dashboard } from './routes/dashboard/dashboard';
-import { Error403 } from './routes/sessions/error-403';
-import { Error404 } from './routes/sessions/error-404';
-import { Error500 } from './routes/sessions/error-500';
-import { Login } from './routes/sessions/login/login';
-import { Register } from './routes/sessions/register/register';
 
 export const routes: Routes = [
   {
@@ -17,18 +11,46 @@ export const routes: Routes = [
     canActivateChild: [authGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: 'dashboard', component: Dashboard },
-      { path: '403', component: Error403 },
-      { path: '404', component: Error404 },
-      { path: '500', component: Error500 },
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./routes/dashboard/dashboard').then(m => m.Dashboard),
+      },
+      {
+        path: 'documents',
+        loadComponent: () =>
+          import('./routes/documents/documents-list').then(m => m.DocumentsList),
+      },
+      {
+        path: 'documents/:id',
+        loadComponent: () =>
+          import('./routes/documents/document-details').then(m => m.DocumentDetails),
+      },
+      {
+        path: '403',
+        loadComponent: () => import('./routes/sessions/error-403').then(m => m.Error403),
+      },
+      {
+        path: '404',
+        loadComponent: () => import('./routes/sessions/error-404').then(m => m.Error404),
+      },
+      {
+        path: '500',
+        loadComponent: () => import('./routes/sessions/error-500').then(m => m.Error500),
+      },
     ],
   },
   {
     path: 'auth',
     component: AuthLayout,
     children: [
-      { path: 'login', component: Login },
-      { path: 'register', component: Register },
+      {
+        path: 'login',
+        loadComponent: () => import('./routes/sessions/login/login').then(m => m.Login),
+      },
+      {
+        path: 'register',
+        loadComponent: () => import('./routes/sessions/register/register').then(m => m.Register),
+      },
     ],
   },
   { path: '**', redirectTo: 'dashboard' },

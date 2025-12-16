@@ -1,6 +1,7 @@
 {
   "menu": {
     "dashboard": "Dashboard",
+    "documents": "Documents",
     "design": "Design",
     "design.colors": "Color System",
     "design.icons": "Material Icons",
@@ -139,5 +140,39 @@
   "register_title": "It only takes a few seconds to create your account",
   "read_and_agree": "I have read and agree to the terms of service",
   "have_an_account": "Already have an account",
-  "restore_defaults": "Restore defaults"
+  "restore_defaults": "Restore defaults",
+  "documents": {
+    "quick_upload": "Quick Upload",
+    "create_document": "Create Document",
+    "search_documents": "Search documents",
+    "search_by_title": "Search by title...",
+    "loading_documents": "Loading documents...",
+    "no_documents_found": "No documents found",
+    "upload_first_document": "Upload your first document",
+    "preview": "Preview",
+    "title": "Title",
+    "document_date": "Document Date",
+    "last_updated": "Last Updated",
+    "actions": "Actions",
+    "view_details": "View details",
+    "download": "Download",
+    "delete_confirm": "Are you sure you want to delete \"{{title}}\"?",
+    "failed_to_load": "Failed to load documents",
+    "failed_to_download": "Failed to download document",
+    "deleted_successfully": "Document deleted successfully",
+    "failed_to_delete": "Failed to delete document",
+    "quick_upload_title": "Quick Upload",
+    "quick_upload_hint": "Click to select files or drag and drop",
+    "quick_upload_file_hint": "PDF, DOC, DOCX, TXT files supported",
+    "files_selected": "{{count}} file(s) selected",
+    "cancel": "Cancel",
+    "upload": "Upload",
+    "uploading": "Uploading...",
+    "uploaded_successfully": "Document(s) uploaded successfully",
+    "failed_to_upload": "Failed to upload document(s)",
+    "upload_document_title": "Upload Document",
+    "content": "Content",
+    "select_file": "Select File",
+    "no_file_selected": "No file selected (required)"
+  }
 }

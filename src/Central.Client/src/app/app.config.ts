@@ -20,6 +20,9 @@ import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { provideHotToastConfig } from '@ngxpert/hot-toast';
 import { NgxPermissionsModule } from 'ngx-permissions';
+import { withNgxsReduxDevtoolsPlugin } from '@ngxs/devtools-plugin';
+import { withNgxsLoggerPlugin } from '@ngxs/logger-plugin';
+import { provideStore } from '@ngxs/store';
 
 import {
   BASE_URL,
@@ -27,6 +30,7 @@ import {
   SettingsService,
   StartupService,
   TranslateLangService,
+  DocumentsState,
 } from '@core';
 import { environment } from '@env/environment';
 import { formlyConfigFactory, PaginatorI18nService } from '@shared';
@@ -51,6 +55,11 @@ export const appConfig: ApplicationConfig = {
     }),
     importProvidersFrom(
       NgxPermissionsModule.forRoot(),
+    ),
+    provideStore(
+      [DocumentsState],
+      withNgxsLoggerPlugin({ disabled: environment.production }),
+      withNgxsReduxDevtoolsPlugin({ disabled: environment.production })
     ),
     provideFormlyCore([...withFormlyMaterial()]),
     {

@@ -1,4 +1,5 @@
 using Central.Domain.Users;
+using Central.Infrastructure.Entities;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -24,6 +25,11 @@ public sealed class ApplicationDbContext : IdentityDbContext<
         : base(options)
     {
     }
+
+    /// <summary>
+    /// Gets or sets the Documents DbSet.
+    /// </summary>
+    public DbSet<DocumentEntity> Documents => Set<DocumentEntity>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

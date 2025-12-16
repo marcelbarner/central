@@ -11,6 +11,12 @@
       }
     },
     {
+      "route": "documents",
+      "name": "documents",
+      "type": "link",
+      "icon": "description"
+    },
+    {
       "route": "/",
       "name": "sessions",
       "type": "sub",
