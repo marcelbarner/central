@@ -534,15 +534,15 @@ export class DocumentDetails implements OnInit {
     this.store.dispatch(new TagsActions.Load());
     this.store.dispatch(new DocumentTypesActions.Load());
     this.store.dispatch(new CorrespondentsActions.Load());
-    
+
     this.tags$.subscribe(tags => {
       this.tagsMap = new Map(tags.map(t => [t.id, t.name]));
     });
-    
+
     this.documentTypes$.subscribe(types => {
       this.documentTypesMap = new Map(types.map(t => [t.id, t.name]));
     });
-    
+
     this.correspondents$.subscribe(correspondents => {
       this.correspondentsMap = new Map(correspondents.map(c => [c.id, c.name]));
     });
