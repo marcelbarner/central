@@ -36,7 +36,7 @@ public sealed class DocumentService : IDocumentService
         CancellationToken cancellationToken = default)
     {
         var title = Path.GetFileNameWithoutExtension(fileName);
-        return await CreateAsync(title, null, null, fileStream, fileName, null, Array.Empty<long>(), cancellationToken);
+        return await CreateAsync(title, null, null, fileStream, fileName, null, null, Array.Empty<long>(), cancellationToken);
     }
 
     public async Task<Document> CreateAsync(
@@ -46,6 +46,7 @@ public sealed class DocumentService : IDocumentService
         Stream originalFileStream,
         string originalFileName,
         long? documentTypeId,
+        long? correspondentId,
         IReadOnlyCollection<long> tagIds,
         CancellationToken cancellationToken = default)
     {
@@ -95,6 +96,7 @@ public sealed class DocumentService : IDocumentService
             AddedBy = currentUserId,
             UpdatedBy = currentUserId,
             DocumentTypeId = documentTypeId,
+            CorrespondentId = correspondentId,
             TagIds = tagIds
         };
 
@@ -107,6 +109,7 @@ public sealed class DocumentService : IDocumentService
         DateTimeOffset? documentDate,
         string? content,
         long? documentTypeId,
+        long? correspondentId,
         IReadOnlyCollection<long> tagIds,
         CancellationToken cancellationToken = default)
     {
@@ -122,6 +125,7 @@ public sealed class DocumentService : IDocumentService
             DocumentDate = documentDate,
             Content = content,
             DocumentTypeId = documentTypeId,
+            CorrespondentId = correspondentId,
             TagIds = tagIds,
             Updated = now,
             UpdatedBy = currentUserId

@@ -14,6 +14,7 @@ public sealed record DocumentDto
     public long? AddedById { get; init; }
     public long? UpdatedById { get; init; }
     public long? DocumentTypeId { get; init; }
+    public long? CorrespondentId { get; init; }
     public IReadOnlyCollection<long> TagIds { get; init; } = Array.Empty<long>();
 }
 

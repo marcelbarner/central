@@ -17,6 +17,18 @@
       "icon": "description"
     },
     {
+      "route": "document-types",
+      "name": "documentTypes",
+      "type": "link",
+      "icon": "category"
+    },
+    {
+      "route": "correspondents",
+      "name": "correspondents",
+      "type": "link",
+      "icon": "contacts"
+    },
+    {
       "route": "tags",
       "name": "tags",
       "type": "link",

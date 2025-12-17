@@ -12,6 +12,7 @@ public sealed record UpdateDocumentRequest
     public DateTimeOffset? DocumentDate { get; init; }
     public string? Content { get; init; }
     public long? DocumentTypeId { get; init; }
+    public long? CorrespondentId { get; init; }
     public IReadOnlyCollection<long> TagIds { get; init; } = Array.Empty<long>();
 
     internal sealed class Validator : Validator<UpdateDocumentRequest>
@@ -43,6 +44,7 @@ public sealed class UpdateDocumentEndpoint(
                 req.DocumentDate,
                 req.Content,
                 req.DocumentTypeId,
+                req.CorrespondentId,
                 req.TagIds,
                 ct);
 

@@ -56,6 +56,8 @@ export namespace DocumentsActions {
         documentDate: string | null;
         content: string | null;
         originalFile: File;
+        documentTypeId?: number | null;
+        correspondentId?: number | null;
         tagIds?: number[];
       }
     ) {}
@@ -79,6 +81,8 @@ export namespace DocumentsActions {
         title: string;
         documentDate: string | null;
         content: string | null;
+        documentTypeId?: number | null;
+        correspondentId?: number | null;
         tagIds?: number[];
       }
     ) {}

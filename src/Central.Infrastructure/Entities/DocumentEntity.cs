@@ -115,6 +115,17 @@ public sealed class DocumentEntity
     public DocumentTypeEntity? DocumentType { get; set; }
 
     /// <summary>
+    /// Gets or sets the foreign key to the correspondent.
+    /// </summary>
+    public long? CorrespondentId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the correspondent.
+    /// </summary>
+    [ForeignKey(nameof(CorrespondentId))]
+    public CorrespondentEntity? Correspondent { get; set; }
+
+    /// <summary>
     /// Navigation property for tags associated with this document.
     /// </summary>
     public ICollection<TagEntity> Tags { get; set; } = new List<TagEntity>();

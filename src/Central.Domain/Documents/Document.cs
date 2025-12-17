@@ -68,6 +68,11 @@ public sealed record Document
     public long? DocumentTypeId { get; init; }
 
     /// <summary>
+    /// Gets the ID of the correspondent, or null if no correspondent is assigned.
+    /// </summary>
+    public long? CorrespondentId { get; init; }
+
+    /// <summary>
     /// Gets the collection of tag IDs associated with this document.
     /// </summary>
     public IReadOnlyCollection<long> TagIds { get; init; } = Array.Empty<long>();

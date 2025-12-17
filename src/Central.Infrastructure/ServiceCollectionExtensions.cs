@@ -1,3 +1,5 @@
+using Central.Domain.Correspondents.Ports;
+using Central.Domain.Correspondents.Services;
 using Central.Domain.Documents.Ports;
 using Central.Domain.Documents.Services;
 using Central.Domain.DocumentTypes.Ports;
@@ -62,11 +64,13 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IThumbnailFileRepository, ThumbnailFileRepository>();
         services.AddScoped<ITagRepository, TagRepository>();
         services.AddScoped<IDocumentTypeRepository, DocumentTypeRepository>();
+        services.AddScoped<ICorrespondentRepository, CorrespondentRepository>();
 
         // Register domain services
         services.AddScoped<IDocumentService, DocumentService>();
         services.AddScoped<ITagService, TagService>();
         services.AddScoped<IDocumentTypeService, DocumentTypeService>();
+        services.AddScoped<ICorrespondentService, CorrespondentService>();
 
         return services;
     }

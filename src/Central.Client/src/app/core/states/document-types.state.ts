@@ -50,7 +50,7 @@ export namespace DocumentTypesActions {
 
   export class Add {
     static readonly type = '[DocumentTypes] Add';
-    constructor(public payload: CreateDocumentTypeRequest) {}
+    constructor(public name: string, public description?: string) {}
   }
 
   export class Added {
@@ -65,7 +65,7 @@ export namespace DocumentTypesActions {
 
   export class Update {
     static readonly type = '[DocumentTypes] Update';
-    constructor(public payload: UpdateDocumentTypeRequest) {}
+    constructor(public id: number, public name: string, public description?: string) {}
   }
 
   export class Updated {
@@ -193,7 +193,7 @@ export class DocumentTypesState {
   add(ctx: StateContext<DocumentTypesStateModel>, action: DocumentTypesActions.Add) {
     ctx.patchState({ loading: true, error: null });
 
-    return this.documentTypeService.create(action.payload).pipe(
+    return this.documentTypeService.create({ name: action.name, description: action.description }).pipe(
       tap(documentType => {
         ctx.dispatch(new DocumentTypesActions.Added(documentType));
       }),
@@ -236,7 +236,7 @@ export class DocumentTypesState {
   update(ctx: StateContext<DocumentTypesStateModel>, action: DocumentTypesActions.Update) {
     ctx.patchState({ loading: true, error: null });
 
-    return this.documentTypeService.update(action.payload).pipe(
+    return this.documentTypeService.update({ id: action.id, name: action.name, description: action.description }).pipe(
       tap(documentType => {
         ctx.dispatch(new DocumentTypesActions.Updated(documentType));
       }),

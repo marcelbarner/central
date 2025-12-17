@@ -9,9 +9,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Store, Select } from '@ngxs/store';
-import { DocumentsActions, TagsState, TagsActions } from '@core';
+import { DocumentsActions, TagsState, TagsActions, DocumentTypesState, DocumentTypesActions, CorrespondentsState, CorrespondentsActions } from '@core';
 import { DocumentService } from './document.service';
 import { Tag } from '../../models/tag.model';
+import { DocumentType } from '../../models/document-type.model';
+import { Correspondent } from '../../models/correspondent.model';
 import { Observable } from 'rxjs';
 import { MtxSelectModule } from '@ng-matero/extensions/select';
 
@@ -48,6 +50,32 @@ import { MtxSelectModule } from '@ng-matero/extensions/select';
           <mat-label>{{ 'documents.content' | translate }}</mat-label>
           <textarea matInput [(ngModel)]="content" name="content" rows="4"></textarea>
         </mat-form-field>
+
+        <div class="select-wrapper">
+          <label class="select-label">{{ 'documents.document_type' | translate }}</label>
+          <mtx-select
+            [(ngModel)]="selectedDocumentTypeId"
+            appendTo="body"
+            name="documentType"
+            [items]="(documentTypes$ | async) ?? []"
+            bindLabel="name"
+            bindValue="id"
+            [placeholder]="'documents.select_document_type' | translate"
+          ></mtx-select>
+        </div>
+
+        <div class="select-wrapper">
+          <label class="select-label">{{ 'documents.correspondent' | translate }}</label>
+          <mtx-select
+            [(ngModel)]="selectedCorrespondentId"
+            appendTo="body"
+            name="correspondent"
+            [items]="(correspondents$ | async) ?? []"
+            bindLabel="name"
+            bindValue="id"
+            [placeholder]="'documents.select_correspondent' | translate"
+          ></mtx-select>
+        </div>
 
         <div class="tag-select-wrapper">
           <label class="tag-label">{{ 'documents.tags' | translate }}</label>
@@ -123,6 +151,18 @@ import { MtxSelectModule } from '@ng-matero/extensions/select';
       }
     }
 
+    .select-wrapper {
+      margin-bottom: 16px;
+
+      .select-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.6);
+        margin-bottom: 8px;
+      }
+    }
+
     .file-upload {
       display: flex;
       align-items: center;
@@ -149,17 +189,23 @@ export class DocumentUploadDialog {
   private readonly translate = inject(TranslateService);
 
   @Select(TagsState.tags) tags$!: Observable<Tag[]>;
+  @Select(DocumentTypesState.documentTypes) documentTypes$!: Observable<DocumentType[]>;
+  @Select(CorrespondentsState.correspondents) correspondents$!: Observable<Correspondent[]>;
 
   title = '';
   documentDate: string | null = null;
   content: string | null = null;
   selectedFile: File | null = null;
+  selectedDocumentTypeId: number | null = null;
+  selectedCorrespondentId: number | null = null;
   selectedTagIds: number[] = [];
   uploading = false;
 
   constructor() {
-    // Load tags when dialog opens
+    // Load tags, document types, and correspondents when dialog opens
     this.store.dispatch(new TagsActions.Load());
+    this.store.dispatch(new DocumentTypesActions.Load());
+    this.store.dispatch(new CorrespondentsActions.Load());
   }
 
   onFileSelected(event: Event) {
@@ -185,6 +231,8 @@ export class DocumentUploadDialog {
       documentDate: this.documentDate,
       content: this.content,
       originalFile: this.selectedFile!,
+      documentTypeId: this.selectedDocumentTypeId,
+      correspondentId: this.selectedCorrespondentId,
       tagIds: this.selectedTagIds,
     }))
       .subscribe({

@@ -26,6 +26,16 @@ export const routes: Routes = [
           import('./routes/documents/document-details').then(m => m.DocumentDetails),
       },
       {
+        path: 'document-types',
+        loadComponent: () =>
+          import('./routes/document-types/document-types-list.component').then(m => m.DocumentTypesListComponent),
+      },
+      {
+        path: 'correspondents',
+        loadComponent: () =>
+          import('./routes/correspondents/correspondents-list.component').then(m => m.CorrespondentsListComponent),
+      },
+      {
         path: 'tags',
         loadComponent: () =>
           import('./routes/tags-overview/tags-list.component').then(m => m.TagsListComponent),

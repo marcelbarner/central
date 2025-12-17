@@ -2,6 +2,8 @@
   "menu": {
     "dashboard": "Dashboard",
     "documents": "Documents",
+    "documentTypes": "Document Types",
+    "correspondents": "Correspondents",
     "tags": "Tags",
     "design": "Design",
     "design.colors": "Color System",
@@ -176,7 +178,39 @@
     "select_file": "Select File",
     "no_file_selected": "No file selected (required)",
     "tags": "Tags",
-    "select_tags": "Select tags..."
+    "select_tags": "Select tags...",
+    "document_type": "Document Type",
+    "select_document_type": "Select document type...",
+    "correspondent": "Correspondent",
+    "select_correspondent": "Select correspondent..."
+  },
+  "documentTypes": {
+    "title": "Document Types",
+    "create": "Create Document Type",
+    "edit": "Edit Document Type",
+    "name": "Name",
+    "description": "Description",
+    "created": "Document type created successfully",
+    "updated": "Document type updated successfully",
+    "deleted": "Document type deleted successfully",
+    "createError": "Failed to create document type",
+    "updateError": "Failed to update document type",
+    "deleteError": "Failed to delete document type",
+    "confirmDelete": "Are you sure you want to delete this document type?"
+  },
+  "correspondents": {
+    "title": "Correspondents",
+    "create": "Create Correspondent",
+    "edit": "Edit Correspondent",
+    "name": "Name",
+    "description": "Description",
+    "created": "Correspondent created successfully",
+    "updated": "Correspondent updated successfully",
+    "deleted": "Correspondent deleted successfully",
+    "createError": "Failed to create correspondent",
+    "updateError": "Failed to update correspondent",
+    "deleteError": "Failed to delete correspondent",
+    "confirmDelete": "Are you sure you want to delete this correspondent?"
   },
   "tags": {
     "title": "Tags",
@@ -199,6 +233,9 @@
     "deleted_successfully": "Tag deleted successfully",
     "failed_to_delete": "Failed to delete tag",
     "failed_to_load": "Failed to load tags"
+  },
+  "common": {
+    "close": "Close"
   },
   "actions": "Actions",
   "save": "Save",

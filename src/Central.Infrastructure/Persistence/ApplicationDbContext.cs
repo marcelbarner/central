@@ -41,6 +41,11 @@ public sealed class ApplicationDbContext : IdentityDbContext<
     /// </summary>
     public DbSet<DocumentTypeEntity> DocumentTypes => Set<DocumentTypeEntity>();
 
+    /// <summary>
+    /// Gets or sets the Correspondents DbSet.
+    /// </summary>
+    public DbSet<CorrespondentEntity> Correspondents => Set<CorrespondentEntity>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

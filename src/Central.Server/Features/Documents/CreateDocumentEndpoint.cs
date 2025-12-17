@@ -12,6 +12,7 @@ public sealed record CreateDocumentRequest
     public string? Content { get; init; }
     public required IFormFile OriginalFile { get; init; }
     public long? DocumentTypeId { get; init; }
+    public long? CorrespondentId { get; init; }
     public IReadOnlyCollection<long> TagIds { get; init; } = Array.Empty<long>();
 
     internal sealed class Validator : Validator<CreateDocumentRequest>
@@ -46,6 +47,7 @@ public sealed class CreateDocumentEndpoint(
             fileStream,
             fileName,
             req.DocumentTypeId,
+            req.CorrespondentId,
             req.TagIds,
             ct);
 

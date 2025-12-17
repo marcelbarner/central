@@ -27,6 +27,12 @@ export class DocumentService {
     if (request.content) {
       formData.append('content', request.content);
     }
+    if (request.documentTypeId) {
+      formData.append('documentTypeId', request.documentTypeId.toString());
+    }
+    if (request.correspondentId) {
+      formData.append('correspondentId', request.correspondentId.toString());
+    }
     formData.append('originalFile', request.originalFile);
 
     return this.http.post<Document>(this.apiUrl, formData);

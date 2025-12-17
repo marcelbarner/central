@@ -13,10 +13,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { Store, Select } from '@ngxs/store';
 import { PageHeader } from '@shared';
-import { DocumentsActions, TagsState, TagsActions } from '@core';
+import { DocumentsActions, TagsState, TagsActions, DocumentTypesState, DocumentTypesActions, CorrespondentsState, CorrespondentsActions } from '@core';
 import { DocumentService } from './document.service';
 import { Document as DocumentModel } from './document.model';
 import { Tag } from '../../models/tag.model';
+import { DocumentType } from '../../models/document-type.model';
+import { Correspondent } from '../../models/correspondent.model';
 import { Observable } from 'rxjs';
 import { MtxSelectModule } from '@ng-matero/extensions/select';
 
@@ -110,6 +112,44 @@ import { MtxSelectModule } from '@ng-matero/extensions/select';
                         </mat-form-field>
                       } @else {
                         <p class="content">{{ document.content || 'No content' }}</p>
+                      }
+                    </div>
+
+                    <div class="detail-row">
+                      <label>Document Type:</label>
+                      @if (editMode) {
+                        <div class="select-wrapper">
+                          <mtx-select
+                            [(ngModel)]="editedDocumentTypeId"
+                            name="documentType"
+                            [items]="(documentTypes$ | async) ?? []"
+                            bindLabel="name"
+                            bindValue="id"
+                            placeholder="Select document type"
+                            appendTo="body"
+                          ></mtx-select>
+                        </div>
+                      } @else {
+                        <span>{{ getDocumentTypeName(document.documentTypeId) || 'Not set' }}</span>
+                      }
+                    </div>
+
+                    <div class="detail-row">
+                      <label>Correspondent:</label>
+                      @if (editMode) {
+                        <div class="select-wrapper">
+                          <mtx-select
+                            [(ngModel)]="editedCorrespondentId"
+                            name="correspondent"
+                            [items]="(correspondents$ | async) ?? []"
+                            bindLabel="name"
+                            bindValue="id"
+                            placeholder="Select correspondent"
+                            appendTo="body"
+                          ></mtx-select>
+                        </div>
+                      } @else {
+                        <span>{{ getCorrespondentName(document.correspondentId) || 'Not set' }}</span>
                       }
                     </div>
 
@@ -394,6 +434,11 @@ import { MtxSelectModule } from '@ng-matero/extensions/select';
       width: 100%;
     }
 
+    .select-wrapper,
+    .tag-edit-wrapper {
+      width: 100%;
+    }
+
     .tags-display {
       display: flex;
       flex-wrap: wrap;
@@ -465,6 +510,8 @@ export class DocumentDetails implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
 
   @Select(TagsState.tags) tags$!: Observable<Tag[]>;
+  @Select(DocumentTypesState.documentTypes) documentTypes$!: Observable<DocumentType[]>;
+  @Select(CorrespondentsState.correspondents) correspondents$!: Observable<Correspondent[]>;
 
   document: DocumentModel | null = null;
   loading = true;
@@ -474,15 +521,30 @@ export class DocumentDetails implements OnInit {
   editedTitle = '';
   editedDocumentDate: string | null = null;
   editedContent: string | null = null;
+  editedDocumentTypeId: number | null = null;
+  editedCorrespondentId: number | null = null;
   editedTagIds: number[] = [];
 
   private tagsMap: Map<number, string> = new Map();
+  private documentTypesMap: Map<number, string> = new Map();
+  private correspondentsMap: Map<number, string> = new Map();
 
   ngOnInit() {
-    // Load tags and subscribe for display purposes
+    // Load tags, document types, and correspondents
     this.store.dispatch(new TagsActions.Load());
+    this.store.dispatch(new DocumentTypesActions.Load());
+    this.store.dispatch(new CorrespondentsActions.Load());
+    
     this.tags$.subscribe(tags => {
       this.tagsMap = new Map(tags.map(t => [t.id, t.name]));
+    });
+    
+    this.documentTypes$.subscribe(types => {
+      this.documentTypesMap = new Map(types.map(t => [t.id, t.name]));
+    });
+    
+    this.correspondents$.subscribe(correspondents => {
+      this.correspondentsMap = new Map(correspondents.map(c => [c.id, c.name]));
     });
 
     const id = this.route.snapshot.params['id'];
@@ -511,6 +573,8 @@ export class DocumentDetails implements OnInit {
     this.editedTitle = this.document.title;
     this.editedDocumentDate = this.document.documentDate;
     this.editedContent = this.document.content;
+    this.editedDocumentTypeId = this.document.documentTypeId;
+    this.editedCorrespondentId = this.document.correspondentId;
     this.editedTagIds = [...(this.document.tagIds || [])];
   }
 
@@ -527,6 +591,8 @@ export class DocumentDetails implements OnInit {
       title: this.editedTitle,
       documentDate: this.editedDocumentDate,
       content: this.editedContent,
+      documentTypeId: this.editedDocumentTypeId,
+      correspondentId: this.editedCorrespondentId,
       tagIds: this.editedTagIds,
     })).subscribe({
       next: () => {
@@ -543,6 +609,16 @@ export class DocumentDetails implements OnInit {
 
   getTagName(tagId: number): string {
     return this.tagsMap.get(tagId) || `Tag ${tagId}`;
+  }
+
+  getDocumentTypeName(documentTypeId: number | null): string | null {
+    if (!documentTypeId) return null;
+    return this.documentTypesMap.get(documentTypeId) || null;
+  }
+
+  getCorrespondentName(correspondentId: number | null): string | null {
+    if (!correspondentId) return null;
+    return this.correspondentsMap.get(correspondentId) || null;
   }
 
   getThumbnailUrl(): string {
