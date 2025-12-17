@@ -1,4 +1,4 @@
-cd using Central.Domain.Webhooks;
+using Central.Domain.Webhooks;
 using Central.Infrastructure.Entities;
 
 using Riok.Mapperly.Abstractions;

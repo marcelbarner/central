@@ -54,6 +54,10 @@ bld.Services.AddHealthChecks();
 
 var app = bld.Build();
 
+// Serve static files from wwwroot (Angular build output)
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -64,8 +68,11 @@ app.UseFastEndpoints(
        })
    .UseSwaggerGen();
 
-// Map default Aspire health endpoints
+// Map health check endpoints
 app.MapHealthChecks("/health");
 app.MapHealthChecks("/alive");
+
+// Fallback to index.html for Angular routing
+app.MapFallbackToFile("index.html");
 
 app.Run();

@@ -48,19 +48,7 @@ import { MtxSelectModule } from '@ng-matero/extensions/select';
     <mat-card>
       <mat-card-content>
         <div class="header-actions">
-          <div class="filter-group">
-            <label class="filter-label">{{ 'documents.tags' | translate }}</label>
-            <mtx-select
-              [(ngModel)]="selectedTagIds"
-              [items]="(tags$ | async) ?? []"
-              bindLabel="name"
-              bindValue="id"
-              [multiple]="true"
-              [closeOnSelect]="false"
-              placeholder="{{ 'documents.select_tags' | translate }}"
-              class="tag-filter"
-            ></mtx-select>
-          </div>
+
           <div class="button-group">
             <button mat-raised-button color="primary" (click)="openQuickUploadDialog()">
               <mat-icon>upload</mat-icon>
@@ -145,7 +133,7 @@ import { MtxSelectModule } from '@ng-matero/extensions/select';
   styles: [`
     .header-actions {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       align-items: center;
       margin-bottom: 20px;
       gap: 16px;

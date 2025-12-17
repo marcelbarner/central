@@ -104,12 +104,22 @@ import { WebhookDialogComponent } from './webhook-dialog.component';
       color: rgba(0, 0, 0, 0.54);
     }
 
-    .no-data mat-icon {
-      font-size: 48px;
-      width: 48px;
-      height: 48px;
-      margin-bottom: 16px;
-      opacity: 0.3;
+     .no-data {
+      text-align: center;
+      padding: 60px 20px;
+      color: #666;
+
+      mat-icon {
+        font-size: 64px;
+        width: 64px;
+        height: 64px;
+        color: #ccc;
+      }
+
+      p {
+        margin: 16px 0 24px;
+        font-size: 16px;
+      }
     }
 
     .webhooks-table {
