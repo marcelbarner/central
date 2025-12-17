@@ -23,6 +23,7 @@ public static partial class DocumentMapper
     [MapProperty(nameof(Document.UpdatedBy), nameof(DocumentEntity.UpdatedById))]
     [MapperIgnoreTarget(nameof(DocumentEntity.AddedBy))]
     [MapperIgnoreTarget(nameof(DocumentEntity.UpdatedBy))]
+    [MapperIgnoreTarget(nameof(DocumentEntity.Tags))]
     public static partial DocumentEntity ToEntity(this Document document);
 
     /// <summary>
@@ -36,11 +37,13 @@ public static partial class DocumentMapper
     [MapperIgnoreSource(nameof(DocumentEntity.ThumbnailFilePath))]
     [MapperIgnoreSource(nameof(DocumentEntity.AddedBy))]
     [MapperIgnoreSource(nameof(DocumentEntity.UpdatedBy))]
+    [MapperIgnoreSource(nameof(DocumentEntity.Tags))]
     [MapProperty(nameof(DocumentEntity.AddedById), nameof(Document.AddedBy))]
     [MapProperty(nameof(DocumentEntity.UpdatedById), nameof(Document.UpdatedBy))]
     [MapperIgnoreTarget(nameof(Document.OriginalFile))]
     [MapperIgnoreTarget(nameof(Document.ArchiveFile))]
     [MapperIgnoreTarget(nameof(Document.Thumbnail))]
+    [MapperIgnoreTarget(nameof(Document.TagIds))]
     private static partial Document ToDomainInternal(this DocumentEntity entity);
 
     /// <summary>
@@ -54,7 +57,8 @@ public static partial class DocumentMapper
         {
             OriginalFile = MapToDocumentFile(entity.OriginalFileName, entity.OriginalFilePath),
             ArchiveFile = MapToDocumentFile(entity.ArchiveFileName, entity.ArchiveFilePath),
-            Thumbnail = MapToDocumentFile(entity.ThumbnailFileName, entity.ThumbnailFilePath)
+            Thumbnail = MapToDocumentFile(entity.ThumbnailFileName, entity.ThumbnailFilePath),
+            TagIds = entity.Tags.Select(t => t.Id).ToList()
         };
     }
 
@@ -72,6 +76,7 @@ public static partial class DocumentMapper
     [MapperIgnoreTarget(nameof(DocumentEntity.AddedBy))]
     [MapperIgnoreTarget(nameof(DocumentEntity.AddedById))]
     [MapperIgnoreTarget(nameof(DocumentEntity.UpdatedBy))]
+    [MapperIgnoreTarget(nameof(DocumentEntity.Tags))]
     [MapProperty(nameof(Document.OriginalFile) + "." + nameof(DocumentFile.FileName), nameof(DocumentEntity.OriginalFileName))]
     [MapProperty(nameof(Document.OriginalFile) + "." + nameof(DocumentFile.FilePath), nameof(DocumentEntity.OriginalFilePath))]
     [MapProperty(nameof(Document.ArchiveFile) + "." + nameof(DocumentFile.FileName), nameof(DocumentEntity.ArchiveFileName))]

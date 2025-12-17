@@ -11,6 +11,7 @@ public sealed record UpdateDocumentRequest
     public required string Title { get; init; }
     public DateTimeOffset? DocumentDate { get; init; }
     public string? Content { get; init; }
+    public IReadOnlyCollection<long> TagIds { get; init; } = Array.Empty<long>();
 
     internal sealed class Validator : Validator<UpdateDocumentRequest>
     {
@@ -40,6 +41,7 @@ public sealed class UpdateDocumentEndpoint(
                 req.Title,
                 req.DocumentDate,
                 req.Content,
+                req.TagIds,
                 ct);
 
             await Send.OkAsync(result.ToDto(), ct);

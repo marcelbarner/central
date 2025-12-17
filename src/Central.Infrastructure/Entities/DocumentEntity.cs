@@ -102,4 +102,9 @@ public sealed class DocumentEntity
     /// </summary>
     [ForeignKey(nameof(UpdatedById))]
     public User? UpdatedBy { get; set; }
+
+    /// <summary>
+    /// Navigation property for tags associated with this document.
+    /// </summary>
+    public ICollection<TagEntity> Tags { get; set; } = new List<TagEntity>();
 }

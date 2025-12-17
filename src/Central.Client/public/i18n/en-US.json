@@ -2,6 +2,7 @@
   "menu": {
     "dashboard": "Dashboard",
     "documents": "Documents",
+    "tags": "Tags",
     "design": "Design",
     "design.colors": "Color System",
     "design.icons": "Material Icons",
@@ -173,6 +174,33 @@
     "upload_document_title": "Upload Document",
     "content": "Content",
     "select_file": "Select File",
-    "no_file_selected": "No file selected (required)"
-  }
+    "no_file_selected": "No file selected (required)",
+    "tags": "Tags",
+    "select_tags": "Select tags..."
+  },
+  "tags": {
+    "title": "Tags",
+    "create": "Create Tag",
+    "edit": "Edit Tag",
+    "import_csv": "Import from CSV",
+    "name": "Name",
+    "description": "Description",
+    "loading_tags": "Loading tags...",
+    "no_tags": "No tags available",
+    "create_first_tag": "Create your first tag",
+    "name_required": "Tag name is required",
+    "name_max_length": "Tag name must not exceed 100 characters",
+    "description_max_length": "Description must not exceed 500 characters",
+    "confirm_delete": "Are you sure you want to delete \"{{name}}\"?",
+    "created_successfully": "Tag created successfully",
+    "failed_to_create": "Failed to create tag",
+    "updated_successfully": "Tag updated successfully",
+    "failed_to_update": "Failed to update tag",
+    "deleted_successfully": "Tag deleted successfully",
+    "failed_to_delete": "Failed to delete tag",
+    "failed_to_load": "Failed to load tags"
+  },
+  "actions": "Actions",
+  "save": "Save",
+  "cancel": "Cancel"
 }

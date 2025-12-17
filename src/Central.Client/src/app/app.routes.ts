@@ -26,6 +26,11 @@ export const routes: Routes = [
           import('./routes/documents/document-details').then(m => m.DocumentDetails),
       },
       {
+        path: 'tags',
+        loadComponent: () =>
+          import('./routes/tags-overview/tags-list.component').then(m => m.TagsListComponent),
+      },
+      {
         path: '403',
         loadComponent: () => import('./routes/sessions/error-403').then(m => m.Error403),
       },

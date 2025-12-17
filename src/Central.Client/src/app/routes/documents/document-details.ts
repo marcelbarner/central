@@ -11,11 +11,14 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
-import { Store } from '@ngxs/store';
+import { Store, Select } from '@ngxs/store';
 import { PageHeader } from '@shared';
-import { DocumentsActions } from '@core';
+import { DocumentsActions, TagsState, TagsActions } from '@core';
 import { DocumentService } from './document.service';
 import { Document as DocumentModel } from './document.model';
+import { Tag } from '../../models/tag.model';
+import { Observable } from 'rxjs';
+import { MtxSelectModule } from '@ng-matero/extensions/select';
 
 @Component({
   selector: 'app-document-details',
@@ -33,6 +36,7 @@ import { Document as DocumentModel } from './document.model';
     MatTooltipModule,
     PdfViewerModule,
     PageHeader,
+    MtxSelectModule,
   ],
   template: `
     <page-header></page-header>
@@ -106,6 +110,35 @@ import { Document as DocumentModel } from './document.model';
                         </mat-form-field>
                       } @else {
                         <p class="content">{{ document.content || 'No content' }}</p>
+                      }
+                    </div>
+
+                    <div class="detail-row">
+                      <label>Tags:</label>
+                      @if (editMode) {
+                        <div class="tag-edit-wrapper">
+                          <mtx-select
+                            [(ngModel)]="editedTagIds"
+                            name="tags"
+                            [items]="(tags$ | async) ?? []"
+                            bindLabel="name"
+                            bindValue="id"
+                            [multiple]="true"
+                            [closeOnSelect]="false"
+                            placeholder="Select tags"
+                            appendTo="body"
+                          ></mtx-select>
+                        </div>
+                      } @else {
+                        <div class="tags-display">
+                          @if (document.tagIds && document.tagIds.length > 0) {
+                            @for (tagId of document.tagIds; track tagId) {
+                              <span class="tag-chip">{{ getTagName(tagId) }}</span>
+                            }
+                          } @else {
+                            <span class="no-tags">No tags</span>
+                          }
+                        </div>
                       }
                     </div>
 
@@ -361,6 +394,28 @@ import { Document as DocumentModel } from './document.model';
       width: 100%;
     }
 
+    .tags-display {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-top: 8px;
+    }
+
+    .tag-chip {
+      display: inline-block;
+      padding: 4px 12px;
+      background-color: #e3f2fd;
+      color: #1976d2;
+      border-radius: 16px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .no-tags {
+      color: #999;
+      font-style: italic;
+    }
+
     .file-card {
       display: flex;
       gap: 16px;
@@ -409,6 +464,8 @@ export class DocumentDetails implements OnInit {
   private readonly store = inject(Store);
   private readonly snackBar = inject(MatSnackBar);
 
+  @Select(TagsState.tags) tags$!: Observable<Tag[]>;
+
   document: DocumentModel | null = null;
   loading = true;
   editMode = false;
@@ -417,8 +474,17 @@ export class DocumentDetails implements OnInit {
   editedTitle = '';
   editedDocumentDate: string | null = null;
   editedContent: string | null = null;
+  editedTagIds: number[] = [];
+
+  private tagsMap: Map<number, string> = new Map();
 
   ngOnInit() {
+    // Load tags and subscribe for display purposes
+    this.store.dispatch(new TagsActions.Load());
+    this.tags$.subscribe(tags => {
+      this.tagsMap = new Map(tags.map(t => [t.id, t.name]));
+    });
+
     const id = this.route.snapshot.params['id'];
     if (id) {
       this.loadDocument(+id);
@@ -445,6 +511,7 @@ export class DocumentDetails implements OnInit {
     this.editedTitle = this.document.title;
     this.editedDocumentDate = this.document.documentDate;
     this.editedContent = this.document.content;
+    this.editedTagIds = [...(this.document.tagIds || [])];
   }
 
   cancelEdit() {
@@ -460,6 +527,7 @@ export class DocumentDetails implements OnInit {
       title: this.editedTitle,
       documentDate: this.editedDocumentDate,
       content: this.editedContent,
+      tagIds: this.editedTagIds,
     })).subscribe({
       next: () => {
         // Reload document to get updated data from server
@@ -471,6 +539,10 @@ export class DocumentDetails implements OnInit {
         this.saving = false;
       },
     });
+  }
+
+  getTagName(tagId: number): string {
+    return this.tagsMap.get(tagId) || `Tag ${tagId}`;
   }
 
   getThumbnailUrl(): string {

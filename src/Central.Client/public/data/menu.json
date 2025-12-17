@@ -17,6 +17,12 @@
       "icon": "description"
     },
     {
+      "route": "tags",
+      "name": "tags",
+      "type": "link",
+      "icon": "label"
+    },
+    {
       "route": "/",
       "name": "sessions",
       "type": "sub",

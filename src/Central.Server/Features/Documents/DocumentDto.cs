@@ -13,6 +13,7 @@ public sealed record DocumentDto
     public required DateTimeOffset Updated { get; init; }
     public long? AddedById { get; init; }
     public long? UpdatedById { get; init; }
+    public IReadOnlyCollection<long> TagIds { get; init; } = Array.Empty<long>();
 }
 
 public sealed record DocumentFileDto

@@ -61,4 +61,9 @@ public sealed record Document
     /// Gets the ID of the user who last updated the document, or null if the user was deleted.
     /// </summary>
     public long? UpdatedBy { get; init; }
+
+    /// <summary>
+    /// Gets the collection of tag IDs associated with this document.
+    /// </summary>
+    public IReadOnlyCollection<long> TagIds { get; init; } = Array.Empty<long>();
 }

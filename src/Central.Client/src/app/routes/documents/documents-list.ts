@@ -12,13 +12,15 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Store } from '@ngxs/store';
+import { Store, Select } from '@ngxs/store';
 import { PageHeader } from '@shared';
-import { DocumentsState, DocumentsActions } from '@core';
+import { DocumentsState, DocumentsActions, TagsState, TagsActions } from '@core';
 import { DocumentService } from './document.service';
 import { Document as DocumentModel } from './document.model';
-import { DocumentUploadDialog } from './document-upload-dialog';
 import { DocumentQuickUploadDialog } from './document-quick-upload-dialog';
+import { Tag } from '../../models/tag.model';
+import { Observable } from 'rxjs';
+import { MtxSelectModule } from '@ng-matero/extensions/select';
 
 @Component({
   selector: 'app-documents-list',
@@ -38,6 +40,7 @@ import { DocumentQuickUploadDialog } from './document-quick-upload-dialog';
     MatTooltipModule,
     TranslateModule,
     PageHeader,
+    MtxSelectModule,
   ],
   template: `
     <page-header></page-header>
@@ -45,14 +48,23 @@ import { DocumentQuickUploadDialog } from './document-quick-upload-dialog';
     <mat-card>
       <mat-card-content>
         <div class="header-actions">
+          <div class="filter-group">
+            <label class="filter-label">{{ 'documents.tags' | translate }}</label>
+            <mtx-select
+              [(ngModel)]="selectedTagIds"
+              [items]="(tags$ | async) ?? []"
+              bindLabel="name"
+              bindValue="id"
+              [multiple]="true"
+              [closeOnSelect]="false"
+              placeholder="{{ 'documents.select_tags' | translate }}"
+              class="tag-filter"
+            ></mtx-select>
+          </div>
           <div class="button-group">
             <button mat-raised-button color="primary" (click)="openQuickUploadDialog()">
               <mat-icon>upload</mat-icon>
               {{ 'documents.quick_upload' | translate }}
-            </button>
-            <button mat-raised-button color="accent" (click)="openUploadDialog()">
-              <mat-icon>add</mat-icon>
-              {{ 'documents.create_document' | translate }}
             </button>
           </div>
         </div>
@@ -63,7 +75,7 @@ import { DocumentQuickUploadDialog } from './document-quick-upload-dialog';
           <div class="no-data">
             <mat-icon>description</mat-icon>
             <p>{{ 'documents.no_documents_found' | translate }}</p>
-            <button mat-raised-button color="primary" (click)="openUploadDialog()">
+            <button mat-raised-button color="primary" (click)="openQuickUploadDialog()">
               {{ 'documents.upload_first_document' | translate }}
             </button>
           </div>
@@ -133,10 +145,27 @@ import { DocumentQuickUploadDialog } from './document-quick-upload-dialog';
   styles: [`
     .header-actions {
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
       gap: 16px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 300px;
+
+      .filter-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.6);
+      }
+
+      .tag-filter {
+        width: 100%;
+      }
     }
 
     .button-group {
@@ -213,14 +242,18 @@ export class DocumentsList implements OnInit {
   private readonly translate = inject(TranslateService);
   private readonly snackBar = inject(MatSnackBar);
 
+  @Select(TagsState.tags) tags$!: Observable<Tag[]>;
+
   // Convert observables to signals using selectSignal
   documents = this.store.selectSignal(DocumentsState.documents);
   loading = this.store.selectSignal(DocumentsState.loading);
 
+  selectedTagIds: number[] = [];
   displayedColumns = ['thumbnail', 'title', 'documentDate', 'updated', 'actions'];
 
   ngOnInit() {
     this.loadDocuments();
+    this.store.dispatch(new TagsActions.Load());
   }
 
   loadDocuments() {
@@ -237,14 +270,6 @@ export class DocumentsList implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {});
-  }
-
-  openUploadDialog() {
-    const dialogRef = this.dialog.open(DocumentUploadDialog, {
-      width: '600px',
-    });
-
-    dialogRef.afterClosed().subscribe(result => { });
   }
 
   downloadDocument(doc: DocumentModel) {

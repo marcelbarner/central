@@ -9,7 +9,7 @@ var server = builder.AddProject<Projects.Central_Server>("server")
     .WaitFor(postgresdb)
     .WithHttpHealthCheck("/health");
 var client = builder.AddJavaScriptApp("client", Path.Combine("..", "Central.Client"), "start")
-    .WithNpm()
+    .WithNpm(install: false)
     .WithReference(server)
     .WithHttpEndpoint(env: "PORT")
     .WithExternalHttpEndpoints()

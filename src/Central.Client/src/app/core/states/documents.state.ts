@@ -56,6 +56,7 @@ export namespace DocumentsActions {
         documentDate: string | null;
         content: string | null;
         originalFile: File;
+        tagIds?: number[];
       }
     ) {}
   }
@@ -78,6 +79,7 @@ export namespace DocumentsActions {
         title: string;
         documentDate: string | null;
         content: string | null;
+        tagIds?: number[];
       }
     ) {}
   }

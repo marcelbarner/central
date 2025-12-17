@@ -15,6 +15,7 @@ export interface Document {
   updated: string;
   addedById: number | null;
   updatedById: number | null;
+  tagIds: number[];
 }
 
 export interface CreateDocumentRequest {
@@ -22,6 +23,7 @@ export interface CreateDocumentRequest {
   documentDate: string | null;
   content: string | null;
   originalFile: File;
+  tagIds?: number[];
 }
 
 export interface UpdateDocumentRequest {
@@ -29,4 +31,5 @@ export interface UpdateDocumentRequest {
   title: string;
   documentDate: string | null;
   content: string | null;
+  tagIds?: number[];
 }

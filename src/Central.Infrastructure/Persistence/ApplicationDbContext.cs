@@ -31,6 +31,11 @@ public sealed class ApplicationDbContext : IdentityDbContext<
     /// </summary>
     public DbSet<DocumentEntity> Documents => Set<DocumentEntity>();
 
+    /// <summary>
+    /// Gets or sets the Tags DbSet.
+    /// </summary>
+    public DbSet<TagEntity> Tags => Set<TagEntity>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
