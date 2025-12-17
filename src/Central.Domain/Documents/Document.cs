@@ -63,6 +63,11 @@ public sealed record Document
     public long? UpdatedBy { get; init; }
 
     /// <summary>
+    /// Gets the ID of the document type, or null if no type is assigned.
+    /// </summary>
+    public long? DocumentTypeId { get; init; }
+
+    /// <summary>
     /// Gets the collection of tag IDs associated with this document.
     /// </summary>
     public IReadOnlyCollection<long> TagIds { get; init; } = Array.Empty<long>();

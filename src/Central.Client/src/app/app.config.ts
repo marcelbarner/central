@@ -31,6 +31,7 @@ import {
   StartupService,
   TranslateLangService,
   DocumentsState,
+  DocumentTypesState,
   TagsState,
   AuthService,
 } from '@core';
@@ -60,7 +61,7 @@ export const appConfig: ApplicationConfig = {
       NgxPermissionsModule.forRoot(),
     ),
     provideStore(
-      [DocumentsState, TagsState],
+      [DocumentsState, DocumentTypesState, TagsState],
       withNgxsLoggerPlugin({ disabled: environment.production }),
       withNgxsReduxDevtoolsPlugin({ disabled: environment.production })
     ),

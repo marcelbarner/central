@@ -26,6 +26,7 @@ public interface IDocumentService
         string? content,
         Stream originalFileStream,
         string originalFileName,
+        long? documentTypeId,
         IReadOnlyCollection<long> tagIds,
         CancellationToken cancellationToken = default);
 
@@ -39,6 +40,7 @@ public interface IDocumentService
         string title,
         DateTimeOffset? documentDate,
         string? content,
+        long? documentTypeId,
         IReadOnlyCollection<long> tagIds,
         CancellationToken cancellationToken = default);
 

@@ -23,6 +23,7 @@ public static partial class DocumentMapper
     [MapProperty(nameof(Document.UpdatedBy), nameof(DocumentEntity.UpdatedById))]
     [MapperIgnoreTarget(nameof(DocumentEntity.AddedBy))]
     [MapperIgnoreTarget(nameof(DocumentEntity.UpdatedBy))]
+    [MapperIgnoreTarget(nameof(DocumentEntity.DocumentType))]
     [MapperIgnoreTarget(nameof(DocumentEntity.Tags))]
     public static partial DocumentEntity ToEntity(this Document document);
 
@@ -37,6 +38,7 @@ public static partial class DocumentMapper
     [MapperIgnoreSource(nameof(DocumentEntity.ThumbnailFilePath))]
     [MapperIgnoreSource(nameof(DocumentEntity.AddedBy))]
     [MapperIgnoreSource(nameof(DocumentEntity.UpdatedBy))]
+    [MapperIgnoreSource(nameof(DocumentEntity.DocumentType))]
     [MapperIgnoreSource(nameof(DocumentEntity.Tags))]
     [MapProperty(nameof(DocumentEntity.AddedById), nameof(Document.AddedBy))]
     [MapProperty(nameof(DocumentEntity.UpdatedById), nameof(Document.UpdatedBy))]
@@ -76,6 +78,7 @@ public static partial class DocumentMapper
     [MapperIgnoreTarget(nameof(DocumentEntity.AddedBy))]
     [MapperIgnoreTarget(nameof(DocumentEntity.AddedById))]
     [MapperIgnoreTarget(nameof(DocumentEntity.UpdatedBy))]
+    [MapperIgnoreTarget(nameof(DocumentEntity.DocumentType))]
     [MapperIgnoreTarget(nameof(DocumentEntity.Tags))]
     [MapProperty(nameof(Document.OriginalFile) + "." + nameof(DocumentFile.FileName), nameof(DocumentEntity.OriginalFileName))]
     [MapProperty(nameof(Document.OriginalFile) + "." + nameof(DocumentFile.FilePath), nameof(DocumentEntity.OriginalFilePath))]

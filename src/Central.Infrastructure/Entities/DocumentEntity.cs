@@ -104,6 +104,17 @@ public sealed class DocumentEntity
     public User? UpdatedBy { get; set; }
 
     /// <summary>
+    /// Gets or sets the foreign key to the document type.
+    /// </summary>
+    public long? DocumentTypeId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the document type.
+    /// </summary>
+    [ForeignKey(nameof(DocumentTypeId))]
+    public DocumentTypeEntity? DocumentType { get; set; }
+
+    /// <summary>
     /// Navigation property for tags associated with this document.
     /// </summary>
     public ICollection<TagEntity> Tags { get; set; } = new List<TagEntity>();
