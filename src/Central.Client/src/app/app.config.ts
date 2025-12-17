@@ -34,6 +34,7 @@ import {
   DocumentTypesState,
   TagsState,
   CorrespondentsState,
+  WebhooksState,
   AuthService,
 } from '@core';
 import { environment } from '@env/environment';
@@ -62,7 +63,7 @@ export const appConfig: ApplicationConfig = {
       NgxPermissionsModule.forRoot(),
     ),
     provideStore(
-      [DocumentsState, DocumentTypesState, TagsState, CorrespondentsState],
+      [DocumentsState, DocumentTypesState, TagsState, CorrespondentsState, WebhooksState],
       withNgxsLoggerPlugin({ disabled: environment.production }),
       withNgxsReduxDevtoolsPlugin({ disabled: environment.production })
     ),

@@ -29,6 +29,12 @@
       "icon": "contacts"
     },
     {
+      "route": "webhooks",
+      "name": "webhooks",
+      "type": "link",
+      "icon": "webhook"
+    },
+    {
       "route": "tags",
       "name": "tags",
       "type": "link",

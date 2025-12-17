@@ -4,6 +4,7 @@
     "documents": "Documents",
     "documentTypes": "Document Types",
     "correspondents": "Correspondents",
+    "webhooks": "Webhooks",
     "tags": "Tags",
     "design": "Design",
     "design.colors": "Color System",
@@ -211,6 +212,23 @@
     "updateError": "Failed to update correspondent",
     "deleteError": "Failed to delete correspondent",
     "confirmDelete": "Are you sure you want to delete this correspondent?"
+  },
+  "webhooks": {
+    "title": "Webhooks",
+    "create": "Create Webhook",
+    "edit": "Edit Webhook",
+    "eventType": "Event Type",
+    "url": "URL",
+    "eventTypeRequired": "Event type is required",
+    "urlRequired": "URL is required",
+    "urlInvalid": "URL must be a valid HTTP or HTTPS URL",
+    "created": "Webhook created successfully",
+    "updated": "Webhook updated successfully",
+    "deleted": "Webhook deleted successfully",
+    "createError": "Failed to create webhook",
+    "updateError": "Failed to update webhook",
+    "deleteError": "Failed to delete webhook",
+    "confirmDelete": "Are you sure you want to delete this webhook?"
   },
   "tags": {
     "title": "Tags",

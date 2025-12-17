@@ -1,6 +1,8 @@
 using Central.Domain.Documents.Ports;
 using Central.Domain.Users;
 using Central.Domain.Users.Ports;
+using Central.Domain.Webhooks;
+using Central.Domain.Webhooks.Ports;
 
 namespace Central.Domain.Documents.Services;
 
@@ -15,19 +17,22 @@ public sealed class DocumentService : IDocumentService
     private readonly IArchiveFileRepository _archiveFileRepository;
     private readonly IThumbnailFileRepository _thumbnailFileRepository;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IWebhookTrigger _webhookTrigger;
 
     public DocumentService(
         IDocumentRepository documentRepository,
         IOriginalFileRepository originalFileRepository,
         IArchiveFileRepository archiveFileRepository,
         IThumbnailFileRepository thumbnailFileRepository,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        IWebhookTrigger webhookTrigger)
     {
         _documentRepository = documentRepository;
         _originalFileRepository = originalFileRepository;
         _archiveFileRepository = archiveFileRepository;
         _thumbnailFileRepository = thumbnailFileRepository;
         _currentUserService = currentUserService;
+        _webhookTrigger = webhookTrigger;
     }
 
     public async Task<Document> CreateFromFileAsync(
@@ -100,7 +105,22 @@ public sealed class DocumentService : IDocumentService
             TagIds = tagIds
         };
 
-        return await _documentRepository.AddAsync(document, cancellationToken);
+        var createdDocument = await _documentRepository.AddAsync(document, cancellationToken);
+
+        // Trigger webhook for document-added event (fire and forget - don't let webhook failures affect the domain flow)
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await _webhookTrigger.TriggerAsync(WebhookEventType.DocumentAdded, createdDocument.Id, CancellationToken.None);
+            }
+            catch
+            {
+                // Webhook failures should not affect document operations
+            }
+        }, CancellationToken.None);
+
+        return createdDocument;
     }
 
     public async Task<Document> UpdateAsync(
@@ -131,7 +151,22 @@ public sealed class DocumentService : IDocumentService
             UpdatedBy = currentUserId
         };
 
-        return await _documentRepository.UpdateAsync(updatedDocument, cancellationToken);
+        var updated = await _documentRepository.UpdateAsync(updatedDocument, cancellationToken);
+
+        // Trigger webhook for document-updated event (fire and forget - don't let webhook failures affect the domain flow)
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await _webhookTrigger.TriggerAsync(WebhookEventType.DocumentUpdated, updated.Id, CancellationToken.None);
+            }
+            catch
+            {
+                // Webhook failures should not affect document operations
+            }
+        }, CancellationToken.None);
+
+        return updated;
     }
 
     public async Task<Document?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
@@ -169,6 +204,19 @@ public sealed class DocumentService : IDocumentService
         }
 
         await _documentRepository.DeleteAsync(id, cancellationToken);
+
+        // Trigger webhook for document-deleted event (fire and forget - don't let webhook failures affect the domain flow)
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await _webhookTrigger.TriggerAsync(WebhookEventType.DocumentDeleted, id, CancellationToken.None);
+            }
+            catch
+            {
+                // Webhook failures should not affect document operations
+            }
+        }, CancellationToken.None);
     }
 
     public async Task<Stream> GetFileAsync(long id, string fileType, CancellationToken cancellationToken = default)

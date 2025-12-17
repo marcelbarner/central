@@ -7,9 +7,12 @@ using Central.Domain.DocumentTypes.Services;
 using Central.Domain.Tags.Ports;
 using Central.Domain.Tags.Services;
 using Central.Domain.Users;
+using Central.Domain.Webhooks.Ports;
+using Central.Domain.Webhooks.Services;
 using Central.Infrastructure.Configuration;
 using Central.Infrastructure.Persistence;
 using Central.Infrastructure.Repositories;
+using Central.Infrastructure.Services;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -65,12 +68,21 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITagRepository, TagRepository>();
         services.AddScoped<IDocumentTypeRepository, DocumentTypeRepository>();
         services.AddScoped<ICorrespondentRepository, CorrespondentRepository>();
+        services.AddScoped<IWebhookRepository, WebhookRepository>();
 
         // Register domain services
         services.AddScoped<IDocumentService, DocumentService>();
         services.AddScoped<ITagService, TagService>();
         services.AddScoped<IDocumentTypeService, DocumentTypeService>();
         services.AddScoped<ICorrespondentService, CorrespondentService>();
+        services.AddScoped<IWebhookService, WebhookService>();
+        services.AddScoped<IWebhookTrigger, WebhookTrigger>();
+
+        // Register HttpClient for webhooks
+        services.AddHttpClient("WebhookClient", client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
 
         return services;
     }

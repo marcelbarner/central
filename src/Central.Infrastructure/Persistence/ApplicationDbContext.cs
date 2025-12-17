@@ -46,6 +46,11 @@ public sealed class ApplicationDbContext : IdentityDbContext<
     /// </summary>
     public DbSet<CorrespondentEntity> Correspondents => Set<CorrespondentEntity>();
 
+    /// <summary>
+    /// Gets or sets the Webhooks DbSet.
+    /// </summary>
+    public DbSet<WebhookEntity> Webhooks => Set<WebhookEntity>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
