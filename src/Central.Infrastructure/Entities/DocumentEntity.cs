@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+
 using Central.Domain.Users;
 
 namespace Central.Infrastructure.Entities;

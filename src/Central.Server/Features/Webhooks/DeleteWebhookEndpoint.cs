@@ -1,4 +1,5 @@
 using Central.Domain.Webhooks.Services;
+
 using FastEndpoints;
 
 namespace Central.Server.Features.Webhooks;

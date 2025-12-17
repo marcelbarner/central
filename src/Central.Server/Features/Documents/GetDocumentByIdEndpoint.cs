@@ -1,5 +1,6 @@
 using Central.Domain.Documents.Services;
 using Central.Server.Mappers;
+
 using FastEndpoints;
 
 namespace Central.Server.Features.Documents;
@@ -20,7 +21,7 @@ public sealed class GetDocumentByIdEndpoint(IDocumentService documentService)
     public override async Task HandleAsync(GetDocumentByIdRequest req, CancellationToken ct)
     {
         var document = await documentService.GetByIdAsync(req.Id, ct);
-        
+
         if (document == null)
         {
             await Send.NotFoundAsync(ct);

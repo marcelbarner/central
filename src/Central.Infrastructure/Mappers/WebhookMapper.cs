@@ -1,5 +1,6 @@
 cd using Central.Domain.Webhooks;
 using Central.Infrastructure.Entities;
+
 using Riok.Mapperly.Abstractions;
 
 namespace Central.Infrastructure.Mappers;

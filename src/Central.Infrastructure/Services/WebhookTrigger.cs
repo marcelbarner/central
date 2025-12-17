@@ -1,8 +1,10 @@
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
+
 using Central.Domain.Webhooks;
 using Central.Domain.Webhooks.Ports;
+
 using Microsoft.Extensions.Logging;
 
 namespace Central.Infrastructure.Services;
@@ -39,7 +41,7 @@ public class WebhookTrigger(
 
             // Fire and forget - trigger webhooks in parallel without awaiting
             var tasks = webhooks.Select(webhook => SendWebhookAsync(httpClient, webhook, payload, cancellationToken));
-            
+
             // Wait for all webhook calls to complete
             await Task.WhenAll(tasks);
         }
@@ -54,7 +56,7 @@ public class WebhookTrigger(
     {
         try
         {
-            logger.LogInformation("Triggering webhook {WebhookId} to {Url} for event {EventType}", 
+            logger.LogInformation("Triggering webhook {WebhookId} to {Url} for event {EventType}",
                 webhook.Id, webhook.Url, payload.EventType);
 
             var response = await httpClient.PostAsJsonAsync(webhook.Url, payload, cancellationToken);
@@ -65,7 +67,7 @@ public class WebhookTrigger(
             }
             else
             {
-                logger.LogWarning("Webhook {WebhookId} failed with status {StatusCode}", 
+                logger.LogWarning("Webhook {WebhookId} failed with status {StatusCode}",
                     webhook.Id, response.StatusCode);
             }
         }

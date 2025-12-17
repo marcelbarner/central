@@ -70,7 +70,7 @@ public sealed class DocumentService : IDocumentService
         using var archiveStream = new MemoryStream();
         await originalFileStream.CopyToAsync(archiveStream, cancellationToken);
         archiveStream.Position = 0;
-        
+
         var archivePath = await _archiveFileRepository.SaveAsync(archiveStream, originalFileName, cancellationToken);
         var archiveFile = new DocumentFile(originalFileName, archivePath);
 
@@ -82,7 +82,7 @@ public sealed class DocumentService : IDocumentService
             var thumbnailFileName = Path.ChangeExtension(originalFileName, ".jpg");
             var thumbnailContent = CreatePlaceholderThumbnail();
             using var thumbnailStream = new MemoryStream(thumbnailContent);
-            
+
             var thumbnailPath = await _thumbnailFileRepository.SaveAsync(thumbnailStream, thumbnailFileName, cancellationToken);
             thumbnail = new DocumentFile(thumbnailFileName, thumbnailPath);
         }

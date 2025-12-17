@@ -1,5 +1,6 @@
 using Central.Domain.Documents.Ports;
 using Central.Infrastructure.Configuration;
+
 using Microsoft.Extensions.Options;
 
 namespace Central.Infrastructure.Repositories;

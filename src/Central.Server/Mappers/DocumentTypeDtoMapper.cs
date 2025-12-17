@@ -1,5 +1,6 @@
 using Central.Domain.DocumentTypes;
 using Central.Server.Features.DocumentTypes;
+
 using Riok.Mapperly.Abstractions;
 
 namespace Central.Server.Mappers;

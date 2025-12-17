@@ -1,4 +1,5 @@
 using Central.Domain.Tags.Services;
+
 using FastEndpoints;
 
 namespace Central.Server.Features.Tags;

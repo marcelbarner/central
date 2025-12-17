@@ -1,7 +1,10 @@
 using AwesomeAssertions;
+
 using Central.Infrastructure.Configuration;
 using Central.Infrastructure.Repositories;
+
 using Microsoft.Extensions.Options;
+
 using Xunit;
 
 namespace Central.Infrastructure.Tests.Repositories;

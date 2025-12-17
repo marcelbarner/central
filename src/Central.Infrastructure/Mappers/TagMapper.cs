@@ -1,5 +1,6 @@
 using Central.Domain.Tags;
 using Central.Infrastructure.Entities;
+
 using Riok.Mapperly.Abstractions;
 
 namespace Central.Infrastructure.Mappers;

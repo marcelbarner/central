@@ -2,6 +2,7 @@ using Central.Domain.Documents;
 using Central.Domain.Documents.Ports;
 using Central.Infrastructure.Mappers;
 using Central.Infrastructure.Persistence;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Central.Infrastructure.Repositories;
@@ -22,17 +23,17 @@ public sealed class DocumentRepository : IDocumentRepository
     {
         var entity = document.ToEntity();
         entity.Id = 0; // Ensure EF generates new ID
-        
+
         // Load and assign tag entities
         if (document.TagIds.Any())
         {
             var tags = await _context.Set<Entities.TagEntity>()
                 .Where(t => document.TagIds.Contains(t.Id))
                 .ToListAsync(cancellationToken);
-            
+
             entity.Tags = tags;
         }
-        
+
         _context.Set<Entities.DocumentEntity>().Add(entity);
         await _context.SaveChangesAsync(cancellationToken);
 
@@ -56,7 +57,7 @@ public sealed class DocumentRepository : IDocumentRepository
         }
 
         DocumentMapper.UpdateEntity(document, entity);
-        
+
         // Update tag associations
         entity.Tags.Clear();
         if (document.TagIds.Any())
@@ -64,13 +65,13 @@ public sealed class DocumentRepository : IDocumentRepository
             var tags = await _context.Set<Entities.TagEntity>()
                 .Where(t => document.TagIds.Contains(t.Id))
                 .ToListAsync(cancellationToken);
-            
+
             foreach (var tag in tags)
             {
                 entity.Tags.Add(tag);
             }
         }
-        
+
         await _context.SaveChangesAsync(cancellationToken);
 
         return entity.ToDomain();

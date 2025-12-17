@@ -1,4 +1,5 @@
 using Central.Domain.DocumentTypes.Services;
+
 using FastEndpoints;
 
 namespace Central.Server.Features.DocumentTypes;

@@ -1,5 +1,6 @@
 using Central.Domain.Documents;
 using Central.Infrastructure.Entities;
+
 using Riok.Mapperly.Abstractions;
 
 namespace Central.Infrastructure.Mappers;
@@ -57,7 +58,7 @@ public static partial class DocumentMapper
     public static Document ToDomain(this DocumentEntity entity)
     {
         var document = entity.ToDomainInternal();
-        
+
         return document with
         {
             OriginalFile = MapToDocumentFile(entity.OriginalFileName, entity.OriginalFilePath),

@@ -1,7 +1,9 @@
 using Central.Domain.Webhooks;
 using Central.Domain.Webhooks.Services;
 using Central.Server.Mappers;
+
 using FastEndpoints;
+
 using FluentValidation;
 
 namespace Central.Server.Features.Webhooks;
@@ -17,12 +19,12 @@ public sealed record UpdateWebhookRequest
         public Validator()
         {
             RuleFor(x => x.Id).GreaterThan(0);
-            
+
             RuleFor(x => x.EventType)
                 .NotEmpty()
                 .Must(BeValidEventType)
                 .WithMessage("EventType must be one of: DocumentAdded, DocumentUpdated, DocumentDeleted");
-            
+
             RuleFor(x => x.Url)
                 .NotEmpty()
                 .Must(BeValidUrl)
@@ -36,7 +38,7 @@ public sealed record UpdateWebhookRequest
 
         private bool BeValidUrl(string url)
         {
-            return Uri.TryCreate(url, UriKind.Absolute, out var uri) && 
+            return Uri.TryCreate(url, UriKind.Absolute, out var uri) &&
                    (uri.Scheme == "http" || uri.Scheme == "https");
         }
     }

@@ -1,11 +1,16 @@
-using Aspire.Hosting.Testing;
-using AwesomeAssertions;
-using Central.AcceptanceTests.Fixture;
-using Microsoft.Playwright;
-using Reqnroll;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
+
+using Aspire.Hosting.Testing;
+
+using AwesomeAssertions;
+
+using Central.AcceptanceTests.Fixture;
+
+using Microsoft.Playwright;
+
+using Reqnroll;
 
 namespace Central.AcceptanceTests.StepDefinitions;
 
@@ -290,7 +295,7 @@ public class DocumentManagementSteps(EnvironmentFixture fixture)
         var content = await response.Content.ReadAsStringAsync();
         var doc = JsonSerializer.Deserialize<JsonElement>(content);
         var updated = DateTimeOffset.Parse(doc.GetProperty("updated").GetString()!);
-        
+
         var diff = DateTimeOffset.UtcNow - updated;
         diff.TotalMinutes.Should().BeLessThan(2);
     }
@@ -341,7 +346,7 @@ public class DocumentManagementSteps(EnvironmentFixture fixture)
         _page.Should().NotBeNull();
         var detailsButtons = await _page!.QuerySelectorAllAsync("[data-action='details']");
         var deleteButtons = await _page!.QuerySelectorAllAsync("[data-action='delete']");
-        
+
         detailsButtons.Count.Should().BeGreaterThan(0);
         deleteButtons.Count.Should().BeGreaterThan(0);
     }
