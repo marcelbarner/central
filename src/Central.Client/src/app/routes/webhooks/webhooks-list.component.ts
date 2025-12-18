@@ -50,10 +50,17 @@ import { WebhookDialogComponent } from './webhook-dialog.component';
           </div>
         } @else {
           <table mat-table [dataSource]="webhooks()" class="webhooks-table">
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>{{ 'webhooks.name' | translate }}</th>
+              <td mat-cell *matCellDef="let webhook">
+                <strong>{{ webhook.name || '-' }}</strong>
+              </td>
+            </ng-container>
+
             <ng-container matColumnDef="eventType">
               <th mat-header-cell *matHeaderCellDef>{{ 'webhooks.eventType' | translate }}</th>
               <td mat-cell *matCellDef="let webhook">
-                <strong>{{ webhook.eventType }}</strong>
+                {{ webhook.eventType }}
               </td>
             </ng-container>
 
@@ -140,7 +147,7 @@ export class WebhooksListComponent implements OnInit {
   webhooks = this.store.selectSignal(WebhooksState.webhooks);
   loading = this.store.selectSignal(WebhooksState.loading);
 
-  displayedColumns = ['eventType', 'url', 'actions'];
+  displayedColumns = ['name', 'eventType', 'url', 'actions'];
 
   ngOnInit() {
     this.store.dispatch(new WebhooksActions.Load());
@@ -155,9 +162,9 @@ export class WebhooksListComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (webhook) {
-          this.store.dispatch(new WebhooksActions.Update(webhook.id, result.eventType, result.url));
+          this.store.dispatch(new WebhooksActions.Update(webhook.id, result.eventType, result.url, result.name, result.description));
         } else {
-          this.store.dispatch(new WebhooksActions.Add(result.eventType, result.url));
+          this.store.dispatch(new WebhooksActions.Add(result.eventType, result.url, result.name, result.description));
         }
       }
     });

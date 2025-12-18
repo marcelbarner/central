@@ -29,6 +29,16 @@ import { Webhook, WebhookEventTypes } from '../../models/webhook.model';
     <mat-dialog-content>
       <form [formGroup]="form">
         <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'webhooks.name' | translate }}</mat-label>
+          <input matInput formControlName="name" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'webhooks.description' | translate }}</mat-label>
+          <textarea matInput formControlName="description" rows="3"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ 'webhooks.eventType' | translate }}</mat-label>
           <mat-select formControlName="eventType" required>
             @for (eventType of eventTypes; track eventType.value) {
@@ -82,6 +92,8 @@ export class WebhookDialogComponent {
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: Webhook | null) {
     this.form = this.fb.group({
+      name: [data?.name || ''],
+      description: [data?.description || ''],
       eventType: [data?.eventType || '', Validators.required],
       url: [
         data?.url || '',

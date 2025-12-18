@@ -1,5 +1,7 @@
 export interface Webhook {
   id: number;
+  name?: string;
+  description?: string;
   eventType: string;
   url: string;
   created: string;
@@ -7,12 +9,16 @@ export interface Webhook {
 }
 
 export interface CreateWebhookRequest {
+  name?: string;
+  description?: string;
   eventType: string;
   url: string;
 }
 
 export interface UpdateWebhookRequest {
   id: number;
+  name?: string;
+  description?: string;
   eventType: string;
   url: string;
 }

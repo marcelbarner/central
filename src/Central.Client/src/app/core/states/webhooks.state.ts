@@ -19,7 +19,7 @@ export namespace WebhooksActions {
 
   export class Add {
     static readonly type = '[Webhooks] Add';
-    constructor(public eventType: string, public url: string) {}
+    constructor(public eventType: string, public url: string, public name?: string, public description?: string) {}
   }
 
   export class Added {
@@ -29,7 +29,7 @@ export namespace WebhooksActions {
 
   export class Update {
     static readonly type = '[Webhooks] Update';
-    constructor(public id: number, public eventType: string, public url: string) {}
+    constructor(public id: number, public eventType: string, public url: string, public name?: string, public description?: string) {}
   }
 
   export class Updated {
@@ -115,7 +115,12 @@ export class WebhooksState {
   @Action(WebhooksActions.Add)
   add(ctx: StateContext<WebhooksStateModel>, action: WebhooksActions.Add) {
     ctx.patchState({ loading: true, error: null });
-    return this.webhookService.create({ eventType: action.eventType, url: action.url }).pipe(
+    return this.webhookService.create({
+      eventType: action.eventType,
+      url: action.url,
+      name: action.name,
+      description: action.description
+    }).pipe(
       tap(webhook => {
         ctx.dispatch(new WebhooksActions.Added(webhook));
         this.snackBar.open(
@@ -154,7 +159,9 @@ export class WebhooksState {
     return this.webhookService.update({
       id: action.id,
       eventType: action.eventType,
-      url: action.url
+      url: action.url,
+      name: action.name,
+      description: action.description
     }).pipe(
       tap(webhook => {
         ctx.dispatch(new WebhooksActions.Updated(webhook));
