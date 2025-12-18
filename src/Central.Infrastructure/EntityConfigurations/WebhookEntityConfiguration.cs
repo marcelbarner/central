@@ -17,6 +17,12 @@ public class WebhookEntityConfiguration : IEntityTypeConfiguration<WebhookEntity
 
         builder.HasKey(e => e.Id);
 
+        builder.Property(e => e.Name)
+            .HasMaxLength(200);
+
+        builder.Property(e => e.Description)
+            .HasMaxLength(1000);
+
         builder.Property(e => e.EventType)
             .IsRequired();
 

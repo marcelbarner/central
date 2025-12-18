@@ -8,7 +8,7 @@ namespace Central.Domain.Webhooks.Services;
 public class WebhookService(IWebhookRepository repository) : IWebhookService
 {
     /// <inheritdoc />
-    public async Task<Webhook> CreateAsync(WebhookEventType eventType, string url, CancellationToken cancellationToken = default)
+    public async Task<Webhook> CreateAsync(WebhookEventType eventType, string url, string? name = null, string? description = null, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(url);
 
@@ -19,6 +19,8 @@ public class WebhookService(IWebhookRepository repository) : IWebhookService
 
         var webhook = new Webhook
         {
+            Name = name,
+            Description = description,
             EventType = eventType,
             Url = url,
             Created = DateTimeOffset.UtcNow,
@@ -29,7 +31,7 @@ public class WebhookService(IWebhookRepository repository) : IWebhookService
     }
 
     /// <inheritdoc />
-    public async Task<Webhook> UpdateAsync(long id, WebhookEventType eventType, string url, CancellationToken cancellationToken = default)
+    public async Task<Webhook> UpdateAsync(long id, WebhookEventType eventType, string url, string? name = null, string? description = null, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(url);
 
@@ -43,6 +45,8 @@ public class WebhookService(IWebhookRepository repository) : IWebhookService
 
         var updated = existing with
         {
+            Name = name,
+            Description = description,
             EventType = eventType,
             Url = url,
             Updated = DateTimeOffset.UtcNow

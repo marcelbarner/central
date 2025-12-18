@@ -11,6 +11,16 @@ public sealed record Webhook
     public long Id { get; init; }
 
     /// <summary>
+    /// Gets the optional name of the webhook.
+    /// </summary>
+    public string? Name { get; init; }
+
+    /// <summary>
+    /// Gets the optional description of the webhook.
+    /// </summary>
+    public string? Description { get; init; }
+
+    /// <summary>
     /// Gets the type of event this webhook subscribes to.
     /// </summary>
     public required WebhookEventType EventType { get; init; }

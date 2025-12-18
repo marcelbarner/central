@@ -10,9 +10,11 @@ public interface IWebhookService
     /// </summary>
     /// <param name="eventType">The event type to subscribe to.</param>
     /// <param name="url">The URL where the webhook POST request will be sent.</param>
+    /// <param name="name">The optional name of the webhook.</param>
+    /// <param name="description">The optional description of the webhook.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The created webhook.</returns>
-    Task<Webhook> CreateAsync(WebhookEventType eventType, string url, CancellationToken cancellationToken = default);
+    Task<Webhook> CreateAsync(WebhookEventType eventType, string url, string? name = null, string? description = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Updates an existing webhook.
@@ -20,9 +22,11 @@ public interface IWebhookService
     /// <param name="id">The webhook identifier.</param>
     /// <param name="eventType">The event type to subscribe to.</param>
     /// <param name="url">The URL where the webhook POST request will be sent.</param>
+    /// <param name="name">The optional name of the webhook.</param>
+    /// <param name="description">The optional description of the webhook.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The updated webhook.</returns>
-    Task<Webhook> UpdateAsync(long id, WebhookEventType eventType, string url, CancellationToken cancellationToken = default);
+    Task<Webhook> UpdateAsync(long id, WebhookEventType eventType, string url, string? name = null, string? description = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets a webhook by its identifier.

@@ -16,6 +16,18 @@ public sealed class WebhookEntity
     public long Id { get; set; }
 
     /// <summary>
+    /// Gets or sets the optional name of the webhook.
+    /// </summary>
+    [MaxLength(200)]
+    public string? Name { get; set; }
+
+    /// <summary>
+    /// Gets or sets the optional description of the webhook.
+    /// </summary>
+    [MaxLength(1000)]
+    public string? Description { get; set; }
+
+    /// <summary>
     /// Gets or sets the event type.
     /// </summary>
     [Required]
