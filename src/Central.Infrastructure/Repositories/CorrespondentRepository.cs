@@ -33,29 +33,23 @@ public class CorrespondentRepository(ApplicationDbContext context) : ICorrespond
     /// <inheritdoc />
     public async Task<Correspondent?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
-        var entity = await context.Correspondents
-            .AsNoTracking()
+       return await context.Correspondents.ToDomains()
             .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
-        return entity?.ToDomain();
     }
 
     /// <inheritdoc />
     public async Task<Correspondent?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
     {
-        var entity = await context.Correspondents
-            .AsNoTracking()
+        return await context.Correspondents.ToDomains()
             .FirstOrDefaultAsync(c => c.Name == name, cancellationToken);
-        return entity?.ToDomain();
     }
 
     /// <inheritdoc />
     public async Task<IReadOnlyCollection<Correspondent>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        var entities = await context.Correspondents
-            .AsNoTracking()
+       return await context.Correspondents.ToDomains()
             .OrderBy(c => c.Name)
             .ToListAsync(cancellationToken);
-        return entities.Select(e => e.ToDomain()).ToList();
     }
 
     /// <inheritdoc />
