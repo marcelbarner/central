@@ -11,6 +11,8 @@ namespace Central.Server.Features.Webhooks;
 public sealed record UpdateWebhookRequest
 {
     public required long Id { get; init; }
+    public string? Name { get; init; }
+    public string? Description { get; init; }
     public required string EventType { get; init; }
     public required string Url { get; init; }
 
@@ -19,6 +21,9 @@ public sealed record UpdateWebhookRequest
         public Validator()
         {
             RuleFor(x => x.Id).GreaterThan(0);
+
+            RuleFor(x => x.Name).MaximumLength(200);
+            RuleFor(x => x.Description).MaximumLength(1000);
 
             RuleFor(x => x.EventType)
                 .NotEmpty()
@@ -57,7 +62,7 @@ public sealed class UpdateWebhookEndpoint(IWebhookService webhookService)
         try
         {
             var eventType = Enum.Parse<WebhookEventType>(req.EventType, true);
-            var webhook = await webhookService.UpdateAsync(req.Id, eventType, req.Url, ct);
+            var webhook = await webhookService.UpdateAsync(req.Id, eventType, req.Url, req.Name, req.Description, ct);
             await Send.OkAsync(webhook.ToDto(), ct);
         }
         catch (InvalidOperationException)

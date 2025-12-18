@@ -10,6 +10,8 @@ namespace Central.Server.Features.Webhooks;
 
 public sealed record CreateWebhookRequest
 {
+    public string? Name { get; init; }
+    public string? Description { get; init; }
     public required string EventType { get; init; }
     public required string Url { get; init; }
 
@@ -17,6 +19,9 @@ public sealed record CreateWebhookRequest
     {
         public Validator()
         {
+            RuleFor(x => x.Name).MaximumLength(200);
+            RuleFor(x => x.Description).MaximumLength(1000);
+
             RuleFor(x => x.EventType)
                 .NotEmpty()
                 .Must(BeValidEventType)
@@ -54,7 +59,7 @@ public sealed class CreateWebhookEndpoint(IWebhookService webhookService)
         try
         {
             var eventType = Enum.Parse<WebhookEventType>(req.EventType, true);
-            var webhook = await webhookService.CreateAsync(eventType, req.Url, ct);
+            var webhook = await webhookService.CreateAsync(eventType, req.Url, req.Name, req.Description, ct);
             await Send.CreatedAtAsync<GetWebhookByIdEndpoint>(
                 new { webhook.Id },
                 webhook.ToDto(),
