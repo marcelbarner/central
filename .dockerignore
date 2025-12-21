@@ -1,0 +1,66 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.vs
+.vscode
+.idea
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa]rm/
+[Aa]rm64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Angular
+src/Central.Client/node_modules/
+src/Central.Client/dist/
+src/Central.Client/.angular/
+src/Central.Client/coverage/
+
+# .NET
+**/bin/
+**/obj/
+**/*.cache
+**/*.dll
+**/*.exe
+**/*.pdb
+**/*.log
+
+# Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.trx
+*.coverage
+*.coveragexml
+
+# Documentation
+docs/
+*.md
+README.md
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Media files (will be in volumes)
+**/Media/
+**/media/
+
+# OS
+.DS_Store
+Thumbs.db
