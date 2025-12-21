@@ -225,6 +225,59 @@ This approach:
 - Includes only necessary runtime dependencies
 - Combines frontend and backend in a single container
 
+## Publishing to Private Registry
+
+To publish the Docker image to a private registry at `10.1.1.18:5000`:
+
+### Using PowerShell (Windows)
+
+```powershell
+# Publish with default settings (latest tag)
+.\publish-to-registry.ps1
+
+# Publish with a specific version tag
+.\publish-to-registry.ps1 -Tag v1.0.0
+
+# Skip build and only push existing image
+.\publish-to-registry.ps1 -SkipBuild
+
+# Use custom registry
+.\publish-to-registry.ps1 -Registry "myregistry.local:5000" -ImageName "my-app"
+```
+
+### Using Bash (Linux/macOS)
+
+```bash
+# Make script executable
+chmod +x publish-to-registry.sh
+
+# Publish with default settings
+./publish-to-registry.sh
+
+# Publish with a specific version tag
+./publish-to-registry.sh -t v1.0.0
+
+# Skip build and only push existing image
+./publish-to-registry.sh --skip-build
+
+# Use custom registry
+./publish-to-registry.sh -r myregistry.local:5000 -i my-app
+```
+
+### Deploying from Private Registry
+
+Use `docker-compose.prod.yml` to deploy from the registry:
+
+```bash
+# Pull and start from registry
+docker-compose -f docker-compose.prod.yml up -d
+
+# With environment variables
+POSTGRES_PASSWORD=secure_password docker-compose -f docker-compose.prod.yml up -d
+```
+
+The production compose file uses the image from your private registry instead of building locally.
+
 ## Support
 
 For issues or questions:
