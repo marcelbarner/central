@@ -11,6 +11,7 @@ public sealed class GetAllDocumentsEndpoint(IDocumentService documentService)
     public override void Configure()
     {
         Get("/api/documents");
+        AllowAnonymous();
     }
 
     public override async Task HandleAsync(CancellationToken ct)

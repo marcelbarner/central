@@ -16,6 +16,7 @@ public sealed class GetDocumentByIdEndpoint(IDocumentService documentService)
     public override void Configure()
     {
         Get("/api/documents/{Id}");
+        AllowAnonymous();
     }
 
     public override async Task HandleAsync(GetDocumentByIdRequest req, CancellationToken ct)

@@ -16,6 +16,7 @@ public sealed class DownloadFileEndpoint(IDocumentService documentService)
     public override void Configure()
     {
         Get("/api/documents/{Id}/files/{FileType}");
+        AllowAnonymous();
     }
 
     public override async Task HandleAsync(DownloadFileRequest req, CancellationToken ct)

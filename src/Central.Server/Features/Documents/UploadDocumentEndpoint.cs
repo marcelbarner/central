@@ -18,6 +18,7 @@ public sealed class UploadDocumentEndpoint(
     {
         Post("/api/documents/upload");
         AllowFileUploads();
+        AllowAnonymous();
     }
 
     public override async Task HandleAsync(UploadDocumentRequest req, CancellationToken ct)

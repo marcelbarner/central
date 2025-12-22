@@ -11,6 +11,7 @@ public sealed class GetAllTagsEndpoint(ITagService tagService)
     public override void Configure()
     {
         Get("/api/tags");
+        AllowAnonymous();
     }
 
     public override async Task HandleAsync(CancellationToken ct)

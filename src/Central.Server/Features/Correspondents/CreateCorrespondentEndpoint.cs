@@ -28,6 +28,7 @@ public sealed class CreateCorrespondentEndpoint(ICorrespondentService correspond
     public override void Configure()
     {
         Post("/api/correspondents");
+        AllowAnonymous();
     }
 
     public override async Task HandleAsync(CreateCorrespondentRequest req, CancellationToken ct)

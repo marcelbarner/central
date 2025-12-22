@@ -34,6 +34,7 @@ public sealed class UpdateDocumentEndpoint(
     public override void Configure()
     {
         Put("/api/documents/{Id}");
+        AllowAnonymous();
     }
 
     public override async Task HandleAsync(UpdateDocumentRequest req, CancellationToken ct)

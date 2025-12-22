@@ -11,6 +11,7 @@ public sealed class GetAllDocumentTypesEndpoint(IDocumentTypeService documentTyp
     public override void Configure()
     {
         Get("/api/document-types");
+        AllowAnonymous();
     }
 
     public override async Task HandleAsync(CancellationToken ct)
