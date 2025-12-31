@@ -39,7 +39,7 @@ export class CorrespondentsSelect {
   @Output()
   selectedCorrespondentsChange = new EventEmitter<number>();
 
-  selected?: number
+  selected?: number;
 
   onSelectedCorrespondentsChange(selected: number) {
     this.selected = selected;

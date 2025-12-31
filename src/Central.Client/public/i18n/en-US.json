@@ -4,6 +4,7 @@
     "documents": "Documents",
     "documentTypes": "Document Types",
     "correspondents": "Correspondents",
+    "contracts": "Contracts",
     "webhooks": "Webhooks",
     "tags": "Tags",
     "design": "Design",
@@ -213,6 +214,41 @@
     "deleteError": "Failed to delete correspondent",
     "confirmDelete": "Are you sure you want to delete this correspondent?"
   },
+  "contracts": {
+    "title": "Contracts",
+    "create": "Create Contract",
+    "createFirst": "Create your first contract",
+    "edit": "Edit Contract",
+    "name": "Name",
+    "description": "Description",
+    "state": "State",
+    "correspondent": "Correspondent",
+    "customerId": "Customer ID",
+    "contractId": "Contract ID",
+    "created": "Created",
+    "updated": "Updated",
+    "noData": "No contracts available",
+    "notFound": "Contract not found",
+    "nameRequired": "Name is required",
+    "nameMaxLength": "Name must not exceed 200 characters",
+    "descriptionMaxLength": "Description must not exceed 1000 characters",
+    "stateRequired": "State is required",
+    "customerIdMaxLength": "Customer ID must not exceed 100 characters",
+    "contractIdMaxLength": "Contract ID must not exceed 100 characters",
+    "created": "Contract created successfully",
+    "updated": "Contract updated successfully",
+    "deleted": "Contract deleted successfully",
+    "createError": "Failed to create contract",
+    "updateError": "Failed to update contract",
+    "deleteError": "Failed to delete contract",
+    "confirmDelete": "Are you sure you want to delete '{{name}}'?",
+    "states": {
+      "Draft": "Draft",
+      "Active": "Active",
+      "Expired": "Expired",
+      "Terminated": "Terminated"
+    }
+  },
   "webhooks": {
     "title": "Webhooks",
     "create": "Create Webhook",
@@ -253,7 +289,16 @@
     "failed_to_load": "Failed to load tags"
   },
   "common": {
-    "close": "Close"
+    "close": "Close",
+    "loading": "Loading...",
+    "none": "None",
+    "actions": "Actions",
+    "view": "View",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back"
   },
   "actions": "Actions",
   "save": "Save",

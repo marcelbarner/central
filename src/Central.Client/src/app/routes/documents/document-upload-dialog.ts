@@ -61,7 +61,7 @@ import { MtxSelectModule } from '@ng-matero/extensions/select';
             bindLabel="name"
             bindValue="id"
             [placeholder]="'documents.select_document_type' | translate"
-          ></mtx-select>
+          />
         </div>
 
         <div class="select-wrapper">
@@ -74,7 +74,7 @@ import { MtxSelectModule } from '@ng-matero/extensions/select';
             bindLabel="name"
             bindValue="id"
             [placeholder]="'documents.select_correspondent' | translate"
-          ></mtx-select>
+          />
         </div>
 
         <div class="tag-select-wrapper">
@@ -89,7 +89,7 @@ import { MtxSelectModule } from '@ng-matero/extensions/select';
             [multiple]="true"
             [closeOnSelect]="false"
             [placeholder]="'documents.select_tags' | translate"
-          ></mtx-select>
+          />
         </div>
 
         <div class="file-upload">

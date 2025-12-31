@@ -213,20 +213,20 @@ await this.FeatureBackgroundAsync();
 #line 17
     await testRunner.GivenAsync("I navigate to the documents page", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-                global::Reqnroll.Table table1 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table5 = new global::Reqnroll.Table(new string[] {
                             "Field",
                             "Value"});
-                table1.AddRow(new string[] {
+                table5.AddRow(new string[] {
                             "Title",
                             "Annual Report 2024"});
-                table1.AddRow(new string[] {
+                table5.AddRow(new string[] {
                             "DocumentDate",
                             "2024-12-01"});
-                table1.AddRow(new string[] {
+                table5.AddRow(new string[] {
                             "Content",
                             "Important annual report"});
 #line 18
-    await testRunner.WhenAsync("I create a new document with the following details:", ((string)(null)), table1, "When ");
+    await testRunner.WhenAsync("I create a new document with the following details:", ((string)(null)), table5, "When ");
 #line hidden
 #line 23
     await testRunner.AndAsync("I upload the original file \"report.pdf\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");

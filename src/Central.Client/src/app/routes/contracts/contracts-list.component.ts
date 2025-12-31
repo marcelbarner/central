@@ -1,0 +1,233 @@
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatChipsModule } from '@angular/material/chips';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Store } from '@ngxs/store';
+import { PageHeader } from '@shared';
+import { ContractsState, ContractsActions } from '@core';
+import { Contract } from '../../models/contract.model';
+import { ContractDialogComponent } from './contract-dialog.component';
+
+@Component({
+  selector: 'app-contracts-list',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatCardModule,
+    MatDialogModule,
+    MatIconModule,
+    MatTableModule,
+    MatTooltipModule,
+    MatChipsModule,
+    TranslateModule,
+    PageHeader,
+  ],
+  template: `
+    <page-header />
+    <mat-card>
+      <mat-card-content>
+        <div class="header-actions">
+          <button mat-raised-button color="primary" (click)="openDialog()">
+            <mat-icon>add</mat-icon>
+            {{ 'contracts.create' | translate }}
+          </button>
+        </div>
+
+        @if (loading()) {
+          <div class="loading">{{ 'common.loading' | translate }}</div>
+        } @else if (contracts().length === 0) {
+          <div class="no-data">
+            <mat-icon>description</mat-icon>
+            <p>{{ 'contracts.noData' | translate }}</p>
+            <button mat-raised-button color="primary" (click)="openDialog()">
+              {{ 'contracts.createFirst' | translate }}
+            </button>
+          </div>
+        } @else {
+          <table mat-table [dataSource]="contracts()" class="contracts-table">
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>{{ 'contracts.name' | translate }}</th>
+              <td mat-cell *matCellDef="let contract">
+                <strong>{{ contract.name }}</strong>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="state">
+              <th mat-header-cell *matHeaderCellDef>{{ 'contracts.state' | translate }}</th>
+              <td mat-cell *matCellDef="let contract">
+                <mat-chip [class]="'state-' + contract.state.toLowerCase()">
+                  {{ 'contracts.states.' + contract.state | translate }}
+                </mat-chip>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="description">
+              <th mat-header-cell *matHeaderCellDef>{{ 'contracts.description' | translate }}</th>
+              <td mat-cell *matCellDef="let contract">{{ contract.description || '-' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>{{ 'common.actions' | translate }}</th>
+              <td mat-cell *matCellDef="let contract">
+                <button
+                  mat-icon-button
+                  color="primary"
+                  [matTooltip]="'common.view' | translate"
+                  (click)="viewContract(contract)"
+                >
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  color="primary"
+                  [matTooltip]="'common.edit' | translate"
+                  (click)="openDialog(contract)"
+                >
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  color="warn"
+                  [matTooltip]="'common.delete' | translate"
+                  (click)="deleteContract(contract)"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns" class="table-row"></tr>
+          </table>
+        }
+      </mat-card-content>
+    </mat-card>
+  `,
+  styles: [`
+    .header-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 20px;
+    }
+
+    .loading,
+    .no-data {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .no-data mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      color: rgba(0, 0, 0, 0.26);
+      margin-bottom: 16px;
+    }
+
+    .contracts-table {
+      width: 100%;
+    }
+
+    .table-row:hover {
+      background-color: rgba(0, 0, 0, 0.04);
+      cursor: pointer;
+    }
+
+    mat-chip {
+      font-size: 12px;
+    }
+
+    mat-chip.state-draft {
+      background-color: #9e9e9e;
+      color: white;
+    }
+
+    mat-chip.state-active {
+      background-color: #4caf50;
+      color: white;
+    }
+
+    mat-chip.state-expired {
+      background-color: #ff9800;
+      color: white;
+    }
+
+    mat-chip.state-terminated {
+      background-color: #f44336;
+      color: white;
+    }
+  `],
+})
+export class ContractsListComponent implements OnInit {
+  private readonly store = inject(Store);
+  private readonly dialog = inject(MatDialog);
+  private readonly translate = inject(TranslateService);
+  private readonly router = inject(Router);
+
+  displayedColumns = ['name', 'state', 'description', 'actions'];
+
+  contracts = this.store.selectSignal(ContractsState.contracts);
+  loading = this.store.selectSignal(ContractsState.loading);
+
+  ngOnInit() {
+    this.store.dispatch(new ContractsActions.Load());
+  }
+
+  openDialog(contract?: Contract) {
+    const dialogRef = this.dialog.open(ContractDialogComponent, {
+      width: '600px',
+      data: contract,
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (contract) {
+          this.store.dispatch(
+            new ContractsActions.Update(
+              contract.id,
+              result.name,
+              result.state,
+              result.description,
+              result.correspondentId,
+              result.customerId,
+              result.contractId
+            )
+          );
+        } else {
+          this.store.dispatch(
+            new ContractsActions.Add(
+              result.name,
+              result.state,
+              result.description,
+              result.correspondentId,
+              result.customerId,
+              result.contractId
+            )
+          );
+        }
+      }
+    });
+  }
+
+  viewContract(contract: Contract) {
+    this.router.navigate(['/contracts', contract.id]);
+  }
+
+  deleteContract(contract: Contract) {
+    if (confirm(this.translate.instant('contracts.confirmDelete', { name: contract.name }))) {
+      this.store.dispatch(new ContractsActions.Delete(contract.id));
+    }
+  }
+}

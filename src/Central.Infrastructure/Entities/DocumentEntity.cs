@@ -127,6 +127,17 @@ public sealed class DocumentEntity
     public CorrespondentEntity? Correspondent { get; set; }
 
     /// <summary>
+    /// Gets or sets the foreign key to the contract.
+    /// </summary>
+    public long? ContractId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the contract.
+    /// </summary>
+    [ForeignKey(nameof(ContractId))]
+    public ContractEntity? Contract { get; set; }
+
+    /// <summary>
     /// Navigation property for tags associated with this document.
     /// </summary>
     public ICollection<TagEntity> Tags { get; set; } = new List<TagEntity>();

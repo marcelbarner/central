@@ -55,15 +55,15 @@ import { DocumentTypesSelect } from '@shared/components/document-types-select/do
     DocumentTypesSelect
   ],
   template: `
-    <page-header></page-header>
+    <page-header />
 
     <mat-card>
       <mat-card-content>
         <div class="header-actions">
           <div class="filter-group">
-            <app-tags-select (selectedTagsChange)="filterByTags($event)"></app-tags-select>
-            <app-correspondents-select (selectedCorrespondentsChange)="filterByCorrespondents($event)"></app-correspondents-select>
-            <app-document-types-select (selectedDocumentTypesChange)="filterByDocumentTypes($event)"></app-document-types-select>
+            <app-tags-select (selectedTagsChange)="filterByTags($event)" />
+            <app-correspondents-select (selectedCorrespondentsChange)="filterByCorrespondents($event)" />
+            <app-document-types-select (selectedDocumentTypesChange)="filterByDocumentTypes($event)" />
           </div>
           <div class="button-group">
             <button mat-raised-button color="primary" (click)="openQuickUploadDialog()">
@@ -84,7 +84,7 @@ import { DocumentTypesSelect } from '@shared/components/document-types-select/do
             </button>
           </div>
         } @else {
-          <app-documents-table [documents]="filteredDocuments"></app-documents-table>
+          <app-documents-table [documents]="filteredDocuments" />
         }
       </mat-card-content>
     </mat-card>

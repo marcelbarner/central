@@ -33,7 +33,7 @@ public sealed class ImportCorrespondentsCsvEndpoint(ICorrespondentService corres
         var skipped = 0;
 
         using var reader = new StreamReader(req.File.OpenReadStream());
-        
+
         // Skip header line
         await reader.ReadLineAsync(ct);
 
@@ -44,7 +44,7 @@ public sealed class ImportCorrespondentsCsvEndpoint(ICorrespondentService corres
                 continue;
 
             var values = ParseCsvLine(line);
-            
+
             if (values.Length < 1)
             {
                 skipped++;

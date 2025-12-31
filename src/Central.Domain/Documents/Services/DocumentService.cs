@@ -130,6 +130,7 @@ public sealed class DocumentService : IDocumentService
         string? content,
         long? documentTypeId,
         long? correspondentId,
+        long? contractId,
         IReadOnlyCollection<long> tagIds,
         CancellationToken cancellationToken = default)
     {
@@ -146,6 +147,7 @@ public sealed class DocumentService : IDocumentService
             Content = content,
             DocumentTypeId = documentTypeId,
             CorrespondentId = correspondentId,
+            ContractId = contractId,
             TagIds = tagIds,
             Updated = now,
             UpdatedBy = currentUserId
@@ -238,6 +240,34 @@ public sealed class DocumentService : IDocumentService
         }
 
         return await repository.GetAsync(file.FilePath, cancellationToken);
+    }
+
+    public async Task<Document> AssignContractAsync(
+        long documentId,
+        long contractId,
+        bool syncCorrespondent,
+        CancellationToken cancellationToken = default)
+    {
+        var document = await _documentRepository.GetByIdAsync(documentId, cancellationToken)
+            ?? throw new InvalidOperationException($"Document with ID {documentId} not found.");
+
+        // For now, we just update the ContractId. In the infrastructure layer,
+        // we can fetch the contract to get the correspondent if needed.
+        // Since we're in the domain layer and contracts are a separate aggregate,
+        // we'll handle the correspondent sync logic in the endpoint/application layer.
+
+        var userId = await _currentUserService.GetCurrentUserIdAsync(cancellationToken);
+
+        var updated = document with
+        {
+            ContractId = contractId,
+            Updated = DateTimeOffset.UtcNow,
+            UpdatedBy = userId
+        };
+
+        var result = await _documentRepository.UpdateAsync(updated, cancellationToken);
+        await _webhookTrigger.TriggerAsync(WebhookEventType.DocumentUpdated, result.Id, cancellationToken);
+        return result;
     }
 
     private static bool IsPdf(string fileName)

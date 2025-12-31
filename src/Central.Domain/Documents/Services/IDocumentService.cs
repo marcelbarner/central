@@ -43,6 +43,7 @@ public interface IDocumentService
         string? content,
         long? documentTypeId,
         long? correspondentId,
+        long? contractId,
         IReadOnlyCollection<long> tagIds,
         CancellationToken cancellationToken = default);
 
@@ -65,4 +66,18 @@ public interface IDocumentService
     /// Gets a specific file stream for a document.
     /// </summary>
     Task<Stream> GetFileAsync(long id, string fileType, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Assigns a contract to a document, optionally syncing the correspondent.
+    /// </summary>
+    /// <param name="documentId">The document ID.</param>
+    /// <param name="contractId">The contract ID to assign.</param>
+    /// <param name="syncCorrespondent">Whether to update the document's correspondent to match the contract's correspondent.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The updated document.</returns>
+    Task<Document> AssignContractAsync(
+        long documentId,
+        long contractId,
+        bool syncCorrespondent,
+        CancellationToken cancellationToken = default);
 }

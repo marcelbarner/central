@@ -1,3 +1,5 @@
+using Central.Domain.Contracts.Ports;
+using Central.Domain.Contracts.Services;
 using Central.Domain.Correspondents.Ports;
 using Central.Domain.Correspondents.Services;
 using Central.Domain.Documents.Ports;
@@ -68,6 +70,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITagRepository, TagRepository>();
         services.AddScoped<IDocumentTypeRepository, DocumentTypeRepository>();
         services.AddScoped<ICorrespondentRepository, CorrespondentRepository>();
+        services.AddScoped<IContractRepository, ContractRepository>();
         services.AddScoped<IWebhookRepository, WebhookRepository>();
 
         // Register domain services
@@ -75,6 +78,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITagService, TagService>();
         services.AddScoped<IDocumentTypeService, DocumentTypeService>();
         services.AddScoped<ICorrespondentService, CorrespondentService>();
+        services.AddScoped<IContractService, ContractService>();
         services.AddScoped<IWebhookService, WebhookService>();
         services.AddScoped<IWebhookTrigger, WebhookTrigger>();
 

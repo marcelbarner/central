@@ -108,6 +108,53 @@ namespace Central.Infrastructure.Persistence.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
+            modelBuilder.Entity("Central.Infrastructure.Entities.ContractEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("ContractId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<long?>("CorrespondentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CustomerId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("State")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("Updated")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CorrespondentId");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Contracts", (string)null);
+                });
+
             modelBuilder.Entity("Central.Infrastructure.Entities.CorrespondentEntity", b =>
                 {
                     b.Property<long>("Id")
@@ -164,6 +211,9 @@ namespace Central.Infrastructure.Persistence.Migrations
                     b.Property<string>("Content")
                         .HasColumnType("text");
 
+                    b.Property<long?>("ContractId")
+                        .HasColumnType("bigint");
+
                     b.Property<long?>("CorrespondentId")
                         .HasColumnType("bigint");
 
@@ -203,6 +253,8 @@ namespace Central.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AddedById");
+
+                    b.HasIndex("ContractId");
 
                     b.HasIndex("CorrespondentId");
 
@@ -463,11 +515,26 @@ namespace Central.Infrastructure.Persistence.Migrations
                     b.ToTable("UserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Central.Infrastructure.Entities.ContractEntity", b =>
+                {
+                    b.HasOne("Central.Infrastructure.Entities.CorrespondentEntity", "Correspondent")
+                        .WithMany()
+                        .HasForeignKey("CorrespondentId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Correspondent");
+                });
+
             modelBuilder.Entity("Central.Infrastructure.Entities.DocumentEntity", b =>
                 {
                     b.HasOne("Central.Domain.Users.User", "AddedBy")
                         .WithMany()
                         .HasForeignKey("AddedById")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Central.Infrastructure.Entities.ContractEntity", "Contract")
+                        .WithMany("Documents")
+                        .HasForeignKey("ContractId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Central.Infrastructure.Entities.CorrespondentEntity", "Correspondent")
@@ -486,6 +553,8 @@ namespace Central.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("AddedBy");
+
+                    b.Navigation("Contract");
 
                     b.Navigation("Correspondent");
 
@@ -558,6 +627,11 @@ namespace Central.Infrastructure.Persistence.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Central.Infrastructure.Entities.ContractEntity", b =>
+                {
+                    b.Navigation("Documents");
                 });
 
             modelBuilder.Entity("Central.Infrastructure.Entities.CorrespondentEntity", b =>

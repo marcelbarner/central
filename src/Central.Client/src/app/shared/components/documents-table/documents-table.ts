@@ -1,18 +1,18 @@
-import { AfterViewInit, Component, inject, Input, input, ViewChild, viewChild } from "@angular/core";
-import { MatPaginatorModule } from "@angular/material/paginator";
-import { MatSort, MatSortModule } from "@angular/material/sort";
-import { MatTableDataSource, MatTableModule } from "@angular/material/table";
-import { Store } from "@ngxs/store";
+import { AfterViewInit, Component, inject, Input, input, ViewChild, viewChild } from '@angular/core';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { Store } from '@ngxs/store';
 import { Document as DocumentModel } from '../../models/document.model';
-import { RouterLink } from "@angular/router";
-import { MatIconModule } from "@angular/material/icon";
-import { MatTooltipModule } from "@angular/material/tooltip";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { DatePipe } from "@angular/common";
-import { CorrespondentsState, DocumentsActions, DocumentTypesState, TagsState } from "@core";
-import { DocumentService } from "app/routes/documents/document.service";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { MatButtonModule } from "@angular/material/button";
+import { RouterLink } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { DatePipe } from '@angular/common';
+import { CorrespondentsState, DocumentsActions, DocumentTypesState, TagsState } from '@core';
+import { DocumentService } from 'app/routes/documents/document.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-documents-table',

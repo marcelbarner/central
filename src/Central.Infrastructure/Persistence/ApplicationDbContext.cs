@@ -47,6 +47,11 @@ public sealed class ApplicationDbContext : IdentityDbContext<
     public DbSet<CorrespondentEntity> Correspondents => Set<CorrespondentEntity>();
 
     /// <summary>
+    /// Gets or sets the Contracts DbSet.
+    /// </summary>
+    public DbSet<ContractEntity> Contracts => Set<ContractEntity>();
+
+    /// <summary>
     /// Gets or sets the Webhooks DbSet.
     /// </summary>
     public DbSet<WebhookEntity> Webhooks => Set<WebhookEntity>();

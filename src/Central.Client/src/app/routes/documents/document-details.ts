@@ -21,6 +21,8 @@ import {
   DocumentTypesActions,
   CorrespondentsState,
   CorrespondentsActions,
+  ContractsState,
+  ContractsActions,
 } from '@core';
 import { DocumentService } from './document.service';
 import { Document as DocumentModel } from '../../shared/models/document.model';
@@ -32,8 +34,9 @@ import { MtxSelectModule } from '@ng-matero/extensions/select';
 import { MtxDatetimepickerModule } from '@ng-matero/extensions/datetimepicker';
 import { MarkdownComponent } from 'ngx-markdown';
 import { DocumentTypesSelect } from '@shared/components/document-types-select/document-types-select';
-import { CorrespondentsSelect } from "@shared/components/correspondents-select/correspondents-select";
-import { TagsSelect } from "@shared/components/tags-select/tags-select";
+import { CorrespondentsSelect } from '@shared/components/correspondents-select/correspondents-select';
+import { ContractsSelect } from '@shared/components/contracts-select/contracts-select';
+import { TagsSelect } from '@shared/components/tags-select/tags-select';
 
 @Component({
   selector: 'app-document-details',
@@ -56,10 +59,11 @@ import { TagsSelect } from "@shared/components/tags-select/tags-select";
     MtxDatetimepickerModule,
     DocumentTypesSelect,
     CorrespondentsSelect,
+    ContractsSelect,
     TagsSelect
 ],
   template: `
-    <page-header></page-header>
+    <page-header />
 
     @if (loading) {
       <div class="loading-container">
@@ -128,7 +132,7 @@ import { TagsSelect } from "@shared/components/tags-select/tags-select";
                         <mtx-datetimepicker-toggle
                           [for]="datetimePicker"
                           matSuffix
-                        ></mtx-datetimepicker-toggle>
+                        />
                       </mat-form-field>
                     </div>
 
@@ -140,6 +144,11 @@ import { TagsSelect } from "@shared/components/tags-select/tags-select";
                     <div class="detail-row">
                       <label>Correspondent:</label>
                       <app-correspondents-select [(selectedCorrespondents)]="editedCorrespondentId" [hideLabel]="true" />
+                    </div>
+
+                    <div class="detail-row">
+                      <label>Contract:</label>
+                      <app-contracts-select [(selectedContract)]="editedContractId" [hideLabel]="true" />
                     </div>
 
                     <div class="detail-row">
@@ -206,7 +215,7 @@ import { TagsSelect } from "@shared/components/tags-select/tags-select";
                 </mat-tab>
                 <mat-tab label="Content">
                   <div class="tab-content preview">
-                    <markdown [data]="document.content || 'No content available.'"></markdown>
+                    <markdown [data]="document.content || 'No content available.'" />
                   </div>
                 </mat-tab>
               </mat-tab-group>
@@ -231,7 +240,7 @@ import { TagsSelect } from "@shared/components/tags-select/tags-select";
                     [show-all]="true"
                     [autoresize]="true"
                     class="pdf-viewer"
-                  ></pdf-viewer>
+                  />
                 </div>
               } @else {
                 <div class="no-preview">
@@ -487,17 +496,19 @@ export class DocumentDetails implements OnInit {
   editedContent: string | null = null;
   editedDocumentTypeId: number | null = null;
   editedCorrespondentId: number | null = null;
+  editedContractId: number | null = null;
   editedTagIds: number[] = [];
 
-  private tagsMap: Map<number, string> = new Map();
-  private documentTypesMap: Map<number, string> = new Map();
-  private correspondentsMap: Map<number, string> = new Map();
+  private tagsMap = new Map<number, string>();
+  private documentTypesMap = new Map<number, string>();
+  private correspondentsMap = new Map<number, string>();
 
   ngOnInit() {
     // Load tags, document types, and correspondents
     this.store.dispatch(new TagsActions.Load());
     this.store.dispatch(new DocumentTypesActions.Load());
     this.store.dispatch(new CorrespondentsActions.Load());
+    this.store.dispatch(new ContractsActions.Load());
 
     this.tags$.subscribe((tags) => {
       this.tagsMap = new Map(tags.map((t) => [t.id, t.name]));
@@ -540,6 +551,7 @@ export class DocumentDetails implements OnInit {
     this.editedContent = this.document.content;
     this.editedDocumentTypeId = this.document.documentTypeId;
     this.editedCorrespondentId = this.document.correspondentId;
+    this.editedContractId = this.document.contractId;
     this.editedTagIds = [...(this.document.tagIds || [])];
   }
 
@@ -560,6 +572,7 @@ export class DocumentDetails implements OnInit {
           content: this.editedContent,
           documentTypeId: this.editedDocumentTypeId,
           correspondentId: this.editedCorrespondentId,
+          contractId: this.editedContractId,
           tagIds: this.editedTagIds,
         }),
       )

@@ -73,6 +73,11 @@ public sealed record Document
     public long? CorrespondentId { get; init; }
 
     /// <summary>
+    /// Gets the ID of the contract, or null if no contract is assigned.
+    /// </summary>
+    public long? ContractId { get; init; }
+
+    /// <summary>
     /// Gets the collection of tag IDs associated with this document.
     /// </summary>
     public IReadOnlyCollection<long> TagIds { get; init; } = Array.Empty<long>();

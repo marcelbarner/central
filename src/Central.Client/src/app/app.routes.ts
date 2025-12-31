@@ -36,6 +36,16 @@ export const routes: Routes = [
           import('./routes/correspondents/correspondents-list.component').then(m => m.CorrespondentsListComponent),
       },
       {
+        path: 'contracts',
+        loadComponent: () =>
+          import('./routes/contracts/contracts-list.component').then(m => m.ContractsListComponent),
+      },
+      {
+        path: 'contracts/:id',
+        loadComponent: () =>
+          import('./routes/contracts/contract-details.component').then(m => m.ContractDetailsComponent),
+      },
+      {
         path: 'webhooks',
         loadComponent: () =>
           import('./routes/webhooks/webhooks-list.component').then(m => m.WebhooksListComponent),

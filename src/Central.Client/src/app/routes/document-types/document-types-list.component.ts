@@ -28,7 +28,7 @@ import { DocumentTypeDialogComponent } from './document-type-dialog.component';
     PageHeader,
   ],
   template: `
-    <page-header></page-header>
+    <page-header />
     <mat-card>
       <mat-card-content>
         <div class="header-actions">

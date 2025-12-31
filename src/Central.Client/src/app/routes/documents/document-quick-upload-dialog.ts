@@ -199,7 +199,7 @@ export class DocumentQuickUploadDialog {
     const uploadObservables = this.selectedFiles.map(file => {
       const title = file.name.replace(/\.[^/.]+$/, '');
       return this.store.dispatch(new DocumentsActions.Add({
-        title: title,
+        title,
         documentDate: null,
         content: null,
         originalFile: file,

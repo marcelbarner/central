@@ -34,7 +34,7 @@ public sealed class ImportWebhooksCsvEndpoint(IWebhookService webhookService)
         var skipped = 0;
 
         using var reader = new StreamReader(req.File.OpenReadStream());
-        
+
         // Skip header line
         await reader.ReadLineAsync(ct);
 
@@ -45,7 +45,7 @@ public sealed class ImportWebhooksCsvEndpoint(IWebhookService webhookService)
                 continue;
 
             var values = ParseCsvLine(line);
-            
+
             // Expected format: EventType,Url,Name,Description
             if (values.Length < 2)
             {
@@ -73,7 +73,7 @@ public sealed class ImportWebhooksCsvEndpoint(IWebhookService webhookService)
                 continue;
             }
 
-            if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) || 
+            if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) ||
                 (uri.Scheme != "http" && uri.Scheme != "https"))
             {
                 skipped++;
@@ -84,8 +84,8 @@ public sealed class ImportWebhooksCsvEndpoint(IWebhookService webhookService)
             try
             {
                 await webhookService.CreateAsync(
-                    eventType, 
-                    url, 
+                    eventType,
+                    url,
                     string.IsNullOrWhiteSpace(name) ? null : name,
                     string.IsNullOrWhiteSpace(description) ? null : description,
                     ct);

@@ -33,8 +33,8 @@ public class CorrespondentRepository(ApplicationDbContext context) : ICorrespond
     /// <inheritdoc />
     public async Task<Correspondent?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
-       return await context.Correspondents.ToDomains()
-            .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+        return await context.Correspondents.ToDomains()
+             .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
     }
 
     /// <inheritdoc />
@@ -47,9 +47,9 @@ public class CorrespondentRepository(ApplicationDbContext context) : ICorrespond
     /// <inheritdoc />
     public async Task<IReadOnlyCollection<Correspondent>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-       return await context.Correspondents.ToDomains()
-            .OrderBy(c => c.Name)
-            .ToListAsync(cancellationToken);
+        return await context.Correspondents.ToDomains()
+             .OrderBy(c => c.Name)
+             .ToListAsync(cancellationToken);
     }
 
     /// <inheritdoc />
