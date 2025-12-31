@@ -184,7 +184,15 @@
     "document_type": "Document Type",
     "select_document_type": "Select document type...",
     "correspondent": "Correspondent",
-    "select_correspondent": "Select correspondent..."
+    "select_correspondent": "Select correspondent...",
+    "state": "State",
+    "states": {
+      "Imported": "Imported",
+      "Processing": "Processing",
+      "Review": "Review",
+      "Approved": "Approved",
+      "Failed": "Failed"
+    }
   },
   "documentTypes": {
     "title": "Document Types",

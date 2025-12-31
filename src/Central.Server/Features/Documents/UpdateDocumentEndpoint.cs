@@ -1,3 +1,4 @@
+using Central.Domain.Documents;
 using Central.Domain.Documents.Services;
 using Central.Server.Mappers;
 
@@ -16,6 +17,7 @@ public sealed record UpdateDocumentRequest
     public long? DocumentTypeId { get; init; }
     public long? CorrespondentId { get; init; }
     public long? ContractId { get; init; }
+    public required string State { get; init; }
     public IReadOnlyCollection<long> TagIds { get; init; } = Array.Empty<long>();
 
     internal sealed class Validator : Validator<UpdateDocumentRequest>
@@ -42,7 +44,8 @@ public sealed class UpdateDocumentEndpoint(
     {
         try
         {
-            var result = await documentService.UpdateAsync(
+            var state = Enum.Parse<DocumentState>(req.State);
+            var updatedDocument = await documentService.UpdateAsync(
                 req.Id,
                 req.Title,
                 req.DocumentDate,
@@ -50,10 +53,11 @@ public sealed class UpdateDocumentEndpoint(
                 req.DocumentTypeId,
                 req.CorrespondentId,
                 req.ContractId,
+                state,
                 req.TagIds,
                 ct);
 
-            await Send.OkAsync(result.ToDto(), ct);
+            await Send.OkAsync(updatedDocument.ToDto(), ct);
         }
         catch (InvalidOperationException)
         {

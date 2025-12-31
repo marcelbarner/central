@@ -78,6 +78,11 @@ public sealed record Document
     public long? ContractId { get; init; }
 
     /// <summary>
+    /// Gets the processing state of the document.
+    /// </summary>
+    public required DocumentState State { get; init; }
+
+    /// <summary>
     /// Gets the collection of tag IDs associated with this document.
     /// </summary>
     public IReadOnlyCollection<long> TagIds { get; init; } = Array.Empty<long>();

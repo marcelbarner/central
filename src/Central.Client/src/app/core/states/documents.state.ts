@@ -83,6 +83,8 @@ export namespace DocumentsActions {
         content: string | null;
         documentTypeId?: number | null;
         correspondentId?: number | null;
+        contractId?: number | null;
+        state: string;
         tagIds?: number[];
       }
     ) {}

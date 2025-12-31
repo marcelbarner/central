@@ -23,6 +23,7 @@ public sealed class DocumentEntityConfiguration : IEntityTypeConfiguration<Docum
         builder.Property(e => e.ThumbnailFilePath).HasMaxLength(2000);
         builder.Property(e => e.Added).IsRequired();
         builder.Property(e => e.Updated).IsRequired();
+        builder.Property(e => e.State).IsRequired();
 
         // Configure user relationships with ON DELETE SET NULL
         builder.HasOne(e => e.AddedBy)

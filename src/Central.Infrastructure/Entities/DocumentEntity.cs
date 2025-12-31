@@ -138,6 +138,12 @@ public sealed class DocumentEntity
     public ContractEntity? Contract { get; set; }
 
     /// <summary>
+    /// Gets or sets the processing state of the document.
+    /// </summary>
+    [Required]
+    public int State { get; set; }
+
+    /// <summary>
     /// Navigation property for tags associated with this document.
     /// </summary>
     public ICollection<TagEntity> Tags { get; set; } = new List<TagEntity>();

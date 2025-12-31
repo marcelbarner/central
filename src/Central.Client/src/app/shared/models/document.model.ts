@@ -3,6 +3,14 @@ export interface DocumentFile {
   filePath: string;
 }
 
+export enum DocumentState {
+  Imported = 'Imported',
+  Processing = 'Processing',
+  Review = 'Review',
+  Approved = 'Approved',
+  Failed = 'Failed'
+}
+
 export interface Document {
   id: number;
   title: string;
@@ -18,6 +26,7 @@ export interface Document {
   documentTypeId: number | null;
   correspondentId: number | null;
   contractId: number | null;
+  state: DocumentState;
   tagIds: number[];
 }
 
@@ -39,5 +48,6 @@ export interface UpdateDocumentRequest {
   documentTypeId?: number | null;
   correspondentId?: number | null;
   contractId?: number | null;
+  state: string;
   tagIds?: number[];
 }

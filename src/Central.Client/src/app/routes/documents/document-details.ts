@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -25,7 +26,7 @@ import {
   ContractsActions,
 } from '@core';
 import { DocumentService } from './document.service';
-import { Document as DocumentModel } from '../../shared/models/document.model';
+import { Document as DocumentModel, DocumentState } from '../../shared/models/document.model';
 import { Tag } from '../../models/tag.model';
 import { DocumentType } from '../../models/document-type.model';
 import { Correspondent } from '../../models/correspondent.model';
@@ -33,6 +34,7 @@ import { Observable } from 'rxjs';
 import { MtxSelectModule } from '@ng-matero/extensions/select';
 import { MtxDatetimepickerModule } from '@ng-matero/extensions/datetimepicker';
 import { MarkdownComponent } from 'ngx-markdown';
+import { TranslateModule } from '@ngx-translate/core';
 import { DocumentTypesSelect } from '@shared/components/document-types-select/document-types-select';
 import { CorrespondentsSelect } from '@shared/components/correspondents-select/correspondents-select';
 import { ContractsSelect } from '@shared/components/contracts-select/contracts-select';
@@ -49,6 +51,7 @@ import { TagsSelect } from '@shared/components/tags-select/tags-select';
     MatIconModule,
     MatInputModule,
     MatFormFieldModule,
+    MatSelectModule,
     MatSnackBarModule,
     MatTabsModule,
     MatTooltipModule,
@@ -57,6 +60,7 @@ import { TagsSelect } from '@shared/components/tags-select/tags-select';
     MtxSelectModule,
     MarkdownComponent,
     MtxDatetimepickerModule,
+    TranslateModule,
     DocumentTypesSelect,
     CorrespondentsSelect,
     ContractsSelect,
@@ -149,6 +153,19 @@ import { TagsSelect } from '@shared/components/tags-select/tags-select';
                     <div class="detail-row">
                       <label>Contract:</label>
                       <app-contracts-select [(selectedContract)]="editedContractId" [hideLabel]="true" />
+                    </div>
+
+                    <div class="detail-row">
+                      <label>{{ 'documents.state' | translate }}:</label>
+                      <mat-form-field appearance="outline">
+                        <mat-select [(ngModel)]="editedState">
+                          @for (state of documentStates; track state) {
+                            <mat-option [value]="state">
+                              {{ 'documents.states.' + state | translate }}
+                            </mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
                     </div>
 
                     <div class="detail-row">
@@ -497,7 +514,10 @@ export class DocumentDetails implements OnInit {
   editedDocumentTypeId: number | null = null;
   editedCorrespondentId: number | null = null;
   editedContractId: number | null = null;
+  editedState: string = DocumentState.Imported;
   editedTagIds: number[] = [];
+
+  documentStates = Object.values(DocumentState);
 
   private tagsMap = new Map<number, string>();
   private documentTypesMap = new Map<number, string>();
@@ -552,6 +572,7 @@ export class DocumentDetails implements OnInit {
     this.editedDocumentTypeId = this.document.documentTypeId;
     this.editedCorrespondentId = this.document.correspondentId;
     this.editedContractId = this.document.contractId;
+    this.editedState = this.document.state;
     this.editedTagIds = [...(this.document.tagIds || [])];
   }
 
@@ -573,6 +594,7 @@ export class DocumentDetails implements OnInit {
           documentTypeId: this.editedDocumentTypeId,
           correspondentId: this.editedCorrespondentId,
           contractId: this.editedContractId,
+          state: this.editedState,
           tagIds: this.editedTagIds,
         }),
       )

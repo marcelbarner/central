@@ -44,6 +44,7 @@ public interface IDocumentService
         long? documentTypeId,
         long? correspondentId,
         long? contractId,
+        DocumentState state,
         IReadOnlyCollection<long> tagIds,
         CancellationToken cancellationToken = default);
 

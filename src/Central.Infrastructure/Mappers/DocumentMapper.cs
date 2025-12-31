@@ -26,6 +26,7 @@ public static partial class DocumentMapper
     [MapperIgnoreTarget(nameof(DocumentEntity.UpdatedBy))]
     [MapperIgnoreTarget(nameof(DocumentEntity.DocumentType))]
     [MapperIgnoreTarget(nameof(DocumentEntity.Correspondent))]
+    [MapperIgnoreTarget(nameof(DocumentEntity.Contract))]
     [MapperIgnoreTarget(nameof(DocumentEntity.Tags))]
     [MapperIgnoreSource(nameof(Document.TagIds))]
     public static partial DocumentEntity ToEntity(this Document document);
@@ -43,6 +44,7 @@ public static partial class DocumentMapper
     [MapperIgnoreSource(nameof(DocumentEntity.UpdatedBy))]
     [MapperIgnoreSource(nameof(DocumentEntity.DocumentType))]
     [MapperIgnoreSource(nameof(DocumentEntity.Correspondent))]
+    [MapperIgnoreSource(nameof(DocumentEntity.Contract))]
     [MapperIgnoreSource(nameof(DocumentEntity.Tags))]
     [MapProperty(nameof(DocumentEntity.AddedById), nameof(Document.AddedBy))]
     [MapProperty(nameof(DocumentEntity.UpdatedById), nameof(Document.UpdatedBy))]
@@ -84,6 +86,7 @@ public static partial class DocumentMapper
     [MapperIgnoreTarget(nameof(DocumentEntity.UpdatedBy))]
     [MapperIgnoreTarget(nameof(DocumentEntity.DocumentType))]
     [MapperIgnoreTarget(nameof(DocumentEntity.Correspondent))]
+    [MapperIgnoreTarget(nameof(DocumentEntity.Contract))]
     [MapperIgnoreTarget(nameof(DocumentEntity.Tags))]
     [MapperIgnoreSource(nameof(Document.Id))]
     [MapperIgnoreSource(nameof(Document.Added))]

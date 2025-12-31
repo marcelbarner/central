@@ -102,6 +102,7 @@ public sealed class DocumentService : IDocumentService
             UpdatedBy = currentUserId,
             DocumentTypeId = documentTypeId,
             CorrespondentId = correspondentId,
+            State = DocumentState.Imported,
             TagIds = tagIds
         };
 
@@ -131,6 +132,7 @@ public sealed class DocumentService : IDocumentService
         long? documentTypeId,
         long? correspondentId,
         long? contractId,
+        DocumentState state,
         IReadOnlyCollection<long> tagIds,
         CancellationToken cancellationToken = default)
     {
@@ -148,6 +150,7 @@ public sealed class DocumentService : IDocumentService
             DocumentTypeId = documentTypeId,
             CorrespondentId = correspondentId,
             ContractId = contractId,
+            State = state,
             TagIds = tagIds,
             Updated = now,
             UpdatedBy = currentUserId

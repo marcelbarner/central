@@ -65,6 +65,7 @@ public sealed class AssignContractToDocumentEndpoint(
                     document.DocumentTypeId,
                     contract.CorrespondentId,
                     document.ContractId,
+                    document.State,
                     document.TagIds,
                     ct);
             }
