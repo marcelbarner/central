@@ -13,14 +13,27 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { Store, Select } from '@ngxs/store';
 import { PageHeader } from '@shared';
-import { DocumentsActions, TagsState, TagsActions, DocumentTypesState, DocumentTypesActions, CorrespondentsState, CorrespondentsActions } from '@core';
+import {
+  DocumentsActions,
+  TagsState,
+  TagsActions,
+  DocumentTypesState,
+  DocumentTypesActions,
+  CorrespondentsState,
+  CorrespondentsActions,
+} from '@core';
 import { DocumentService } from './document.service';
-import { Document as DocumentModel } from './document.model';
+import { Document as DocumentModel } from '../../shared/models/document.model';
 import { Tag } from '../../models/tag.model';
 import { DocumentType } from '../../models/document-type.model';
 import { Correspondent } from '../../models/correspondent.model';
 import { Observable } from 'rxjs';
 import { MtxSelectModule } from '@ng-matero/extensions/select';
+import { MtxDatetimepickerModule } from '@ng-matero/extensions/datetimepicker';
+import { MarkdownComponent } from 'ngx-markdown';
+import { DocumentTypesSelect } from '@shared/components/document-types-select/document-types-select';
+import { CorrespondentsSelect } from "@shared/components/correspondents-select/correspondents-select";
+import { TagsSelect } from "@shared/components/tags-select/tags-select";
 
 @Component({
   selector: 'app-document-details',
@@ -39,7 +52,12 @@ import { MtxSelectModule } from '@ng-matero/extensions/select';
     PdfViewerModule,
     PageHeader,
     MtxSelectModule,
-  ],
+    MarkdownComponent,
+    MtxDatetimepickerModule,
+    DocumentTypesSelect,
+    CorrespondentsSelect,
+    TagsSelect
+],
   template: `
     <page-header></page-header>
 
@@ -54,38 +72,43 @@ import { MtxSelectModule } from '@ng-matero/extensions/select';
           <mat-card>
             <mat-card-header>
               <mat-card-title>
-                @if (editMode) {
+                <!-- @if (editMode) {
                   <mat-form-field appearance="outline" class="title-field">
                     <input matInput [(ngModel)]="editedTitle" placeholder="Document title" />
                   </mat-form-field>
-                } @else {
-                  {{ document.title }}
-                }
+                } @else { -->
+                {{ document.title }}
+                <!-- } -->
               </mat-card-title>
               <div class="header-actions">
-                @if (editMode) {
-                  <button mat-raised-button (click)="cancelEdit()">
+                <!-- @if (editMode) { -->
+                <!-- <button mat-raised-button (click)="cancelEdit()">
                     <mat-icon>close</mat-icon>
                     Cancel
-                  </button>
-                  <button mat-raised-button color="primary" (click)="saveChanges()" [disabled]="saving">
-                    <mat-icon>save</mat-icon>
-                    {{ saving ? 'Saving...' : 'Save' }}
-                  </button>
-                } @else {
-                  <button mat-icon-button (click)="enableEdit()" matTooltip="Edit">
+                  </button> -->
+                <button
+                  mat-raised-button
+                  color="primary"
+                  (click)="saveChanges()"
+                  [disabled]="saving"
+                >
+                  <mat-icon>save</mat-icon>
+                  {{ saving ? 'Saving...' : 'Save' }}
+                </button>
+                <!-- } @else { -->
+                <!-- <button mat-icon-button (click)="enableEdit()" matTooltip="Edit">
                     <mat-icon>edit</mat-icon>
-                  </button>
-                  <button mat-icon-button (click)="downloadOriginal()" matTooltip="Download Original">
-                    <mat-icon>download</mat-icon>
-                  </button>
-                  <button mat-icon-button (click)="downloadArchive()" matTooltip="Download Archive">
-                    <mat-icon>archive</mat-icon>
-                  </button>
-                  <button mat-icon-button (click)="goBack()" matTooltip="Back to list">
-                    <mat-icon>arrow_back</mat-icon>
-                  </button>
-                }
+                  </button> -->
+                <button mat-icon-button (click)="downloadOriginal()" matTooltip="Download Original">
+                  <mat-icon>download</mat-icon>
+                </button>
+                <button mat-icon-button (click)="downloadArchive()" matTooltip="Download Archive">
+                  <mat-icon>archive</mat-icon>
+                </button>
+                <button mat-icon-button (click)="goBack()" matTooltip="Back to list">
+                  <mat-icon>arrow_back</mat-icon>
+                </button>
+                <!-- } -->
               </div>
             </mat-card-header>
 
@@ -95,91 +118,33 @@ import { MtxSelectModule } from '@ng-matero/extensions/select';
                   <div class="tab-content">
                     <div class="detail-row">
                       <label>Document Date:</label>
-                      @if (editMode) {
-                        <mat-form-field appearance="outline">
-                          <input matInput type="datetime-local" [(ngModel)]="editedDocumentDate" />
-                        </mat-form-field>
-                      } @else {
-                        <span>{{ document.documentDate ? (document.documentDate | date: 'medium') : 'Not set' }}</span>
-                      }
-                    </div>
-
-                    <div class="detail-row">
-                      <label>Content:</label>
-                      @if (editMode) {
-                        <mat-form-field appearance="outline" class="full-width">
-                          <textarea matInput [(ngModel)]="editedContent" rows="8"></textarea>
-                        </mat-form-field>
-                      } @else {
-                        <p class="content">{{ document.content || 'No content' }}</p>
-                      }
+                      <mat-form-field appearance="outline">
+                        <mtx-datetimepicker #datetimePicker type="date" />
+                        <input
+                          [mtxDatetimepicker]="datetimePicker"
+                          [(ngModel)]="editedDocumentDate"
+                          matInput
+                        />
+                        <mtx-datetimepicker-toggle
+                          [for]="datetimePicker"
+                          matSuffix
+                        ></mtx-datetimepicker-toggle>
+                      </mat-form-field>
                     </div>
 
                     <div class="detail-row">
                       <label>Document Type:</label>
-                      @if (editMode) {
-                        <div class="select-wrapper">
-                          <mtx-select
-                            [(ngModel)]="editedDocumentTypeId"
-                            name="documentType"
-                            [items]="(documentTypes$ | async) ?? []"
-                            bindLabel="name"
-                            bindValue="id"
-                            placeholder="Select document type"
-                            appendTo="body"
-                          ></mtx-select>
-                        </div>
-                      } @else {
-                        <span>{{ getDocumentTypeName(document.documentTypeId) || 'Not set' }}</span>
-                      }
+                      <app-document-types-select [(selectedDocumentTypes)]="editedDocumentTypeId" [hideLabel]="true" />
                     </div>
 
                     <div class="detail-row">
                       <label>Correspondent:</label>
-                      @if (editMode) {
-                        <div class="select-wrapper">
-                          <mtx-select
-                            [(ngModel)]="editedCorrespondentId"
-                            name="correspondent"
-                            [items]="(correspondents$ | async) ?? []"
-                            bindLabel="name"
-                            bindValue="id"
-                            placeholder="Select correspondent"
-                            appendTo="body"
-                          ></mtx-select>
-                        </div>
-                      } @else {
-                        <span>{{ getCorrespondentName(document.correspondentId) || 'Not set' }}</span>
-                      }
+                      <app-correspondents-select [(selectedCorrespondents)]="editedCorrespondentId" [hideLabel]="true" />
                     </div>
 
                     <div class="detail-row">
                       <label>Tags:</label>
-                      @if (editMode) {
-                        <div class="tag-edit-wrapper">
-                          <mtx-select
-                            [(ngModel)]="editedTagIds"
-                            name="tags"
-                            [items]="(tags$ | async) ?? []"
-                            bindLabel="name"
-                            bindValue="id"
-                            [multiple]="true"
-                            [closeOnSelect]="false"
-                            placeholder="Select tags"
-                            appendTo="body"
-                          ></mtx-select>
-                        </div>
-                      } @else {
-                        <div class="tags-display">
-                          @if (document.tagIds && document.tagIds.length > 0) {
-                            @for (tagId of document.tagIds; track tagId) {
-                              <span class="tag-chip">{{ getTagName(tagId) }}</span>
-                            }
-                          } @else {
-                            <span class="no-tags">No tags</span>
-                          }
-                        </div>
-                      }
+                     <app-tags-select [(selectedTags)]="editedTagIds" [hideLabel]="true" />
                     </div>
 
                     <div class="detail-row">
@@ -239,14 +204,11 @@ import { MtxSelectModule } from '@ng-matero/extensions/select';
                     }
                   </div>
                 </mat-tab>
-
-                @if (document.thumbnail) {
-                  <mat-tab label="Thumbnail">
-                    <div class="tab-content preview">
-                      <img [src]="getThumbnailUrl()" alt="Document preview" class="preview-image" />
-                    </div>
-                  </mat-tab>
-                }
+                <mat-tab label="Content">
+                  <div class="tab-content preview">
+                    <markdown [data]="document.content || 'No content available.'"></markdown>
+                  </div>
+                </mat-tab>
               </mat-tab-group>
             </mat-card-content>
           </mat-card>
@@ -287,220 +249,222 @@ import { MtxSelectModule } from '@ng-matero/extensions/select';
       </div>
     }
   `,
-  styles: [`
-    .loading-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 400px;
-    }
-
-    .loading,
-    .error {
-      text-align: center;
-      padding: 40px;
-      color: #666;
-      font-size: 16px;
-    }
-
-    .document-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      height: calc(100vh - 200px);
-      min-height: 600px;
-    }
-
-    .left-panel,
-    .right-panel {
-      height: 100%;
-      overflow: hidden;
-    }
-
-    .left-panel mat-card,
-    .right-panel mat-card {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .left-panel mat-card-content {
-      flex: 1;
-      overflow-y: auto;
-    }
-
-    .pdf-card {
-      mat-card-content {
-        flex: 1;
-        overflow: hidden;
-        padding: 0 !important;
-      }
-    }
-
-    .pdf-container {
-      height: 100%;
-      overflow-y: auto;
-      background-color: #525659;
-    }
-
-    .pdf-viewer {
-      width: 100%;
-      height: 100%;
-    }
-
-    .no-preview {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      color: #999;
-
-      mat-icon {
-        font-size: 64px;
-        width: 64px;
-        height: 64px;
-        margin-bottom: 16px;
+  styles: [
+    `
+      .loading-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 400px;
       }
 
-      p {
-        margin: 0;
+      .loading,
+      .error {
+        text-align: center;
+        padding: 40px;
+        color: #666;
         font-size: 16px;
       }
-    }
 
-    mat-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-
-      mat-card-title {
-        font-size: 24px;
-        font-weight: 500;
-        margin: 0;
-        flex: 1;
+      .document-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        height: calc(100vh - 200px);
+        min-height: 600px;
       }
 
-      .title-field {
-        width: 100%;
-        margin: 0;
+      .left-panel,
+      .right-panel {
+        height: 100%;
+        overflow: hidden;
       }
 
-      .header-actions {
+      .left-panel mat-card,
+      .right-panel mat-card {
+        height: 100%;
         display: flex;
-        gap: 8px;
-        align-items: center;
-      }
-    }
-
-    .tab-content {
-      padding: 24px 0;
-
-      &.preview {
-        text-align: center;
-      }
-    }
-
-    .detail-row {
-      display: grid;
-      grid-template-columns: 150px 1fr;
-      gap: 16px;
-      margin-bottom: 16px;
-      align-items: start;
-
-      label {
-        font-weight: 500;
-        color: #666;
-        padding-top: 8px;
+        flex-direction: column;
       }
 
-      span {
-        padding-top: 8px;
-      }
-
-      .content {
-        margin: 0;
-        white-space: pre-wrap;
-        line-height: 1.6;
-      }
-
-      mat-form-field {
-        width: 100%;
-      }
-    }
-
-    .full-width {
-      width: 100%;
-    }
-
-    .select-wrapper,
-    .tag-edit-wrapper {
-      width: 100%;
-    }
-
-    .tags-display {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      padding-top: 8px;
-    }
-
-    .tag-chip {
-      display: inline-block;
-      padding: 4px 12px;
-      background-color: #e3f2fd;
-      color: #1976d2;
-      border-radius: 16px;
-      font-size: 14px;
-      font-weight: 500;
-    }
-
-    .no-tags {
-      color: #999;
-      font-style: italic;
-    }
-
-    .file-card {
-      display: flex;
-      gap: 16px;
-      padding: 16px;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      margin-bottom: 16px;
-      align-items: center;
-
-      mat-icon {
-        font-size: 48px;
-        width: 48px;
-        height: 48px;
-        color: #1976d2;
-      }
-
-      .file-info {
+      .left-panel mat-card-content {
         flex: 1;
+        overflow-y: auto;
+      }
 
-        h4 {
-          margin: 0 0 4px;
-          font-size: 16px;
-          font-weight: 500;
+      .pdf-card {
+        mat-card-content {
+          flex: 1;
+          overflow: hidden;
+          padding: 0 !important;
+        }
+      }
+
+      .pdf-container {
+        height: 100%;
+        overflow-y: auto;
+        background-color: #525659;
+      }
+
+      .pdf-viewer {
+        width: 100%;
+        height: 100%;
+      }
+
+      .no-preview {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: #999;
+
+        mat-icon {
+          font-size: 64px;
+          width: 64px;
+          height: 64px;
+          margin-bottom: 16px;
         }
 
         p {
-          margin: 0 0 12px;
-          color: #666;
-          font-size: 14px;
+          margin: 0;
+          font-size: 16px;
         }
       }
-    }
 
-    .preview-image {
-      max-width: 100%;
-      max-height: 600px;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-  `],
+      mat-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+
+        mat-card-title {
+          font-size: 24px;
+          font-weight: 500;
+          margin: 0;
+          flex: 1;
+        }
+
+        .title-field {
+          width: 100%;
+          margin: 0;
+        }
+
+        .header-actions {
+          display: flex;
+          gap: 8px;
+          align-items: center;
+        }
+      }
+
+      .tab-content {
+        padding: 24px 0;
+
+        &.preview {
+          text-align: center;
+        }
+      }
+
+      .detail-row {
+        display: grid;
+        grid-template-columns: 150px 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
+        align-items: start;
+
+        label {
+          font-weight: 500;
+          color: #666;
+          padding-top: 8px;
+        }
+
+        span {
+          padding-top: 8px;
+        }
+
+        .content {
+          margin: 0;
+          white-space: pre-wrap;
+          line-height: 1.6;
+        }
+
+        mat-form-field {
+          width: 100%;
+        }
+      }
+
+      .full-width {
+        width: 100%;
+      }
+
+      .select-wrapper,
+      .tag-edit-wrapper {
+        width: 100%;
+      }
+
+      .tags-display {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding-top: 8px;
+      }
+
+      .tag-chip {
+        display: inline-block;
+        padding: 4px 12px;
+        background-color: #e3f2fd;
+        color: #1976d2;
+        border-radius: 16px;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .no-tags {
+        color: #999;
+        font-style: italic;
+      }
+
+      .file-card {
+        display: flex;
+        gap: 16px;
+        padding: 16px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        align-items: center;
+
+        mat-icon {
+          font-size: 48px;
+          width: 48px;
+          height: 48px;
+          color: #1976d2;
+        }
+
+        .file-info {
+          flex: 1;
+
+          h4 {
+            margin: 0 0 4px;
+            font-size: 16px;
+            font-weight: 500;
+          }
+
+          p {
+            margin: 0 0 12px;
+            color: #666;
+            font-size: 14px;
+          }
+        }
+      }
+
+      .preview-image {
+        max-width: 100%;
+        max-height: 600px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+    `,
+  ],
 })
 export class DocumentDetails implements OnInit {
   private readonly route = inject(ActivatedRoute);
@@ -535,16 +499,16 @@ export class DocumentDetails implements OnInit {
     this.store.dispatch(new DocumentTypesActions.Load());
     this.store.dispatch(new CorrespondentsActions.Load());
 
-    this.tags$.subscribe(tags => {
-      this.tagsMap = new Map(tags.map(t => [t.id, t.name]));
+    this.tags$.subscribe((tags) => {
+      this.tagsMap = new Map(tags.map((t) => [t.id, t.name]));
     });
 
-    this.documentTypes$.subscribe(types => {
-      this.documentTypesMap = new Map(types.map(t => [t.id, t.name]));
+    this.documentTypes$.subscribe((types) => {
+      this.documentTypesMap = new Map(types.map((t) => [t.id, t.name]));
     });
 
-    this.correspondents$.subscribe(correspondents => {
-      this.correspondentsMap = new Map(correspondents.map(c => [c.id, c.name]));
+    this.correspondents$.subscribe((correspondents) => {
+      this.correspondentsMap = new Map(correspondents.map((c) => [c.id, c.name]));
     });
 
     const id = this.route.snapshot.params['id'];
@@ -556,8 +520,9 @@ export class DocumentDetails implements OnInit {
   loadDocument(id: number) {
     this.loading = true;
     this.documentService.getById(id).subscribe({
-      next: doc => {
+      next: (doc) => {
         this.document = doc;
+        this.enableEdit();
         this.loading = false;
       },
       error: () => {
@@ -586,25 +551,29 @@ export class DocumentDetails implements OnInit {
     if (!this.document || !this.editedTitle.trim()) return;
 
     this.saving = true;
-    this.store.dispatch(new DocumentsActions.Update({
-      id: this.document.id,
-      title: this.editedTitle,
-      documentDate: this.editedDocumentDate,
-      content: this.editedContent,
-      documentTypeId: this.editedDocumentTypeId,
-      correspondentId: this.editedCorrespondentId,
-      tagIds: this.editedTagIds,
-    })).subscribe({
-      next: () => {
-        // Reload document to get updated data from server
-        this.loadDocument(this.document!.id);
-        this.editMode = false;
-        this.saving = false;
-      },
-      error: () => {
-        this.saving = false;
-      },
-    });
+    this.store
+      .dispatch(
+        new DocumentsActions.Update({
+          id: this.document.id,
+          title: this.editedTitle,
+          documentDate: this.editedDocumentDate,
+          content: this.editedContent,
+          documentTypeId: this.editedDocumentTypeId,
+          correspondentId: this.editedCorrespondentId,
+          tagIds: this.editedTagIds,
+        }),
+      )
+      .subscribe({
+        next: () => {
+          // Reload document to get updated data from server
+          this.loadDocument(this.document!.id);
+          this.editMode = false;
+          this.saving = false;
+        },
+        error: () => {
+          this.saving = false;
+        },
+      });
   }
 
   getTagName(tagId: number): string {
@@ -632,7 +601,7 @@ export class DocumentDetails implements OnInit {
   downloadOriginal() {
     if (!this.document) return;
     this.documentService.downloadOriginal(this.document.id).subscribe({
-      next: blob => {
+      next: (blob) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -649,7 +618,7 @@ export class DocumentDetails implements OnInit {
   downloadArchive() {
     if (!this.document) return;
     this.documentService.downloadArchive(this.document.id).subscribe({
-      next: blob => {
+      next: (blob) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;

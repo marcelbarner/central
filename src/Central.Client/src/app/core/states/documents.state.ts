@@ -4,7 +4,7 @@ import { catchError, tap } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
-import { Document } from '../../routes/documents/document.model';
+import { Document } from '../../shared/models/document.model';
 import { DocumentService } from '../../routes/documents/document.service';
 
 /**

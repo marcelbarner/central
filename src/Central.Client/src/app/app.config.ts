@@ -23,6 +23,7 @@ import { NgxPermissionsModule } from 'ngx-permissions';
 import { withNgxsReduxDevtoolsPlugin } from '@ngxs/devtools-plugin';
 import { withNgxsLoggerPlugin } from '@ngxs/logger-plugin';
 import { provideStore } from '@ngxs/store';
+import { provideMarkdown } from 'ngx-markdown';
 
 import {
   BASE_URL,
@@ -62,6 +63,7 @@ export const appConfig: ApplicationConfig = {
     importProvidersFrom(
       NgxPermissionsModule.forRoot(),
     ),
+    provideMarkdown(),
     provideStore(
       [DocumentsState, DocumentTypesState, TagsState, CorrespondentsState, WebhooksState],
       withNgxsLoggerPlugin({ disabled: environment.production }),

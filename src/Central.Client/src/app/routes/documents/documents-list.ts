@@ -1,26 +1,34 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Store, Select } from '@ngxs/store';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { TranslateModule } from '@ngx-translate/core';
+import { Store } from '@ngxs/store';
 import { PageHeader } from '@shared';
-import { DocumentsState, DocumentsActions, TagsState, TagsActions } from '@core';
-import { DocumentService } from './document.service';
-import { Document as DocumentModel } from './document.model';
+import {
+  DocumentsState,
+  DocumentsActions,
+  TagsActions,
+  DocumentTypesActions,
+  CorrespondentsActions,
+} from '@core';
+import { Document as DocumentModel } from '../../shared/models/document.model';
 import { DocumentQuickUploadDialog } from './document-quick-upload-dialog';
-import { Tag } from '../../models/tag.model';
-import { Observable } from 'rxjs';
 import { MtxSelectModule } from '@ng-matero/extensions/select';
+import { BehaviorSubject, combineLatest, map, Subscription } from 'rxjs';
+import { DocumentsTable } from '@shared/components/documents-table/documents-table';
+import { TagsSelect } from '@shared/components/tags-select/tags-select';
+import { CorrespondentsSelect } from '@shared/components/correspondents-select/correspondents-select';
+import { DocumentTypesSelect } from '@shared/components/document-types-select/document-types-select';
 
 @Component({
   selector: 'app-documents-list',
@@ -28,7 +36,6 @@ import { MtxSelectModule } from '@ng-matero/extensions/select';
   imports: [
     CommonModule,
     FormsModule,
-    RouterLink,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
@@ -37,10 +44,15 @@ import { MtxSelectModule } from '@ng-matero/extensions/select';
     MatCardModule,
     MatDialogModule,
     MatSnackBarModule,
+    MatSortModule,
     MatTooltipModule,
     TranslateModule,
     PageHeader,
     MtxSelectModule,
+    DocumentsTable,
+    TagsSelect,
+    CorrespondentsSelect,
+    DocumentTypesSelect
   ],
   template: `
     <page-header></page-header>
@@ -48,7 +60,11 @@ import { MtxSelectModule } from '@ng-matero/extensions/select';
     <mat-card>
       <mat-card-content>
         <div class="header-actions">
-
+          <div class="filter-group">
+            <app-tags-select (selectedTagsChange)="filterByTags($event)"></app-tags-select>
+            <app-correspondents-select (selectedCorrespondentsChange)="filterByCorrespondents($event)"></app-correspondents-select>
+            <app-document-types-select (selectedDocumentTypesChange)="filterByDocumentTypes($event)"></app-document-types-select>
+          </div>
           <div class="button-group">
             <button mat-raised-button color="primary" (click)="openQuickUploadDialog()">
               <mat-icon>upload</mat-icon>
@@ -59,7 +75,7 @@ import { MtxSelectModule } from '@ng-matero/extensions/select';
 
         @if (loading()) {
           <div class="loading">{{ 'documents.loading_documents' | translate }}</div>
-        } @else if (documents().length === 0) {
+        } @else if (filteredDocuments.length === 0) {
           <div class="no-data">
             <mat-icon>description</mat-icon>
             <p>{{ 'documents.no_documents_found' | translate }}</p>
@@ -68,188 +84,178 @@ import { MtxSelectModule } from '@ng-matero/extensions/select';
             </button>
           </div>
         } @else {
-          <table mat-table [dataSource]="documents()" class="documents-table">
-            <!-- Thumbnail Column -->
-            <ng-container matColumnDef="thumbnail">
-              <th mat-header-cell *matHeaderCellDef>{{ 'documents.preview' | translate }}</th>
-              <td mat-cell *matCellDef="let document">
-                @if (document.thumbnail) {
-                  <img [src]="getThumbnailUrl(document.id)" alt="Thumbnail" class="thumbnail" />
-                } @else {
-                  <mat-icon class="file-icon">description</mat-icon>
-                }
-              </td>
-            </ng-container>
-
-            <!-- Title Column -->
-            <ng-container matColumnDef="title">
-              <th mat-header-cell *matHeaderCellDef>{{ 'documents.title' | translate }}</th>
-              <td mat-cell *matCellDef="let document">
-                <a [routerLink]="['/documents', document.id]" class="document-link">
-                  {{ document.title }}
-                </a>
-              </td>
-            </ng-container>
-
-            <!-- Document Date Column -->
-            <ng-container matColumnDef="documentDate">
-              <th mat-header-cell *matHeaderCellDef>{{ 'documents.document_date' | translate }}</th>
-              <td mat-cell *matCellDef="let document">
-                {{ document.documentDate ? (document.documentDate | date: 'short') : '-' }}
-              </td>
-            </ng-container>
-
-            <!-- Updated Column -->
-            <ng-container matColumnDef="updated">
-              <th mat-header-cell *matHeaderCellDef>{{ 'documents.last_updated' | translate }}</th>
-              <td mat-cell *matCellDef="let document">
-                {{ document.updated | date: 'short' }}
-              </td>
-            </ng-container>
-
-            <!-- Actions Column -->
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef>{{ 'documents.actions' | translate }}</th>
-              <td mat-cell *matCellDef="let document">
-                <button mat-icon-button [routerLink]="['/documents', document.id]" [matTooltip]="'documents.view_details' | translate">
-                  <mat-icon>visibility</mat-icon>
-                </button>
-                <button mat-icon-button (click)="downloadDocument(document)" [matTooltip]="'documents.download' | translate">
-                  <mat-icon>download</mat-icon>
-                </button>
-                <button mat-icon-button (click)="deleteDocument(document)" color="warn" [matTooltip]="'delete' | translate">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns" class="table-row"></tr>
-          </table>
+          <app-documents-table [documents]="filteredDocuments"></app-documents-table>
         }
       </mat-card-content>
     </mat-card>
   `,
-  styles: [`
-    .header-actions {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      margin-bottom: 20px;
-      gap: 16px;
-    }
-
-    .filter-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      min-width: 300px;
-
-      .filter-label {
-        font-size: 14px;
-        font-weight: 500;
-        color: rgba(0, 0, 0, 0.6);
+  styles: [
+    `
+      .header-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        gap: 16px;
       }
 
-      .tag-filter {
+      .filter-group {
+        display: flex;
+        flex-direction: row;
+        flex-grow: 1;
+        gap: 8px;
+        min-width: 300px;
+
+        .filter-label {
+          font-size: 14px;
+          font-weight: 500;
+          color: rgba(0, 0, 0, 0.6);
+        }
+
+        .tag-filter {
+          width: 100%;
+        }
+      }
+
+      .button-group {
+        display: flex;
+        gap: 12px;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+
+      .no-data {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+
+        mat-icon {
+          font-size: 64px;
+          width: 64px;
+          height: 64px;
+          color: #ccc;
+        }
+
+        p {
+          margin: 16px 0 24px;
+          font-size: 16px;
+        }
+      }
+
+      .documents-table {
         width: 100%;
-      }
-    }
 
-    .button-group {
-      display: flex;
-      gap: 12px;
-    }
+        .thumbnail {
+          width: 50px;
+          height: 50px;
+          object-fit: cover;
+          border-radius: 4px;
+        }
 
-    .loading {
-      text-align: center;
-      padding: 40px;
-      color: #666;
-    }
+        .file-icon {
+          color: #999;
+          font-size: 40px;
+          width: 40px;
+          height: 40px;
+        }
 
-    .no-data {
-      text-align: center;
-      padding: 60px 20px;
-      color: #666;
+        .document-link {
+          color: #1976d2;
+          text-decoration: none;
+          font-weight: 500;
 
-      mat-icon {
-        font-size: 64px;
-        width: 64px;
-        height: 64px;
-        color: #ccc;
-      }
+          &:hover {
+            text-decoration: underline;
+          }
+        }
 
-      p {
-        margin: 16px 0 24px;
-        font-size: 16px;
-      }
-    }
+        .table-row {
+          cursor: pointer;
 
-    .documents-table {
-      width: 100%;
-
-      .thumbnail {
-        width: 50px;
-        height: 50px;
-        object-fit: cover;
-        border-radius: 4px;
-      }
-
-      .file-icon {
-        color: #999;
-        font-size: 40px;
-        width: 40px;
-        height: 40px;
-      }
-
-      .document-link {
-        color: #1976d2;
-        text-decoration: none;
-        font-weight: 500;
-
-        &:hover {
-          text-decoration: underline;
+          &:hover {
+            background-color: #f5f5f5;
+          }
         }
       }
-
-      .table-row {
-        cursor: pointer;
-
-        &:hover {
-          background-color: #f5f5f5;
-        }
-      }
-    }
-  `],
+    `,
+  ],
 })
-export class DocumentsList implements OnInit {
+export class DocumentsList implements OnInit, AfterViewInit, OnDestroy {
   private readonly store = inject(Store);
-  private readonly documentService = inject(DocumentService);
-  private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
-  private readonly translate = inject(TranslateService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly sub = new Subscription();
+  private readonly selectedTagIds = new BehaviorSubject<number[]>([]);
+  private readonly selectedCorrespondentIds = new BehaviorSubject<number[]>([]);
+  private readonly selectedDocumentTypeIds = new BehaviorSubject<number[]>([]);
 
-  @Select(TagsState.tags) tags$!: Observable<Tag[]>;
+  @ViewChild(MatSort, { read: MatSort }) sort?: MatSort;
 
   // Convert observables to signals using selectSignal
-  documents = this.store.selectSignal(DocumentsState.documents);
+  documents = this.store.select(DocumentsState.documents);
   loading = this.store.selectSignal(DocumentsState.loading);
-
-  selectedTagIds: number[] = [];
-  displayedColumns = ['thumbnail', 'title', 'documentDate', 'updated', 'actions'];
+  dataSource = new MatTableDataSource<DocumentModel>([]);
+  filteredDocuments: DocumentModel[] = [];
 
   ngOnInit() {
     this.loadDocuments();
     this.store.dispatch(new TagsActions.Load());
+    this.store.dispatch(new DocumentTypesActions.Load());
+    this.store.dispatch(new CorrespondentsActions.Load());
+    this.sub.add(
+      combineLatest({
+        documents: this.documents,
+        selectedTagIds: this.selectedTagIds.asObservable(),
+        selectedCorrespondentIds: this.selectedCorrespondentIds.asObservable(),
+        selectedDocumentTypeIds: this.selectedDocumentTypeIds.asObservable(),
+      })
+        .pipe(
+          map(({ documents, selectedTagIds, selectedCorrespondentIds, selectedDocumentTypeIds }) => {
+            if (selectedTagIds.length === 0 && selectedCorrespondentIds.length === 0 && selectedDocumentTypeIds.length === 0) {
+              return documents;
+            }
+            let result = documents;
+            if (selectedTagIds.length != 0) {
+              result = result.filter((doc) => {
+                return selectedTagIds.some((tagId) => doc.tagIds.includes(tagId));
+              });
+            }
+
+            if (selectedCorrespondentIds.length != 0) {
+              result = result.filter((doc) => {
+                return selectedCorrespondentIds.includes(doc.correspondentId!);
+              });
+            }
+
+            if (selectedDocumentTypeIds.length != 0) {
+              result = result.filter((doc) => {
+                return selectedDocumentTypeIds.includes(doc.documentTypeId!);
+              });
+            }
+
+            return result;
+          }),
+        )
+        .subscribe((filtered) => {
+          this.filteredDocuments = filtered;
+        }),
+    );
+  }
+
+  ngAfterViewInit() {
+    //if(this.sort) {
+    this.dataSource.sort = this.sort;
+    //}
+  }
+  ngOnDestroy() {
+    this.sub.unsubscribe();
   }
 
   loadDocuments() {
     this.store.dispatch(new DocumentsActions.Load());
-  }
-
-  getThumbnailUrl(id: number): string {
-    return `/api/documents/${id}/thumbnail`;
   }
 
   openQuickUploadDialog() {
@@ -257,32 +263,17 @@ export class DocumentsList implements OnInit {
       width: '600px',
     });
 
-    dialogRef.afterClosed().subscribe(result => {});
+    dialogRef.afterClosed().subscribe(() => {});
   }
 
-  downloadDocument(doc: DocumentModel) {
-    this.documentService.downloadOriginal(doc.id).subscribe({
-      next: blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = doc.originalFile?.fileName || 'document';
-        a.click();
-        window.URL.revokeObjectURL(url);
-      },
-      error: () => {
-        this.translate.get('documents.failed_to_download').subscribe((msg: string) => {
-          this.snackBar.open(msg, this.translate.instant('close'), { duration: 3000 });
-        });
-      },
-    });
+  filterByTags(tagIds: number[]) {
+    this.selectedTagIds.next(tagIds);
   }
 
-  deleteDocument(doc: DocumentModel) {
-    this.translate.get('documents.delete_confirm', { title: doc.title }).subscribe((msg: string) => {
-      if (confirm(msg)) {
-        this.store.dispatch(new DocumentsActions.Delete(doc.id));
-      }
-    });
+  filterByCorrespondents(correspondentId: number) {
+    this.selectedCorrespondentIds.next([correspondentId]);
+  }
+  filterByDocumentTypes(documentTypeId: number) {
+    this.selectedDocumentTypeIds.next([documentTypeId]);
   }
 }
