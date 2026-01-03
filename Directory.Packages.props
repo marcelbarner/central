@@ -6,7 +6,7 @@
   <ItemGroup>
     <PackageVersion Include="Aspire.Hosting.Testing" Version="13.0.2" />
     <PackageVersion Include="AwesomeAssertions" Version="9.3.0" />
-    <PackageVersion Include="Azure.AI.FormRecognizer" Version="4.1.0" />
+    <PackageVersion Include="Azure.AI.DocumentIntelligence" Version="1.0.0" />
     <PackageVersion Include="Azure.AI.OpenAI" Version="2.1.0" />
     <PackageVersion Include="FakeItEasy" Version="8.3.0" />
     <PackageVersion Include="FastEndpoints" Version="7.1.1" />

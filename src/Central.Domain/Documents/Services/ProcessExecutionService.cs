@@ -1,12 +1,11 @@
 using System.Text.Json;
 
 using Azure;
-using Azure.AI.FormRecognizer.DocumentAnalysis;
+using Azure.AI.DocumentIntelligence;
 using Azure.AI.OpenAI;
 
 using Central.Domain.Contracts.Ports;
 using Central.Domain.Correspondents.Ports;
-using Central.Domain.Documents;
 using Central.Domain.Documents.Ports;
 using Central.Domain.DocumentTypes.Ports;
 using Central.Domain.Tags.Ports;
@@ -1012,7 +1011,7 @@ public sealed class ProcessExecutionService : IProcessExecutionService
             "Calling Azure Document Intelligence API. Endpoint={Endpoint}, Model={Model}",
             step.AzureEndpoint, step.AzureModelOrDeployment ?? "prebuilt-layout");
 
-        var client = new DocumentAnalysisClient(
+        var client = new DocumentIntelligenceClient(
             new Uri(step.AzureEndpoint),
             new AzureKeyCredential(step.AzureApiKey));
 
@@ -1023,18 +1022,18 @@ public sealed class ProcessExecutionService : IProcessExecutionService
         // For now, we'll assume document.OriginalFile.FilePath is a local file path or URL
         // You should implement proper file loading logic based on your storage solution
 
-        AnalyzeDocumentOperation? operation = null;
-
+        Operation<AnalyzeResult>? operation = null;
+        
         var filePath = document.OriginalFile.FilePath;
 
         if (Uri.TryCreate(filePath, UriKind.Absolute, out var documentUri) &&
             (documentUri.Scheme == Uri.UriSchemeHttp || documentUri.Scheme == Uri.UriSchemeHttps))
         {
+            var options = new AnalyzeDocumentOptions(modelId, documentUri) { OutputContentFormat = DocumentContentFormat.Markdown };
             // Document is accessible via URL
-            operation = await client.AnalyzeDocumentFromUriAsync(
+            operation = await client.AnalyzeDocumentAsync(
                 WaitUntil.Completed,
-                modelId,
-                documentUri,
+                options,
                 cancellationToken: cancellationToken);
         }
         else
@@ -1045,11 +1044,10 @@ public sealed class ProcessExecutionService : IProcessExecutionService
                 throw new FileNotFoundException($"Document file not found: {filePath}");
             }
 
-            using var stream = File.OpenRead(filePath);
+            var options = new AnalyzeDocumentOptions(modelId, new BinaryData(await File.ReadAllBytesAsync(filePath, cancellationToken))) { OutputContentFormat = DocumentContentFormat.Markdown };
             operation = await client.AnalyzeDocumentAsync(
                 WaitUntil.Completed,
-                modelId,
-                stream,
+                options,
                 cancellationToken: cancellationToken);
         }
 
