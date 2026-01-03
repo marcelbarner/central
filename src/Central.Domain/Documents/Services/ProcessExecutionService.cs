@@ -627,6 +627,102 @@ public sealed class ProcessExecutionService : IProcessExecutionService
             ));
         }
 
+        if (enabledTools.Contains("CreateContract"))
+        {
+            tools.Add(ChatTool.CreateFunctionTool(
+                functionName: "create_contract",
+                functionDescription: "Creates a new contract with the specified name and optional description.",
+                functionParameters: BinaryData.FromBytes("""
+                    {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "The name of the contract"
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "Optional description of the contract"
+                            }
+                        },
+                        "required": ["name"]
+                    }
+                    """u8.ToArray())
+            ));
+        }
+
+        if (enabledTools.Contains("CreateCorrespondent"))
+        {
+            tools.Add(ChatTool.CreateFunctionTool(
+                functionName: "create_correspondent",
+                functionDescription: "Creates a new correspondent with the specified name and optional description.",
+                functionParameters: BinaryData.FromBytes("""
+                    {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "The name of the correspondent"
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "Optional description of the correspondent"
+                            }
+                        },
+                        "required": ["name"]
+                    }
+                    """u8.ToArray())
+            ));
+        }
+
+        if (enabledTools.Contains("CreateDocumentType"))
+        {
+            tools.Add(ChatTool.CreateFunctionTool(
+                functionName: "create_document_type",
+                functionDescription: "Creates a new document type with the specified name and optional description.",
+                functionParameters: BinaryData.FromBytes("""
+                    {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "The name of the document type"
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "Optional description of the document type"
+                            }
+                        },
+                        "required": ["name"]
+                    }
+                    """u8.ToArray())
+            ));
+        }
+
+        if (enabledTools.Contains("CreateTag"))
+        {
+            tools.Add(ChatTool.CreateFunctionTool(
+                functionName: "create_tag",
+                functionDescription: "Creates a new tag with the specified name and optional description.",
+                functionParameters: BinaryData.FromBytes("""
+                    {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "The name of the tag"
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "Optional description of the tag"
+                            }
+                        },
+                        "required": ["name"]
+                    }
+                    """u8.ToArray())
+            ));
+        }
+
         return tools;
     }
 
@@ -680,6 +776,18 @@ public sealed class ProcessExecutionService : IProcessExecutionService
 
                 case "get_tags":
                     return await ExecuteGetTagsAsync(cancellationToken);
+
+                case "create_contract":
+                    return await ExecuteCreateContractAsync(toolArguments, cancellationToken);
+
+                case "create_correspondent":
+                    return await ExecuteCreateCorrespondentAsync(toolArguments, cancellationToken);
+
+                case "create_document_type":
+                    return await ExecuteCreateDocumentTypeAsync(toolArguments, cancellationToken);
+
+                case "create_tag":
+                    return await ExecuteCreateTagAsync(toolArguments, cancellationToken);
 
                 default:
                     return $"Unknown tool: {toolName}";
@@ -945,6 +1053,135 @@ public sealed class ProcessExecutionService : IProcessExecutionService
         return $"Available tags ({tagList.Count}):\n{result}";
     }
 
+    private async Task<string> ExecuteCreateContractAsync(
+        string arguments,
+        CancellationToken cancellationToken)
+    {
+        var args = JsonSerializer.Deserialize<CreateEntityArgs>(arguments, JsonSerializerOptions.Web);
+        if (args == null || string.IsNullOrWhiteSpace(args.Name))
+        {
+            return "Error: Name is required";
+        }
+
+        // Check if contract with this name already exists
+        var existing = await _contractRepository.GetByNameAsync(args.Name, cancellationToken);
+        if (existing != null)
+        {
+            return $"Contract '{args.Name}' already exists with ID {existing.Id}";
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        var contract = new Contracts.Contract
+        {
+            Id = 0,
+            Name = args.Name,
+            Description = args.Description,
+            State = Contracts.ContractState.Active,
+            Created = now,
+            Updated = now
+        };
+
+        var created = await _contractRepository.AddAsync(contract, cancellationToken);
+        _logger.LogInformation("Created new contract: {ContractName} (ID: {ContractId})", created.Name, created.Id);
+        return $"Contract '{created.Name}' created successfully with ID {created.Id}";
+    }
+
+    private async Task<string> ExecuteCreateCorrespondentAsync(
+        string arguments,
+        CancellationToken cancellationToken)
+    {
+        var args = JsonSerializer.Deserialize<CreateEntityArgs>(arguments, JsonSerializerOptions.Web);
+        if (args == null || string.IsNullOrWhiteSpace(args.Name))
+        {
+            return "Error: Name is required";
+        }
+
+        // Check if correspondent with this name already exists
+        var existing = await _correspondentRepository.GetByNameAsync(args.Name, cancellationToken);
+        if (existing != null)
+        {
+            return $"Correspondent '{args.Name}' already exists with ID {existing.Id}";
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        var correspondent = new Correspondents.Correspondent
+        {
+            Id = 0,
+            Name = args.Name,
+            Description = args.Description,
+            Created = now,
+            Updated = now
+        };
+
+        var created = await _correspondentRepository.AddAsync(correspondent, cancellationToken);
+        _logger.LogInformation("Created new correspondent: {CorrespondentName} (ID: {CorrespondentId})", created.Name, created.Id);
+        return $"Correspondent '{created.Name}' created successfully with ID {created.Id}";
+    }
+
+    private async Task<string> ExecuteCreateDocumentTypeAsync(
+        string arguments,
+        CancellationToken cancellationToken)
+    {
+        var args = JsonSerializer.Deserialize<CreateEntityArgs>(arguments, JsonSerializerOptions.Web);
+        if (args == null || string.IsNullOrWhiteSpace(args.Name))
+        {
+            return "Error: Name is required";
+        }
+
+        // Check if document type with this name already exists
+        var existing = await _documentTypeRepository.GetByNameAsync(args.Name, cancellationToken);
+        if (existing != null)
+        {
+            return $"Document type '{args.Name}' already exists with ID {existing.Id}";
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        var documentType = new DocumentTypes.DocumentType
+        {
+            Id = 0,
+            Name = args.Name,
+            Description = args.Description,
+            Created = now,
+            Updated = now
+        };
+
+        var created = await _documentTypeRepository.AddAsync(documentType, cancellationToken);
+        _logger.LogInformation("Created new document type: {DocumentTypeName} (ID: {DocumentTypeId})", created.Name, created.Id);
+        return $"Document type '{created.Name}' created successfully with ID {created.Id}";
+    }
+
+    private async Task<string> ExecuteCreateTagAsync(
+        string arguments,
+        CancellationToken cancellationToken)
+    {
+        var args = JsonSerializer.Deserialize<CreateEntityArgs>(arguments, JsonSerializerOptions.Web);
+        if (args == null || string.IsNullOrWhiteSpace(args.Name))
+        {
+            return "Error: Name is required";
+        }
+
+        // Check if tag with this name already exists
+        var existing = await _tagRepository.GetByNameAsync(args.Name, cancellationToken);
+        if (existing != null)
+        {
+            return $"Tag '{args.Name}' already exists with ID {existing.Id}";
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        var tag = new Tags.Tag
+        {
+            Id = 0,
+            Name = args.Name,
+            Description = args.Description,
+            Created = now,
+            Updated = now
+        };
+
+        var created = await _tagRepository.AddAsync(tag, cancellationToken);
+        _logger.LogInformation("Created new tag: {TagName} (ID: {TagId})", created.Name, created.Id);
+        return $"Tag '{created.Name}' created successfully with ID {created.Id}";
+    }
+
     private sealed class SetDocumentTitleArgs
     {
         public string Title { get; set; } = string.Empty;
@@ -985,6 +1222,12 @@ public sealed class ProcessExecutionService : IProcessExecutionService
     private sealed class GetDocumentArgs
     {
         public long DocumentId { get; set; }
+    }
+
+    private sealed class CreateEntityArgs
+    {
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
     }
 
     private async Task<string> ExecuteAzureDocumentIntelligenceStepAsync(

@@ -211,6 +211,22 @@ import { DocumentState, StepType, ProcessingStep } from '../models/process.model
                                   <strong>Get Tags</strong>
                                   <span class="tool-description">Provides the AI with a list of available tags</span>
                                 </mat-checkbox>
+                                <mat-checkbox formControlName="enableCreateContract">
+                                  <strong>Create Contract</strong>
+                                  <span class="tool-description">Allows the AI to create new contracts</span>
+                                </mat-checkbox>
+                                <mat-checkbox formControlName="enableCreateCorrespondent">
+                                  <strong>Create Correspondent</strong>
+                                  <span class="tool-description">Allows the AI to create new correspondents</span>
+                                </mat-checkbox>
+                                <mat-checkbox formControlName="enableCreateDocumentType">
+                                  <strong>Create Document Type</strong>
+                                  <span class="tool-description">Allows the AI to create new document types</span>
+                                </mat-checkbox>
+                                <mat-checkbox formControlName="enableCreateTag">
+                                  <strong>Create Tag</strong>
+                                  <span class="tool-description">Allows the AI to create new tags</span>
+                                </mat-checkbox>
                               </div>
                             }
 
@@ -510,6 +526,10 @@ export class ProcessDefinitionEditComponent implements OnInit {
     let enableGetDocumentTypes = false;
     let enableGetCorrespondents = false;
     let enableGetTags = false;
+    let enableCreateContract = false;
+    let enableCreateCorrespondent = false;
+    let enableCreateDocumentType = false;
+    let enableCreateTag = false;
 
     if (step?.configuration) {
       try {
@@ -527,6 +547,10 @@ export class ProcessDefinitionEditComponent implements OnInit {
         enableGetDocumentTypes = tools.includes('GetDocumentTypes');
         enableGetCorrespondents = tools.includes('GetCorrespondents');
         enableGetTags = tools.includes('GetTags');
+        enableCreateContract = tools.includes('CreateContract');
+        enableCreateCorrespondent = tools.includes('CreateCorrespondent');
+        enableCreateDocumentType = tools.includes('CreateDocumentType');
+        enableCreateTag = tools.includes('CreateTag');
       } catch {
         // Invalid JSON, use defaults
       }
@@ -555,7 +579,11 @@ export class ProcessDefinitionEditComponent implements OnInit {
       enableGetContracts: [enableGetContracts],
       enableGetDocumentTypes: [enableGetDocumentTypes],
       enableGetCorrespondents: [enableGetCorrespondents],
-      enableGetTags: [enableGetTags]
+      enableGetTags: [enableGetTags],
+      enableCreateContract: [enableCreateContract],
+      enableCreateCorrespondent: [enableCreateCorrespondent],
+      enableCreateDocumentType: [enableCreateDocumentType],
+      enableCreateTag: [enableCreateTag]
     });
   }
 
@@ -637,6 +665,18 @@ export class ProcessDefinitionEditComponent implements OnInit {
           }
           if (step.enableGetTags) {
             tools.push('GetTags');
+          }
+          if (step.enableCreateContract) {
+            tools.push('CreateContract');
+          }
+          if (step.enableCreateCorrespondent) {
+            tools.push('CreateCorrespondent');
+          }
+          if (step.enableCreateDocumentType) {
+            tools.push('CreateDocumentType');
+          }
+          if (step.enableCreateTag) {
+            tools.push('CreateTag');
           }
         }
 
