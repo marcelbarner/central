@@ -28,5 +28,10 @@ public enum DocumentState
     /// <summary>
     /// Document processing or review has failed.
     /// </summary>
-    Failed = 4
+    Failed = 4,
+
+    /// <summary>
+    /// Document has been successfully processed by all automation steps.
+    /// </summary>
+    Processed = 5
 }

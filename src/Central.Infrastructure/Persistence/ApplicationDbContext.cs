@@ -56,6 +56,26 @@ public sealed class ApplicationDbContext : IdentityDbContext<
     /// </summary>
     public DbSet<WebhookEntity> Webhooks => Set<WebhookEntity>();
 
+    /// <summary>
+    /// Gets or sets the ProcessDefinitions DbSet.
+    /// </summary>
+    public DbSet<ProcessDefinitionEntity> ProcessDefinitions => Set<ProcessDefinitionEntity>();
+
+    /// <summary>
+    /// Gets or sets the ProcessingSteps DbSet.
+    /// </summary>
+    public DbSet<ProcessingStepEntity> ProcessingSteps => Set<ProcessingStepEntity>();
+
+    /// <summary>
+    /// Gets or sets the ProcessExecutions DbSet.
+    /// </summary>
+    public DbSet<ProcessExecutionEntity> ProcessExecutions => Set<ProcessExecutionEntity>();
+
+    /// <summary>
+    /// Gets or sets the ProcessExecutionSteps DbSet.
+    /// </summary>
+    public DbSet<ProcessExecutionStepEntity> ProcessExecutionSteps => Set<ProcessExecutionStepEntity>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

@@ -6,6 +6,7 @@ export interface DocumentFile {
 export enum DocumentState {
   Imported = 'Imported',
   Processing = 'Processing',
+  Processed = 'Processed',
   Review = 'Review',
   Approved = 'Approved',
   Failed = 'Failed'

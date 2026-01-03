@@ -45,6 +45,9 @@ bld.Services.AddAuthorization();
 // Add background service for database initialization
 bld.Services.AddHostedService<DatabaseInitializerService>();
 
+// Add background service for process execution
+bld.Services.AddHostedService<ProcessExecutionWorker>();
+
 bld.Services
    .AddFastEndpoints(o => o.SourceGeneratorDiscoveredTypes = DiscoveredTypes.All)
    .SwaggerDocument();

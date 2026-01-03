@@ -41,6 +41,24 @@
       "icon": "label"
     },
     {
+      "route": "processing-jobs",
+      "name": "processingJobs",
+      "type": "sub",
+      "icon": "autorenew",
+      "children": [
+        {
+          "route": "definitions",
+          "name": "definitions",
+          "type": "link"
+        },
+        {
+          "route": "executions",
+          "name": "executions",
+          "type": "link"
+        }
+      ]
+    },
+    {
       "route": "/",
       "name": "sessions",
       "type": "sub",

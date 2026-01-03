@@ -72,6 +72,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICorrespondentRepository, CorrespondentRepository>();
         services.AddScoped<IContractRepository, ContractRepository>();
         services.AddScoped<IWebhookRepository, WebhookRepository>();
+        services.AddScoped<IProcessDefinitionRepository, ProcessDefinitionRepository>();
+        services.AddScoped<IProcessExecutionRepository, ProcessExecutionRepository>();
 
         // Register domain services
         services.AddScoped<IDocumentService, DocumentService>();
@@ -81,6 +83,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IContractService, ContractService>();
         services.AddScoped<IWebhookService, WebhookService>();
         services.AddScoped<IWebhookTrigger, WebhookTrigger>();
+        services.AddScoped<IProcessExecutionService, ProcessExecutionService>();
 
         // Register HttpClient for webhooks
         services.AddHttpClient("WebhookClient", client =>
