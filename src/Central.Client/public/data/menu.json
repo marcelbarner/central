@@ -29,6 +29,12 @@
       "icon": "contacts"
     },
     {
+      "route": "contracts",
+      "name": "contracts",
+      "type": "link",
+      "icon": "assignment"
+    },
+    {
       "route": "webhooks",
       "name": "webhooks",
       "type": "link",
