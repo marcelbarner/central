@@ -163,6 +163,10 @@ import { DocumentState, StepType, ProcessingStep } from '../models/process.model
                                   <strong>Set Document Title</strong>
                                   <span class="tool-description">Allows the AI to update the document title based on content analysis</span>
                                 </mat-checkbox>
+                                <mat-checkbox formControlName="enableSetDate">
+                                  <strong>Set Document Date</strong>
+                                  <span class="tool-description">Allows the AI to set the document date based on content analysis</span>
+                                </mat-checkbox>
                                 <mat-checkbox formControlName="enableSetContract">
                                   <strong>Set Contract</strong>
                                   <span class="tool-description">Allows the AI to assign a contract to the document</span>
@@ -514,6 +518,7 @@ export class ProcessDefinitionEditComponent implements OnInit {
   createStepFormGroup(step?: ProcessingStep): FormGroup {
     // Parse configuration to extract enabled tools
     let enableSetTitle = false;
+    let enableSetDate = false;
     let enableSetContract = false;
     let enableSetCorrespondent = false;
     let enableSetDocumentType = false;
@@ -535,6 +540,7 @@ export class ProcessDefinitionEditComponent implements OnInit {
       try {
         const tools = JSON.parse(step.configuration) as string[];
         enableSetTitle = tools.includes('SetDocumentTitle');
+        enableSetDate = tools.includes('SetDocumentDate');
         enableSetContract = tools.includes('SetContract');
         enableSetCorrespondent = tools.includes('SetCorrespondent');
         enableSetDocumentType = tools.includes('SetDocumentType');
@@ -568,6 +574,7 @@ export class ProcessDefinitionEditComponent implements OnInit {
       prompt: [step?.prompt || ''],
       additionalConfig: [step?.configuration || ''],
       enableSetTitle: [enableSetTitle],
+      enableSetDate: [enableSetDate],
       enableSetContract: [enableSetContract],
       enableSetCorrespondent: [enableSetCorrespondent],
       enableSetDocumentType: [enableSetDocumentType],
@@ -629,6 +636,9 @@ export class ProcessDefinitionEditComponent implements OnInit {
         if (step.stepType === 'AzureOpenAI') {
           if (step.enableSetTitle) {
             tools.push('SetDocumentTitle');
+          }
+          if (step.enableSetDate) {
+            tools.push('SetDocumentDate');
           }
           if (step.enableSetContract) {
             tools.push('SetContract');

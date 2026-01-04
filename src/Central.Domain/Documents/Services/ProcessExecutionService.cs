@@ -435,6 +435,27 @@ public sealed class ProcessExecutionService : IProcessExecutionService
             ));
         }
 
+        if (enabledTools.Contains("SetDocumentDate"))
+        {
+            tools.Add(ChatTool.CreateFunctionTool(
+                functionName: "set_document_date",
+                functionDescription:
+                "Sets the document date for the current document. This is the date associated with the document content, not the creation date. Use ISO 8601 format.",
+                functionParameters: BinaryData.FromBytes("""
+                                                         {
+                                                             "type": "object",
+                                                             "properties": {
+                                                                 "documentDate": {
+                                                                     "type": "string",
+                                                                     "description": "The document date in ISO 8601 format (e.g., 2024-01-15T10:30:00Z or 2024-01-15)"
+                                                                 }
+                                                             },
+                                                             "required": ["documentDate"]
+                                                         }
+                                                         """u8.ToArray())
+            ));
+        }
+
         if (enabledTools.Contains("SetContract"))
         {
             tools.Add(ChatTool.CreateFunctionTool(
@@ -741,6 +762,9 @@ public sealed class ProcessExecutionService : IProcessExecutionService
                 case "set_document_title":
                     return await ExecuteSetDocumentTitleAsync(toolArguments, document, cancellationToken);
 
+                case "set_document_date":
+                    return await ExecuteSetDocumentDateAsync(toolArguments, document, cancellationToken);
+
                 case "set_contract":
                     return await ExecuteSetContractAsync(toolArguments, document, cancellationToken);
 
@@ -819,6 +843,31 @@ public sealed class ProcessExecutionService : IProcessExecutionService
         return $"Document title successfully updated to: {args.Title}";
     }
 
+    private async Task<string> ExecuteSetDocumentDateAsync(
+        string arguments,
+        Document document,
+        CancellationToken cancellationToken)
+    {
+        var args = System.Text.Json.JsonSerializer.Deserialize<SetDocumentDateArgs>(arguments, JsonSerializerOptions.Web);
+        if (args == null || string.IsNullOrWhiteSpace(args.DocumentDate))
+        {
+            return "Error: Document date cannot be empty";
+        }
+
+        // Parse the date
+        if (!DateTimeOffset.TryParse(args.DocumentDate, out var parsedDate))
+        {
+            return $"Error: Invalid date format. Expected ISO 8601 format, got: {args.DocumentDate}";
+        }
+
+        // Update document date
+        var updatedDocument = document with { DocumentDate = parsedDate };
+        await _documentRepository.UpdateAsync(updatedDocument, cancellationToken);
+
+        _logger.LogInformation("Document {DocumentId} date updated to: {DocumentDate}", document.Id, parsedDate);
+        return $"Document date successfully updated to: {parsedDate:yyyy-MM-dd}";
+    }
+
     private async Task<string> ExecuteGetSimilarDocumentsAsync(
         string arguments,
         CancellationToken cancellationToken)
@@ -826,9 +875,13 @@ public sealed class ProcessExecutionService : IProcessExecutionService
         var args = JsonSerializer.Deserialize<GetSimilarDocumentsArgs>(arguments, JsonSerializerOptions.Web);
         var limit = Math.Min(args?.Limit ?? 10, 50);
 
-        // Get all documents and filter
+        // Get all documents and filter by state (only Processed, Review, or Approved)
         var allDocuments = await _documentRepository.GetAllAsync(cancellationToken);
-        var filteredDocuments = allDocuments.AsEnumerable();
+        var filteredDocuments = allDocuments
+            .Where(d => d.State == DocumentState.Processed ||
+                       d.State == DocumentState.Review ||
+                       d.State == DocumentState.Approved)
+            .AsEnumerable();
 
         if (args?.DocumentTypeId > 0)
         {
@@ -1185,6 +1238,11 @@ public sealed class ProcessExecutionService : IProcessExecutionService
     private sealed class SetDocumentTitleArgs
     {
         public string Title { get; set; } = string.Empty;
+    }
+
+    private sealed class SetDocumentDateArgs
+    {
+        public string DocumentDate { get; set; } = string.Empty;
     }
 
     private sealed class GetSimilarDocumentsArgs
