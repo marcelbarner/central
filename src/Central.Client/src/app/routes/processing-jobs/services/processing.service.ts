@@ -30,7 +30,7 @@ export class ProcessingService {
   }
 
   updateProcessDefinition(id: number, request: UpdateProcessDefinitionRequest): Observable<void> {
-    return this.http.put<void>(`${this.apiUrl}/process-definitions/${id}`, request);
+    return this.http.put<void>(`${this.apiUrl}/process-definitions/${id}`, { data: request });
   }
 
   deleteProcessDefinition(id: number): Observable<void> {
