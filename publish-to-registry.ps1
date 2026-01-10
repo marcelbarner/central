@@ -71,7 +71,34 @@ Write-Host "Full Name:      $registryImage" -ForegroundColor White
 Write-Host ""
 
 try {
-    # Step 1: Build the image (unless skipped)
+    # Step 1: Create and push git tag
+    if ($Tag -and $Tag -ne "latest") {
+        Write-Step "Creating git tag: $Tag"
+        
+        # Check if tag already exists
+        $existingTag = git tag -l $Tag
+        if ($existingTag) {
+            Write-Host "Git tag '$Tag' already exists, skipping..." -ForegroundColor Yellow
+        } else {
+            # Create annotated tag
+            git tag -a $Tag -m "Release $Tag"
+            if ($LASTEXITCODE -ne 0) {
+                throw "Failed to create git tag"
+            }
+            Write-Success "Git tag created: $Tag"
+            
+            # Push tag to remote
+            Write-Step "Pushing git tag to remote..."
+            git push origin $Tag
+            if ($LASTEXITCODE -ne 0) {
+                throw "Failed to push git tag to remote"
+            }
+            Write-Success "Git tag pushed to remote"
+        }
+        Write-Host ""
+    }
+
+    # Step 2: Build the image (unless skipped)
     if (-not $SkipBuild) {
         Write-Step "Building Docker image..."
         docker compose build central-app
@@ -85,7 +112,7 @@ try {
         Write-Host ""
     }
 
-    # Step 2: Tag the image with registry name
+    # Step 3: Tag the image with registry name
     Write-Step "Tagging image for registry..."
     docker tag $localImage $registryImage
     if ($LASTEXITCODE -ne 0) {
@@ -103,7 +130,7 @@ try {
     }
     Write-Host ""
 
-    # Step 3: Push to registry
+    # Step 4: Push to registry
     Write-Step "Pushing image to registry..."
     docker push $registryImage
     if ($LASTEXITCODE -ne 0) {

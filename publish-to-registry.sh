@@ -87,7 +87,33 @@ echo -e "Tag:            ${TAG}"
 echo -e "Full Name:      ${REGISTRY_IMAGE}"
 echo ""
 
-# Step 1: Build the image (unless skipped)
+# Step 1: Create and push git tag
+if [ "$TAG" != "latest" ] && [ -n "$TAG" ]; then
+    print_step "Creating git tag: $TAG"
+    
+    # Check if tag already exists
+    if git rev-parse "$TAG" >/dev/null 2>&1; then
+        echo -e "${YELLOW}Git tag '$TAG' already exists, skipping...${NC}"
+    else
+        # Create annotated tag
+        if ! git tag -a "$TAG" -m "Release $TAG"; then
+            print_error "Failed to create git tag"
+            exit 1
+        fi
+        print_success "Git tag created: $TAG"
+        
+        # Push tag to remote
+        print_step "Pushing git tag to remote..."
+        if ! git push origin "$TAG"; then
+            print_error "Failed to push git tag to remote"
+            exit 1
+        fi
+        print_success "Git tag pushed to remote"
+    fi
+    echo ""
+fi
+
+# Step 2: Build the image (unless skipped)
 if [ "$SKIP_BUILD" = false ]; then
     print_step "Building Docker image..."
     if ! docker compose build central-app; then
@@ -101,7 +127,7 @@ else
     echo ""
 fi
 
-# Step 2: Tag the image with registry name
+# Step 3: Tag the image with registry name
 print_step "Tagging image for registry..."
 if ! docker tag "$LOCAL_IMAGE" "$REGISTRY_IMAGE"; then
     print_error "Failed to tag image with: $REGISTRY_IMAGE"
@@ -119,7 +145,7 @@ if [ "$TAG" != "latest" ]; then
 fi
 echo ""
 
-# Step 3: Push to registry
+# Step 4: Push to registry
 print_step "Pushing image to registry..."
 if ! docker push "$REGISTRY_IMAGE"; then
     print_error "Failed to push image to registry"
