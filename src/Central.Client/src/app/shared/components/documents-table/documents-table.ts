@@ -1,7 +1,9 @@
-import { AfterViewInit, Component, inject, Input, input, ViewChild, viewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, Input, input, ViewChild, viewChild, Output, EventEmitter } from '@angular/core';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { SelectionModel } from '@angular/cdk/collections';
 import { Store } from '@ngxs/store';
 import { Document as DocumentModel } from '../../models/document.model';
 import { RouterLink } from '@angular/router';
@@ -22,6 +24,7 @@ import { MatButtonModule } from '@angular/material/button';
     MatTableModule,
     MatSortModule,
     MatPaginatorModule,
+    MatCheckboxModule,
     RouterLink,
     MatIconModule,
     MatTooltipModule,
@@ -41,16 +44,18 @@ export class DocumentsTable implements AfterViewInit{
 
   @ViewChild(MatSort) sort!: MatSort;
 
-  protected dataSource = new MatTableDataSource<{title: string, documentType: string, correspondent: string, tags: string, documentDate: string | null, updated: string | null}>([]);
-  protected displayedColumns = ['title', 'documentType', 'correspondent', 'tags', 'documentDate', 'updated', 'actions'];
+  @Output() selectionChange = new EventEmitter<DocumentModel[]>();
+
+  protected selection = new SelectionModel<DocumentModel>(true, []);
+  protected dataSource = new MatTableDataSource<DocumentModel>([]);
+  protected displayedColumns = ['select', 'title', 'documentType', 'correspondent', 'tags', 'documentDate', 'updated', 'actions'];
+
+  private documentsData: DocumentModel[] = [];
 
   @Input() set documents(value: DocumentModel[]) {
-    this.dataSource.data = value.map(doc => ({
-      ...doc,
-      tags: this.getTagNames(doc.tagIds),
-      correspondent: this.getCorrespondentName(doc.correspondentId),
-      documentType: this.getDocumentTypeName(doc.documentTypeId)
-    }));
+    this.documentsData = value;
+    this.dataSource.data = value;
+    this.selection.clear();
   }
 
   ngAfterViewInit(): void {
@@ -106,5 +111,29 @@ export class DocumentsTable implements AfterViewInit{
           this.store.dispatch(new DocumentsActions.Delete(doc.id));
         }
       });
+    }
+
+    isAllSelected() {
+      const numSelected = this.selection.selected.length;
+      const numRows = this.dataSource.data.length;
+      return numSelected === numRows;
+    }
+
+    toggleAllRows() {
+      if (this.isAllSelected()) {
+        this.selection.clear();
+      } else {
+        this.dataSource.data.forEach(row => this.selection.select(row));
+      }
+      this.emitSelectionChange();
+    }
+
+    toggleRow(row: DocumentModel) {
+      this.selection.toggle(row);
+      this.emitSelectionChange();
+    }
+
+    private emitSelectionChange() {
+      this.selectionChange.emit(this.selection.selected);
     }
 }

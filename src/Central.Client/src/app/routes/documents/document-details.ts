@@ -11,6 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { Store, Select } from '@ngxs/store';
 import { PageHeader } from '@shared';
@@ -34,11 +35,12 @@ import { Observable } from 'rxjs';
 import { MtxSelectModule } from '@ng-matero/extensions/select';
 import { MtxDatetimepickerModule } from '@ng-matero/extensions/datetimepicker';
 import { MarkdownComponent } from 'ngx-markdown';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DocumentTypesSelect } from '@shared/components/document-types-select/document-types-select';
 import { CorrespondentsSelect } from '@shared/components/correspondents-select/correspondents-select';
 import { ContractsSelect } from '@shared/components/contracts-select/contracts-select';
 import { TagsSelect } from '@shared/components/tags-select/tags-select';
+import { ExecuteTaskDialogComponent } from './execute-task-dialog.component';
 
 @Component({
   selector: 'app-document-details',
@@ -53,6 +55,7 @@ import { TagsSelect } from '@shared/components/tags-select/tags-select';
     MatFormFieldModule,
     MatSelectModule,
     MatSnackBarModule,
+    MatDialogModule,
     MatTabsModule,
     MatTooltipModule,
     PdfViewerModule,
@@ -94,6 +97,15 @@ import { TagsSelect } from '@shared/components/tags-select/tags-select';
                     <mat-icon>close</mat-icon>
                     Cancel
                   </button> -->
+                <button
+                  mat-raised-button
+                  color="accent"
+                  (click)="executeTask()"
+                  matTooltip="Execute Task"
+                >
+                  <mat-icon>play_arrow</mat-icon>
+                  Execute Task
+                </button>
                 <button
                   mat-raised-button
                   color="primary"
@@ -498,6 +510,8 @@ export class DocumentDetails implements OnInit {
   private readonly documentService = inject(DocumentService);
   private readonly store = inject(Store);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
+  private readonly translate = inject(TranslateService);
 
   @Select(TagsState.tags) tags$!: Observable<Tag[]>;
   @Select(DocumentTypesState.documentTypes) documentTypes$!: Observable<DocumentType[]>;
@@ -664,6 +678,38 @@ export class DocumentDetails implements OnInit {
       error: () => {
         this.snackBar.open('Failed to download archive', 'Close', { duration: 3000 });
       },
+    });
+  }
+
+  executeTask() {
+    if (!this.document) return;
+
+    const dialogRef = this.dialog.open(ExecuteTaskDialogComponent, {
+      width: '500px',
+      data: {
+        documentIds: [this.document.id],
+        documentCount: 1
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const { successCount, failedCount } = result;
+        
+        if (failedCount === 0) {
+          this.snackBar.open(
+            this.translate.instant('documents.task_execution_success', { count: successCount }),
+            this.translate.instant('close'),
+            { duration: 3000 }
+          );
+        } else {
+          this.snackBar.open(
+            this.translate.instant('documents.task_execution_failed', { count: failedCount }),
+            this.translate.instant('close'),
+            { duration: 5000, panelClass: ['error-snackbar'] }
+          );
+        }
+      }
     });
   }
 

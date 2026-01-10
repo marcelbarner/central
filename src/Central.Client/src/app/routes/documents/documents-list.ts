@@ -8,10 +8,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSort, MatSortModule } from '@angular/material/sort';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Store } from '@ngxs/store';
 import { PageHeader } from '@shared';
 import {
@@ -23,6 +23,7 @@ import {
 } from '@core';
 import { Document as DocumentModel } from '../../shared/models/document.model';
 import { DocumentQuickUploadDialog } from './document-quick-upload-dialog';
+import { ExecuteTaskDialogComponent } from './execute-task-dialog.component';
 import { MtxSelectModule } from '@ng-matero/extensions/select';
 import { BehaviorSubject, combineLatest, map, Subscription } from 'rxjs';
 import { DocumentsTable } from '@shared/components/documents-table/documents-table';
@@ -66,6 +67,12 @@ import { DocumentTypesSelect } from '@shared/components/document-types-select/do
             <app-document-types-select (selectedDocumentTypesChange)="filterByDocumentTypes($event)" />
           </div>
           <div class="button-group">
+            @if (selectedDocuments.length > 0) {
+              <button mat-raised-button color="accent" (click)="executeTaskOnSelected()">
+                <mat-icon>play_arrow</mat-icon>
+                {{ 'documents.execute_task' | translate }} ({{ selectedDocuments.length }})
+              </button>
+            }
             <button mat-raised-button color="primary" (click)="openQuickUploadDialog()">
               <mat-icon>upload</mat-icon>
               {{ 'documents.quick_upload' | translate }}
@@ -84,7 +91,10 @@ import { DocumentTypesSelect } from '@shared/components/document-types-select/do
             </button>
           </div>
         } @else {
-          <app-documents-table [documents]="filteredDocuments" />
+          <app-documents-table 
+            [documents]="filteredDocuments" 
+            (selectionChange)="onSelectionChange($event)"
+          />
         }
       </mat-card-content>
     </mat-card>
@@ -187,6 +197,8 @@ import { DocumentTypesSelect } from '@shared/components/document-types-select/do
 export class DocumentsList implements OnInit, AfterViewInit, OnDestroy {
   private readonly store = inject(Store);
   private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
   private readonly sub = new Subscription();
   private readonly selectedTagIds = new BehaviorSubject<number[]>([]);
   private readonly selectedCorrespondentIds = new BehaviorSubject<number[]>([]);
@@ -199,6 +211,7 @@ export class DocumentsList implements OnInit, AfterViewInit, OnDestroy {
   loading = this.store.selectSignal(DocumentsState.loading);
   dataSource = new MatTableDataSource<DocumentModel>([]);
   filteredDocuments: DocumentModel[] = [];
+  selectedDocuments: DocumentModel[] = [];
 
   ngOnInit() {
     this.loadDocuments();
@@ -275,5 +288,56 @@ export class DocumentsList implements OnInit, AfterViewInit, OnDestroy {
   }
   filterByDocumentTypes(documentTypeId: number) {
     this.selectedDocumentTypeIds.next([documentTypeId]);
+  }
+
+  onSelectionChange(documents: DocumentModel[]) {
+    this.selectedDocuments = documents;
+  }
+
+  executeTaskOnSelected() {
+    if (this.selectedDocuments.length === 0) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(ExecuteTaskDialogComponent, {
+      width: '500px',
+      data: {
+        documentIds: this.selectedDocuments.map(d => d.id),
+        documentCount: this.selectedDocuments.length
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const { successCount, failedCount, totalCount } = result;
+        
+        if (failedCount === 0) {
+          this.snackBar.open(
+            this.translate.instant('documents.task_execution_success', { count: successCount }),
+            this.translate.instant('close'),
+            { duration: 3000 }
+          );
+        } else if (successCount === 0) {
+          this.snackBar.open(
+            this.translate.instant('documents.task_execution_failed', { count: failedCount }),
+            this.translate.instant('close'),
+            { duration: 5000, panelClass: ['error-snackbar'] }
+          );
+        } else {
+          this.snackBar.open(
+            this.translate.instant('documents.task_execution_partial', { 
+              success: successCount, 
+              failed: failedCount, 
+              total: totalCount 
+            }),
+            this.translate.instant('close'),
+            { duration: 5000 }
+          );
+        }
+
+        // Clear selection after execution
+        this.selectedDocuments = [];
+      }
+    });
   }
 }

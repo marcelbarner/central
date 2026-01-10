@@ -641,7 +641,7 @@ export class PipelineEditComponent implements OnInit {
         description: formValue.description?.trim() || null,
         enabled: formValue.enabled,
         triggerState: (triggerState as any) || undefined,
-        steps: steps,
+        steps,
       };
 
       const operation = this.isEditMode()

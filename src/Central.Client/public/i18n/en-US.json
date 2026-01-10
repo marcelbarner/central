@@ -198,7 +198,11 @@
       "Review": "Review",
       "Approved": "Approved",
       "Failed": "Failed"
-    }
+    },
+    "execute_task": "Execute Task",
+    "task_execution_success": "Task executed successfully on {{count}} document(s)",
+    "task_execution_failed": "Task execution failed for {{count}} document(s)",
+    "task_execution_partial": "Task executed on {{success}}/{{total}} documents ({{failed}} failed)"
   },
   "documentTypes": {
     "title": "Document Types",
@@ -308,6 +312,11 @@
     "updateError": "Failed to update task",
     "deleteError": "Failed to delete task",
     "confirmDelete": "Are you sure you want to delete '{{name}}'?",
+    "execute": "Execute Task",
+    "executeOnDocuments": "Execute task on {{count}} document(s)",
+    "selectTask": "Select a task to execute",
+    "executing": "Executing...",
+    "executionCompleted": "Execution completed",
     "types": {
       "AzureOpenAI": "Azure OpenAI",
       "AzureDocumentIntelligence": "Azure Document Intelligence"
