@@ -9,7 +9,6 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatBadgeModule } from '@angular/material/badge';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SelectionModel } from '@angular/cdk/collections';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -34,7 +33,6 @@ import { firstValueFrom } from 'rxjs';
     MatTooltipModule,
     MatChipsModule,
     MatCheckboxModule,
-    MatBadgeModule,
     TranslateModule,
     PageHeader,
   ],
@@ -110,14 +108,13 @@ import { firstValueFrom } from 'rxjs';
               <th mat-header-cell *matHeaderCellDef>{{ 'common.actions' | translate }}</th>
               <td mat-cell *matCellDef="let contract">
                 <button
-                  mat-icon-button
+                  mat-button
                   color="accent"
                   [matTooltip]="'view_documents' | translate"
-                  [matBadge]="getDocumentCount(contract.id)"
-                  matBadgeSize="small"
                   (click)="viewDocuments(contract.id); $event.stopPropagation()"
                 >
                   <mat-icon>description</mat-icon>
+                  {{ getDocumentCount(contract.id) }}
                 </button>
                 <button
                   mat-icon-button

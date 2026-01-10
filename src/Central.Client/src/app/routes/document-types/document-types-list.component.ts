@@ -32,7 +32,6 @@ import { firstValueFrom } from 'rxjs';
     MatTableModule,
     MatTooltipModule,
     MatCheckboxModule,
-    MatBadgeModule,
     TranslateModule,
     PageHeader,
   ],
@@ -99,14 +98,13 @@ import { firstValueFrom } from 'rxjs';
               <th mat-header-cell *matHeaderCellDef>{{ 'actions' | translate }}</th>
               <td mat-cell *matCellDef="let type">
                 <button
-                  mat-icon-button
+                  mat-button
                   color="accent"
                   [matTooltip]="'view_documents' | translate"
-                  [matBadge]="getDocumentCount(type.id)"
-                  matBadgeSize="small"
                   (click)="viewDocuments(type.id); $event.stopPropagation()"
                 >
                   <mat-icon>description</mat-icon>
+                  {{ getDocumentCount(type.id) }}
                 </button>
                 <button
                   mat-icon-button
