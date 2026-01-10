@@ -37,6 +37,14 @@ public interface IDocumentRepository
     Task<IReadOnlyCollection<Document>> GetAllAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Gets all documents in a specific state.
+    /// </summary>
+    /// <param name="state">The document state to filter by.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A collection of documents in the specified state.</returns>
+    Task<IReadOnlyCollection<Document>> GetByStateAsync(DocumentState state, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Deletes a document by its identifier.
     /// </summary>
     /// <param name="id">The document identifier.</param>

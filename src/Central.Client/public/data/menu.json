@@ -47,6 +47,18 @@
       "icon": "label"
     },
     {
+      "route": "tasks",
+      "name": "tasks",
+      "type": "link",
+      "icon": "psychology"
+    },
+    {
+      "route": "pipelines",
+      "name": "pipelines",
+      "type": "link",
+      "icon": "account_tree"
+    },
+    {
       "route": "processing-jobs",
       "name": "processingJobs",
       "type": "sub",

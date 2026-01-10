@@ -3,6 +3,7 @@ using System;
 using Central.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Central.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260109084822_AddTasksAndPipelines")]
+    partial class AddTasksAndPipelines
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -269,7 +272,7 @@ namespace Central.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UpdatedById");
 
-                    b.ToTable("Documents", (string)null);
+                    b.ToTable("Documents");
                 });
 
             modelBuilder.Entity("Central.Infrastructure.Entities.DocumentTypeEntity", b =>
@@ -300,7 +303,7 @@ namespace Central.Infrastructure.Persistence.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("DocumentTypes", (string)null);
+                    b.ToTable("DocumentTypes");
                 });
 
             modelBuilder.Entity("Central.Infrastructure.Entities.PipelineEntity", b =>
@@ -341,7 +344,7 @@ namespace Central.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("TriggerState");
 
-                    b.ToTable("Pipelines", (string)null);
+                    b.ToTable("Pipelines");
                 });
 
             modelBuilder.Entity("Central.Infrastructure.Entities.PipelineExecutionEntity", b =>
@@ -380,7 +383,7 @@ namespace Central.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("Status");
 
-                    b.ToTable("PipelineExecutions", (string)null);
+                    b.ToTable("PipelineExecutions");
                 });
 
             modelBuilder.Entity("Central.Infrastructure.Entities.PipelineStepEntity", b =>
@@ -419,7 +422,7 @@ namespace Central.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("PipelineId", "Order");
 
-                    b.ToTable("PipelineSteps", (string)null);
+                    b.ToTable("PipelineSteps");
                 });
 
             modelBuilder.Entity("Central.Infrastructure.Entities.ProcessDefinitionEntity", b =>
@@ -459,7 +462,7 @@ namespace Central.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("TriggerState");
 
-                    b.ToTable("ProcessDefinitions", (string)null);
+                    b.ToTable("ProcessDefinitions");
                 });
 
             modelBuilder.Entity("Central.Infrastructure.Entities.ProcessExecutionEntity", b =>
@@ -498,7 +501,7 @@ namespace Central.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("Status");
 
-                    b.ToTable("ProcessExecutions", (string)null);
+                    b.ToTable("ProcessExecutions");
                 });
 
             modelBuilder.Entity("Central.Infrastructure.Entities.ProcessExecutionStepEntity", b =>
@@ -546,7 +549,7 @@ namespace Central.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ProcessExecutionId", "Order");
 
-                    b.ToTable("ProcessExecutionSteps", (string)null);
+                    b.ToTable("ProcessExecutionSteps");
                 });
 
             modelBuilder.Entity("Central.Infrastructure.Entities.ProcessingStepEntity", b =>
@@ -599,7 +602,7 @@ namespace Central.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ProcessDefinitionId", "Order");
 
-                    b.ToTable("ProcessingSteps", (string)null);
+                    b.ToTable("ProcessingSteps");
                 });
 
             modelBuilder.Entity("Central.Infrastructure.Entities.TagEntity", b =>
@@ -630,7 +633,7 @@ namespace Central.Infrastructure.Persistence.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Tags", (string)null);
+                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("Central.Infrastructure.Entities.TaskEntity", b =>
@@ -698,7 +701,7 @@ namespace Central.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("TaskType");
 
-                    b.ToTable("Tasks", (string)null);
+                    b.ToTable("Tasks");
                 });
 
             modelBuilder.Entity("Central.Infrastructure.Entities.TaskExecutionEntity", b =>
@@ -745,7 +748,7 @@ namespace Central.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("TaskId");
 
-                    b.ToTable("TaskExecutions", (string)null);
+                    b.ToTable("TaskExecutions");
                 });
 
             modelBuilder.Entity("Central.Infrastructure.Entities.WebhookEntity", b =>

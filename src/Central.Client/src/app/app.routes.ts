@@ -64,6 +64,32 @@ export const routes: Routes = [
           import('./routes/tags-overview/tags-list.component').then((m) => m.TagsListComponent),
       },
       {
+        path: 'tasks',
+        loadComponent: () =>
+          import('./routes/tasks/tasks-list.component').then((m) => m.TasksListComponent),
+      },
+      {
+        path: 'pipelines',
+        loadComponent: () =>
+          import('./routes/pipelines/pipelines-list.component').then(
+            (m) => m.PipelinesListComponent,
+          ),
+      },
+      {
+        path: 'pipelines/new',
+        loadComponent: () =>
+          import('./routes/pipelines/pipeline-edit.component').then(
+            (m) => m.PipelineEditComponent,
+          ),
+      },
+      {
+        path: 'pipelines/:id',
+        loadComponent: () =>
+          import('./routes/pipelines/pipeline-edit.component').then(
+            (m) => m.PipelineEditComponent,
+          ),
+      },
+      {
         path: 'processing-jobs',
         children: [
           {

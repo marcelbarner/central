@@ -1,7 +1,6 @@
 using AwesomeAssertions;
 
 using Azure;
-using Azure.AI.FormRecognizer.DocumentAnalysis;
 using Azure.AI.OpenAI;
 
 using Central.Domain.Documents;

@@ -96,7 +96,7 @@ import { ProcessExecution, ExecutionStatus } from '../models/process.models';
                     [value]="getProgressPercentage(execution)"
                     [color]="getProgressColor(execution)"
                     mode="determinate"
-                  ></mat-progress-bar>
+                  />
                   <span class="progress-text">
                     {{ getCompletedSteps(execution) }}/{{ execution.steps.length }}
                   </span>

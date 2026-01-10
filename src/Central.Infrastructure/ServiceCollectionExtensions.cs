@@ -74,6 +74,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IWebhookRepository, WebhookRepository>();
         services.AddScoped<IProcessDefinitionRepository, ProcessDefinitionRepository>();
         services.AddScoped<IProcessExecutionRepository, ProcessExecutionRepository>();
+        services.AddScoped<ITaskRepository, TaskRepository>();
+        services.AddScoped<IPipelineRepository, PipelineRepository>();
+        services.AddScoped<ITaskExecutionRepository, TaskExecutionRepository>();
+        services.AddScoped<IPipelineExecutionRepository, PipelineExecutionRepository>();
 
         // Register domain services
         services.AddScoped<IDocumentService, DocumentService>();
@@ -84,6 +88,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IWebhookService, WebhookService>();
         services.AddScoped<IWebhookTrigger, WebhookTrigger>();
         services.AddScoped<IProcessExecutionService, ProcessExecutionService>();
+        services.AddScoped<TaskExecutionService>();
+        services.AddScoped<PipelineExecutionService>();
 
         // Register HttpClient for webhooks
         services.AddHttpClient("WebhookClient", client =>

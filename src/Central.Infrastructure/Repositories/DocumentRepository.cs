@@ -95,7 +95,17 @@ public sealed class DocumentRepository : IDocumentRepository
 
         return entities.ToDomain();
     }
+    public async Task<IReadOnlyCollection<Document>> GetByStateAsync(DocumentState state, CancellationToken cancellationToken = default)
+    {
+        var stateValue = (int)state;
+        var entities = await _context.Set<Entities.DocumentEntity>()
+            .Include(d => d.Tags)
+            .Where(d => d.State == stateValue)
+            .OrderByDescending(d => d.Added)
+            .ToListAsync(cancellationToken);
 
+        return entities.Select(e => e.ToDomain()).ToList();
+    }
     public async Task DeleteAsync(long id, CancellationToken cancellationToken = default)
     {
         var entity = await _context.Set<Entities.DocumentEntity>()

@@ -87,7 +87,7 @@ import { ProcessDefinition, DocumentState } from '../models/process.models';
                   [checked]="process.enabled"
                   (change)="toggleEnabled(process)"
                   color="primary"
-                ></mat-slide-toggle>
+                />
               </td>
             </ng-container>
 

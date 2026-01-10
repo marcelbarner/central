@@ -76,6 +76,31 @@ public sealed class ApplicationDbContext : IdentityDbContext<
     /// </summary>
     public DbSet<ProcessExecutionStepEntity> ProcessExecutionSteps => Set<ProcessExecutionStepEntity>();
 
+    /// <summary>
+    /// Gets or sets the Tasks DbSet.
+    /// </summary>
+    public DbSet<TaskEntity> Tasks => Set<TaskEntity>();
+
+    /// <summary>
+    /// Gets or sets the Pipelines DbSet.
+    /// </summary>
+    public DbSet<PipelineEntity> Pipelines => Set<PipelineEntity>();
+
+    /// <summary>
+    /// Gets or sets the PipelineSteps DbSet.
+    /// </summary>
+    public DbSet<PipelineStepEntity> PipelineSteps => Set<PipelineStepEntity>();
+
+    /// <summary>
+    /// Gets or sets the TaskExecutions DbSet.
+    /// </summary>
+    public DbSet<TaskExecutionEntity> TaskExecutions => Set<TaskExecutionEntity>();
+
+    /// <summary>
+    /// Gets or sets the PipelineExecutions DbSet.
+    /// </summary>
+    public DbSet<PipelineExecutionEntity> PipelineExecutions => Set<PipelineExecutionEntity>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
