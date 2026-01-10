@@ -136,6 +136,9 @@
   "profile": "Profile",
   "edit_profile": "Edit profile",
   "logout": "logout",
+  "confirm_delete": "Confirm Delete",
+  "delete_selected": "Delete Selected",
+  "confirm": "Confirm",
   "login": "Login",
   "login_title": "Welcome Back",
   "have_no_account": "Don't have an account",
@@ -216,7 +219,12 @@
     "createError": "Failed to create document type",
     "updateError": "Failed to update document type",
     "deleteError": "Failed to delete document type",
-    "confirmDelete": "Are you sure you want to delete this document type?"
+    "confirmDelete": "Are you sure you want to delete this document type?",
+    "confirm_delete_single": "Are you sure you want to delete document type '{{name}}'?",
+    "confirm_delete_multiple": "Are you sure you want to delete {{count}} selected document type(s)?",
+    "delete_success": "Document type deleted successfully",
+    "delete_multiple_success": "{{count}} document type(s) deleted successfully",
+    "delete_error": "Failed to delete document type(s)"
   },
   "correspondents": {
     "title": "Correspondents",
@@ -230,7 +238,12 @@
     "createError": "Failed to create correspondent",
     "updateError": "Failed to update correspondent",
     "deleteError": "Failed to delete correspondent",
-    "confirmDelete": "Are you sure you want to delete this correspondent?"
+    "confirmDelete": "Are you sure you want to delete this correspondent?",
+    "confirm_delete_single": "Are you sure you want to delete correspondent '{{name}}'?",
+    "confirm_delete_multiple": "Are you sure you want to delete {{count}} selected correspondent(s)?",
+    "delete_success": "Correspondent deleted successfully",
+    "delete_multiple_success": "{{count}} correspondent(s) deleted successfully",
+    "delete_error": "Failed to delete correspondent(s)"
   },
   "contracts": {
     "title": "Contracts",
@@ -260,6 +273,11 @@
     "updateError": "Failed to update contract",
     "deleteError": "Failed to delete contract",
     "confirmDelete": "Are you sure you want to delete '{{name}}'?",
+    "confirm_delete_single": "Are you sure you want to delete contract '{{name}}'?",
+    "confirm_delete_multiple": "Are you sure you want to delete {{count}} selected contract(s)?",
+    "delete_success": "Contract deleted successfully",
+    "delete_multiple_success": "{{count}} contract(s) deleted successfully",
+    "delete_error": "Failed to delete contract(s)",
     "states": {
       "Draft": "Draft",
       "Active": "Active",
@@ -282,7 +300,12 @@
     "createError": "Failed to create webhook",
     "updateError": "Failed to update webhook",
     "deleteError": "Failed to delete webhook",
-    "confirmDelete": "Are you sure you want to delete this webhook?"
+    "confirmDelete": "Are you sure you want to delete this webhook?",
+    "confirm_delete_single": "Are you sure you want to delete webhook '{{name}}'?",
+    "confirm_delete_multiple": "Are you sure you want to delete {{count}} selected webhook(s)?",
+    "delete_success": "Webhook deleted successfully",
+    "delete_multiple_success": "{{count}} webhook(s) deleted successfully",
+    "delete_error": "Failed to delete webhook(s)"
   },
   "tasks": {
     "title": "Tasks",
@@ -312,6 +335,11 @@
     "updateError": "Failed to update task",
     "deleteError": "Failed to delete task",
     "confirmDelete": "Are you sure you want to delete '{{name}}'?",
+    "confirm_delete_single": "Are you sure you want to delete task '{{name}}'?",
+    "confirm_delete_multiple": "Are you sure you want to delete {{count}} selected task(s)?",
+    "delete_success": "Task deleted successfully",
+    "delete_multiple_success": "{{count}} task(s) deleted successfully",
+    "delete_error": "Failed to delete task(s)",
     "execute": "Execute Task",
     "executeOnDocuments": "Execute task on {{count}} document(s)",
     "selectTask": "Select a task to execute",
@@ -348,6 +376,11 @@
     "updateError": "Failed to update pipeline",
     "deleteError": "Failed to delete pipeline",
     "confirmDelete": "Are you sure you want to delete '{{name}}'?",
+    "confirm_delete_single": "Are you sure you want to delete pipeline '{{name}}'?",
+    "confirm_delete_multiple": "Are you sure you want to delete {{count}} selected pipeline(s)?",
+    "delete_success": "Pipeline deleted successfully",
+    "delete_multiple_success": "{{count}} pipeline(s) deleted successfully",
+    "delete_error": "Failed to delete pipeline(s)",
     "stepTypes": {
       "TaskStep": "Task Step",
       "WaitStep": "Wait Step"
@@ -373,6 +406,11 @@
     "name_max_length": "Tag name must not exceed 100 characters",
     "description_max_length": "Description must not exceed 500 characters",
     "confirm_delete": "Are you sure you want to delete \"{{name}}\"?",
+    "confirm_delete_single": "Are you sure you want to delete tag \"{{name}}\"?",
+    "confirm_delete_multiple": "Are you sure you want to delete {{count}} selected tag(s)?",
+    "delete_success": "Tag deleted successfully",
+    "delete_multiple_success": "{{count}} tag(s) deleted successfully",
+    "delete_error": "Failed to delete tag(s)",
     "created_successfully": "Tag created successfully",
     "failed_to_create": "Failed to create tag",
     "updated_successfully": "Tag updated successfully",

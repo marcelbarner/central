@@ -7,11 +7,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
-import { TranslateModule } from '@ngx-translate/core';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SelectionModel } from '@angular/cdk/collections';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PageHeader } from '@shared';
 import { TaskService } from '../../services/task.service';
 import { Task } from '../../models/task.model';
 import { TaskDialogComponent } from './task-dialog.component';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-tasks-list',
@@ -25,6 +30,7 @@ import { TaskDialogComponent } from './task-dialog.component';
     MatTableModule,
     MatTooltipModule,
     MatChipsModule,
+    MatCheckboxModule,
     TranslateModule,
     PageHeader,
   ],
@@ -33,6 +39,12 @@ import { TaskDialogComponent } from './task-dialog.component';
     <mat-card>
       <mat-card-content>
         <div class="header-actions">
+          @if (selection.hasValue()) {
+            <button mat-raised-button color="warn" (click)="deleteSelected()">
+              <mat-icon>delete</mat-icon>
+              {{ 'delete_selected' | translate }} ({{ selection.selected.length }})
+            </button>
+          }
           <button mat-raised-button color="primary" (click)="openDialog()">
             <mat-icon>add</mat-icon>
             Create Task
@@ -51,6 +63,24 @@ import { TaskDialogComponent } from './task-dialog.component';
           </div>
         } @else {
           <table mat-table [dataSource]="tasks()" class="tasks-table">
+            <!-- Checkbox Column -->
+            <ng-container matColumnDef="select">
+              <th mat-header-cell *matHeaderCellDef>
+                <mat-checkbox
+                  (change)="$event ? toggleAllRows() : null"
+                  [checked]="selection.hasValue() && isAllSelected()"
+                  [indeterminate]="selection.hasValue() && !isAllSelected()"
+                />
+              </th>
+              <td mat-cell *matCellDef="let row">
+                <mat-checkbox
+                  (click)="$event.stopPropagation()"
+                  (change)="$event ? toggleRow(row) : null"
+                  [checked]="selection.isSelected(row)"
+                />
+              </td>
+            </ng-container>
+
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef>Name</th>
               <td mat-cell *matCellDef="let task">
@@ -126,6 +156,8 @@ import { TaskDialogComponent } from './task-dialog.component';
     .header-actions {
       display: flex;
       justify-content: flex-end;
+      align-items: center;
+      gap: 12px;
       margin-bottom: 20px;
     }
 
@@ -167,10 +199,13 @@ import { TaskDialogComponent } from './task-dialog.component';
 export class TasksListComponent implements OnInit {
   private readonly taskService = inject(TaskService);
   private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   tasks = signal<Task[]>([]);
   loading = signal(true);
-  displayedColumns = ['name', 'type', 'status', 'configuration', 'actions'];
+  selection = new SelectionModel<Task>(true, []);
+  displayedColumns = ['select', 'name', 'type', 'status', 'configuration', 'actions'];
 
   ngOnInit() {
     this.loadTasks();
@@ -208,8 +243,86 @@ export class TasksListComponent implements OnInit {
   }
 
   deleteTask(task: Task) {
-    if (confirm(`Are you sure you want to delete task "${task.name}"?`)) {
-      this.taskService.delete(task.id).subscribe(() => this.loadTasks());
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'confirm_delete',
+        message: this.translate.instant('tasks.confirm_delete_single', { name: task.name }),
+        confirmText: 'delete',
+        cancelText: 'cancel',
+        confirmColor: 'warn'
+      } as ConfirmDialogData
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.taskService.delete(task.id).subscribe(() => {
+          this.loadTasks();
+          this.snackBar.open(
+            this.translate.instant('tasks.delete_success'),
+            undefined,
+            { duration: 3000 }
+          );
+        });
+      }
+    });
+  }
+
+  isAllSelected(): boolean {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.tasks().length;
+    return numSelected === numRows && numRows > 0;
+  }
+
+  toggleAllRows(): void {
+    if (this.isAllSelected()) {
+      this.selection.clear();
+    } else {
+      this.tasks().forEach(row => this.selection.select(row));
+    }
+  }
+
+  toggleRow(row: Task): void {
+    this.selection.toggle(row);
+  }
+
+  async deleteSelected(): Promise<void> {
+    const selectedTasks = this.selection.selected;
+    const count = selectedTasks.length;
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'confirm_delete',
+        message: this.translate.instant('tasks.confirm_delete_multiple', { count }),
+        confirmText: 'delete',
+        cancelText: 'cancel',
+        confirmColor: 'warn'
+      } as ConfirmDialogData
+    });
+
+    const confirmed = await firstValueFrom(dialogRef.afterClosed());
+    if (!confirmed) return;
+
+    try {
+      const deletePromises = selectedTasks.map(task =>
+        firstValueFrom(this.taskService.delete(task.id))
+      );
+
+      await Promise.all(deletePromises);
+
+      this.selection.clear();
+      this.loadTasks();
+      this.snackBar.open(
+        this.translate.instant('tasks.delete_multiple_success', { count }),
+        undefined,
+        { duration: 3000 }
+      );
+    } catch (error) {
+      console.error('Error deleting tasks:', error);
+      this.snackBar.open(
+        this.translate.instant('tasks.delete_error'),
+        undefined,
+        { duration: 5000 }
+      );
     }
   }
 

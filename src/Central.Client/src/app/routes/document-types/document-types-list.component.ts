@@ -6,12 +6,17 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SelectionModel } from '@angular/cdk/collections';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Store } from '@ngxs/store';
 import { PageHeader } from '@shared';
 import { DocumentTypesState, DocumentTypesActions } from '@core';
 import { DocumentType } from '../../models/document-type.model';
 import { DocumentTypeDialogComponent } from './document-type-dialog.component';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-document-types-list',
@@ -24,6 +29,7 @@ import { DocumentTypeDialogComponent } from './document-type-dialog.component';
     MatIconModule,
     MatTableModule,
     MatTooltipModule,
+    MatCheckboxModule,
     TranslateModule,
     PageHeader,
   ],
@@ -32,6 +38,12 @@ import { DocumentTypeDialogComponent } from './document-type-dialog.component';
     <mat-card>
       <mat-card-content>
         <div class="header-actions">
+          @if (selection.hasValue()) {
+            <button mat-raised-button color="warn" (click)="deleteSelected()">
+              <mat-icon>delete</mat-icon>
+              {{ 'delete_selected' | translate }} ({{ selection.selected.length }})
+            </button>
+          }
           <button mat-raised-button color="primary" (click)="openDialog()">
             <mat-icon>add</mat-icon>
             {{ 'documentTypes.create' | translate }}
@@ -50,6 +62,24 @@ import { DocumentTypeDialogComponent } from './document-type-dialog.component';
           </div>
         } @else {
           <table mat-table [dataSource]="documentTypes()" class="document-types-table">
+            <!-- Checkbox Column -->
+            <ng-container matColumnDef="select">
+              <th mat-header-cell *matHeaderCellDef>
+                <mat-checkbox
+                  (change)="$event ? toggleAllRows() : null"
+                  [checked]="selection.hasValue() && isAllSelected()"
+                  [indeterminate]="selection.hasValue() && !isAllSelected()"
+                />
+              </th>
+              <td mat-cell *matCellDef="let row">
+                <mat-checkbox
+                  (click)="$event.stopPropagation()"
+                  (change)="$event ? toggleRow(row) : null"
+                  [checked]="selection.isSelected(row)"
+                />
+              </td>
+            </ng-container>
+
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef>{{ 'documentTypes.name' | translate }}</th>
               <td mat-cell *matCellDef="let type">
@@ -95,6 +125,8 @@ import { DocumentTypeDialogComponent } from './document-type-dialog.component';
     .header-actions {
       display: flex;
       justify-content: flex-end;
+      align-items: center;
+      gap: 12px;
       margin-bottom: 20px;
     }
 
@@ -137,11 +169,13 @@ export class DocumentTypesListComponent implements OnInit {
   private readonly store = inject(Store);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
+  private readonly snackBar = inject(MatSnackBar);
 
   documentTypes = this.store.selectSignal(DocumentTypesState.documentTypes);
   loading = this.store.selectSignal(DocumentTypesState.loading);
 
-  displayedColumns = ['name', 'description', 'actions'];
+  selection = new SelectionModel<DocumentType>(true, []);
+  displayedColumns = ['select', 'name', 'description', 'actions'];
 
   ngOnInit() {
     this.store.dispatch(new DocumentTypesActions.Load());
@@ -165,12 +199,81 @@ export class DocumentTypesListComponent implements OnInit {
   }
 
   deleteDocumentType(documentType: DocumentType) {
-    this.translate
-      .get('documentTypes.confirmDelete')
-      .subscribe((msg: string) => {
-        if (confirm(msg)) {
-          this.store.dispatch(new DocumentTypesActions.Delete(documentType.id));
-        }
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'confirm_delete',
+        message: this.translate.instant('documentTypes.confirm_delete_single', { name: documentType.name }),
+        confirmText: 'delete',
+        cancelText: 'cancel',
+        confirmColor: 'warn'
+      } as ConfirmDialogData
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.store.dispatch(new DocumentTypesActions.Delete(documentType.id));
+        this.snackBar.open(
+          this.translate.instant('documentTypes.delete_success'),
+          undefined,
+          { duration: 3000 }
+        );
+      }
+    });
+  }
+
+  isAllSelected(): boolean {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.documentTypes().length;
+    return numSelected === numRows && numRows > 0;
+  }
+
+  toggleAllRows(): void {
+    if (this.isAllSelected()) {
+      this.selection.clear();
+    } else {
+      this.documentTypes().forEach(row => this.selection.select(row));
+    }
+  }
+
+  toggleRow(row: DocumentType): void {
+    this.selection.toggle(row);
+  }
+
+  async deleteSelected(): Promise<void> {
+    const selectedDocumentTypes = this.selection.selected;
+    const count = selectedDocumentTypes.length;
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'confirm_delete',
+        message: this.translate.instant('documentTypes.confirm_delete_multiple', { count }),
+        confirmText: 'delete',
+        cancelText: 'cancel',
+        confirmColor: 'warn'
+      } as ConfirmDialogData
+    });
+
+    const confirmed = await firstValueFrom(dialogRef.afterClosed());
+    if (!confirmed) return;
+
+    try {
+      selectedDocumentTypes.forEach(documentType => {
+        this.store.dispatch(new DocumentTypesActions.Delete(documentType.id));
       });
+
+      this.selection.clear();
+      this.snackBar.open(
+        this.translate.instant('documentTypes.delete_multiple_success', { count }),
+        undefined,
+        { duration: 3000 }
+      );
+    } catch (error) {
+      console.error('Error deleting document types:', error);
+      this.snackBar.open(
+        this.translate.instant('documentTypes.delete_error'),
+        undefined,
+        { duration: 5000 }
+      );
+    }
   }
 }

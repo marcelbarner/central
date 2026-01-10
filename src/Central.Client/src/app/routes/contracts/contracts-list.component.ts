@@ -8,12 +8,17 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SelectionModel } from '@angular/cdk/collections';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Store } from '@ngxs/store';
 import { PageHeader } from '@shared';
 import { ContractsState, ContractsActions } from '@core';
 import { Contract } from '../../models/contract.model';
 import { ContractDialogComponent } from './contract-dialog.component';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-contracts-list',
@@ -27,6 +32,7 @@ import { ContractDialogComponent } from './contract-dialog.component';
     MatTableModule,
     MatTooltipModule,
     MatChipsModule,
+    MatCheckboxModule,
     TranslateModule,
     PageHeader,
   ],
@@ -35,6 +41,12 @@ import { ContractDialogComponent } from './contract-dialog.component';
     <mat-card>
       <mat-card-content>
         <div class="header-actions">
+          @if (selection.hasValue()) {
+            <button mat-raised-button color="warn" (click)="deleteSelected()">
+              <mat-icon>delete</mat-icon>
+              {{ 'delete_selected' | translate }} ({{ selection.selected.length }})
+            </button>
+          }
           <button mat-raised-button color="primary" (click)="openDialog()">
             <mat-icon>add</mat-icon>
             {{ 'contracts.create' | translate }}
@@ -53,6 +65,24 @@ import { ContractDialogComponent } from './contract-dialog.component';
           </div>
         } @else {
           <table mat-table [dataSource]="contracts()" class="contracts-table">
+            <!-- Checkbox Column -->
+            <ng-container matColumnDef="select">
+              <th mat-header-cell *matHeaderCellDef>
+                <mat-checkbox
+                  (change)="$event ? toggleAllRows() : null"
+                  [checked]="selection.hasValue() && isAllSelected()"
+                  [indeterminate]="selection.hasValue() && !isAllSelected()"
+                />
+              </th>
+              <td mat-cell *matCellDef="let row">
+                <mat-checkbox
+                  (click)="$event.stopPropagation()"
+                  (change)="$event ? toggleRow(row) : null"
+                  [checked]="selection.isSelected(row)"
+                />
+              </td>
+            </ng-container>
+
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef>{{ 'contracts.name' | translate }}</th>
               <td mat-cell *matCellDef="let contract">
@@ -115,6 +145,8 @@ import { ContractDialogComponent } from './contract-dialog.component';
     .header-actions {
       display: flex;
       justify-content: flex-end;
+      align-items: center;
+      gap: 12px;
       margin-bottom: 20px;
     }
 
@@ -175,8 +207,10 @@ export class ContractsListComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
+  private readonly snackBar = inject(MatSnackBar);
 
-  displayedColumns = ['name', 'state', 'description', 'actions'];
+  displayedColumns = ['select', 'name', 'state', 'description', 'actions'];
+  selection = new SelectionModel<Contract>(true, []);
 
   contracts = this.store.selectSignal(ContractsState.contracts);
   loading = this.store.selectSignal(ContractsState.loading);
@@ -226,8 +260,81 @@ export class ContractsListComponent implements OnInit {
   }
 
   deleteContract(contract: Contract) {
-    if (confirm(this.translate.instant('contracts.confirmDelete', { name: contract.name }))) {
-      this.store.dispatch(new ContractsActions.Delete(contract.id));
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'confirm_delete',
+        message: this.translate.instant('contracts.confirm_delete_single', { name: contract.name }),
+        confirmText: 'delete',
+        cancelText: 'cancel',
+        confirmColor: 'warn'
+      } as ConfirmDialogData
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.store.dispatch(new ContractsActions.Delete(contract.id));
+        this.snackBar.open(
+          this.translate.instant('contracts.delete_success'),
+          undefined,
+          { duration: 3000 }
+        );
+      }
+    });
+  }
+
+  isAllSelected(): boolean {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.contracts().length;
+    return numSelected === numRows && numRows > 0;
+  }
+
+  toggleAllRows(): void {
+    if (this.isAllSelected()) {
+      this.selection.clear();
+    } else {
+      this.contracts().forEach(row => this.selection.select(row));
+    }
+  }
+
+  toggleRow(row: Contract): void {
+    this.selection.toggle(row);
+  }
+
+  async deleteSelected(): Promise<void> {
+    const selectedContracts = this.selection.selected;
+    const count = selectedContracts.length;
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'confirm_delete',
+        message: this.translate.instant('contracts.confirm_delete_multiple', { count }),
+        confirmText: 'delete',
+        cancelText: 'cancel',
+        confirmColor: 'warn'
+      } as ConfirmDialogData
+    });
+
+    const confirmed = await firstValueFrom(dialogRef.afterClosed());
+    if (!confirmed) return;
+
+    try {
+      selectedContracts.forEach(contract => {
+        this.store.dispatch(new ContractsActions.Delete(contract.id));
+      });
+
+      this.selection.clear();
+      this.snackBar.open(
+        this.translate.instant('contracts.delete_multiple_success', { count }),
+        undefined,
+        { duration: 3000 }
+      );
+    } catch (error) {
+      console.error('Error deleting contracts:', error);
+      this.snackBar.open(
+        this.translate.instant('contracts.delete_error'),
+        undefined,
+        { duration: 5000 }
+      );
     }
   }
 }

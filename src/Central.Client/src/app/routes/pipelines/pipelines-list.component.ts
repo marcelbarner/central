@@ -3,15 +3,21 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { TranslateModule } from '@ngx-translate/core';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SelectionModel } from '@angular/cdk/collections';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PageHeader } from '@shared';
 import { PipelineService } from '../../services/pipeline.service';
 import { Pipeline } from '../../models/pipeline.model';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-pipelines-list',
@@ -25,6 +31,7 @@ import { Pipeline } from '../../models/pipeline.model';
     MatTooltipModule,
     MatChipsModule,
     MatExpansionModule,
+    MatCheckboxModule,
     TranslateModule,
     PageHeader,
   ],
@@ -33,6 +40,12 @@ import { Pipeline } from '../../models/pipeline.model';
     <mat-card>
       <mat-card-content>
         <div class="header-actions">
+          @if (selection.hasValue()) {
+            <button mat-raised-button color="warn" (click)="deleteSelected()">
+              <mat-icon>delete</mat-icon>
+              {{ 'delete_selected' | translate }} ({{ selection.selected.length }})
+            </button>
+          }
           <button mat-raised-button color="primary" (click)="createPipeline()">
             <mat-icon>add</mat-icon>
             Create Pipeline
@@ -51,6 +64,24 @@ import { Pipeline } from '../../models/pipeline.model';
           </div>
         } @else {
           <table mat-table [dataSource]="pipelines()" class="pipelines-table">
+            <!-- Checkbox Column -->
+            <ng-container matColumnDef="select">
+              <th mat-header-cell *matHeaderCellDef>
+                <mat-checkbox
+                  (change)="$event ? toggleAllRows() : null"
+                  [checked]="selection.hasValue() && isAllSelected()"
+                  [indeterminate]="selection.hasValue() && !isAllSelected()"
+                />
+              </th>
+              <td mat-cell *matCellDef="let row">
+                <mat-checkbox
+                  (click)="$event.stopPropagation()"
+                  (change)="$event ? toggleRow(row) : null"
+                  [checked]="selection.isSelected(row)"
+                />
+              </td>
+            </ng-container>
+
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef>Name</th>
               <td mat-cell *matCellDef="let pipeline">
@@ -144,7 +175,7 @@ import { Pipeline } from '../../models/pipeline.model';
               mat-row
               *matRowDef="let row; columns: displayedColumns"
               class="table-row"
-              (click)="toggleRow(row)"
+              (click)="toggleExpandedRow(row)"
               [class.expanded]="expandedElement === row"
             ></tr>
             <tr
@@ -162,6 +193,8 @@ import { Pipeline } from '../../models/pipeline.model';
     .header-actions {
       display: flex;
       justify-content: flex-end;
+      align-items: center;
+      gap: 12px;
       margin-bottom: 20px;
     }
 
@@ -286,10 +319,14 @@ import { Pipeline } from '../../models/pipeline.model';
 export class PipelinesListComponent implements OnInit {
   private readonly pipelineService = inject(PipelineService);
   private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   pipelines = signal<Pipeline[]>([]);
   loading = signal(true);
-  displayedColumns = ['name', 'status', 'trigger', 'steps', 'actions'];
+  selection = new SelectionModel<Pipeline>(true, []);
+  displayedColumns = ['select', 'name', 'status', 'trigger', 'steps', 'actions'];
   expandedElement: Pipeline | null = null;
 
   ngOnInit() {
@@ -319,12 +356,90 @@ export class PipelinesListComponent implements OnInit {
   }
 
   deletePipeline(pipeline: Pipeline) {
-    if (confirm(`Are you sure you want to delete pipeline "${pipeline.name}"?`)) {
-      this.pipelineService.delete(pipeline.id).subscribe(() => this.loadPipelines());
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'confirm_delete',
+        message: this.translate.instant('pipelines.confirm_delete_single', { name: pipeline.name }),
+        confirmText: 'delete',
+        cancelText: 'cancel',
+        confirmColor: 'warn'
+      } as ConfirmDialogData
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.pipelineService.delete(pipeline.id).subscribe(() => {
+          this.loadPipelines();
+          this.snackBar.open(
+            this.translate.instant('pipelines.delete_success'),
+            undefined,
+            { duration: 3000 }
+          );
+        });
+      }
+    });
+  }
+
+  isAllSelected(): boolean {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.pipelines().length;
+    return numSelected === numRows && numRows > 0;
+  }
+
+  toggleAllRows(): void {
+    if (this.isAllSelected()) {
+      this.selection.clear();
+    } else {
+      this.pipelines().forEach(row => this.selection.select(row));
     }
   }
 
-  toggleRow(pipeline: Pipeline) {
+  toggleRow(row: Pipeline): void {
+    this.selection.toggle(row);
+  }
+
+  async deleteSelected(): Promise<void> {
+    const selectedPipelines = this.selection.selected;
+    const count = selectedPipelines.length;
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'confirm_delete',
+        message: this.translate.instant('pipelines.confirm_delete_multiple', { count }),
+        confirmText: 'delete',
+        cancelText: 'cancel',
+        confirmColor: 'warn'
+      } as ConfirmDialogData
+    });
+
+    const confirmed = await firstValueFrom(dialogRef.afterClosed());
+    if (!confirmed) return;
+
+    try {
+      const deletePromises = selectedPipelines.map(pipeline =>
+        firstValueFrom(this.pipelineService.delete(pipeline.id))
+      );
+
+      await Promise.all(deletePromises);
+
+      this.selection.clear();
+      this.loadPipelines();
+      this.snackBar.open(
+        this.translate.instant('pipelines.delete_multiple_success', { count }),
+        undefined,
+        { duration: 3000 }
+      );
+    } catch (error) {
+      console.error('Error deleting pipelines:', error);
+      this.snackBar.open(
+        this.translate.instant('pipelines.delete_error'),
+        undefined,
+        { duration: 5000 }
+      );
+    }
+  }
+
+  toggleExpandedRow(pipeline: Pipeline) {
     this.expandedElement = this.expandedElement === pipeline ? null : pipeline;
   }
 
