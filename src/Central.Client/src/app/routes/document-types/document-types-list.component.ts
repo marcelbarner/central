@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -7,12 +8,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatBadgeModule } from '@angular/material/badge';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SelectionModel } from '@angular/cdk/collections';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Store } from '@ngxs/store';
 import { PageHeader } from '@shared';
-import { DocumentTypesState, DocumentTypesActions } from '@core';
+import { DocumentTypesState, DocumentTypesActions, DocumentsState, DocumentsActions } from '@core';
 import { DocumentType } from '../../models/document-type.model';
 import { DocumentTypeDialogComponent } from './document-type-dialog.component';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -30,6 +32,7 @@ import { firstValueFrom } from 'rxjs';
     MatTableModule,
     MatTooltipModule,
     MatCheckboxModule,
+    MatBadgeModule,
     TranslateModule,
     PageHeader,
   ],
@@ -95,6 +98,16 @@ import { firstValueFrom } from 'rxjs';
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef>{{ 'actions' | translate }}</th>
               <td mat-cell *matCellDef="let type">
+                <button
+                  mat-icon-button
+                  color="accent"
+                  [matTooltip]="'view_documents' | translate"
+                  [matBadge]="getDocumentCount(type.id)"
+                  matBadgeSize="small"
+                  (click)="viewDocuments(type.id); $event.stopPropagation()"
+                >
+                  <mat-icon>description</mat-icon>
+                </button>
                 <button
                   mat-icon-button
                   color="primary"
@@ -170,15 +183,18 @@ export class DocumentTypesListComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly router = inject(Router);
 
   documentTypes = this.store.selectSignal(DocumentTypesState.documentTypes);
   loading = this.store.selectSignal(DocumentTypesState.loading);
+  documents = this.store.selectSignal(DocumentsState.documents);
 
   selection = new SelectionModel<DocumentType>(true, []);
   displayedColumns = ['select', 'name', 'description', 'actions'];
 
   ngOnInit() {
     this.store.dispatch(new DocumentTypesActions.Load());
+    this.store.dispatch(new DocumentsActions.Load());
   }
 
   openDialog(documentType?: DocumentType) {
@@ -275,5 +291,13 @@ export class DocumentTypesListComponent implements OnInit {
         { duration: 5000 }
       );
     }
+  }
+
+  getDocumentCount(documentTypeId: number): number {
+    return this.documents().filter(doc => doc.documentTypeId === documentTypeId).length;
+  }
+
+  viewDocuments(documentTypeId: number): void {
+    this.router.navigate(['/documents'], { queryParams: { documentTypeId } });
   }
 }

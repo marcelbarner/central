@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -199,10 +200,12 @@ export class DocumentsList implements OnInit, AfterViewInit, OnDestroy {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
+  private readonly route = inject(ActivatedRoute);
   private readonly sub = new Subscription();
   private readonly selectedTagIds = new BehaviorSubject<number[]>([]);
   private readonly selectedCorrespondentIds = new BehaviorSubject<number[]>([]);
   private readonly selectedDocumentTypeIds = new BehaviorSubject<number[]>([]);
+  private readonly selectedContractIds = new BehaviorSubject<number[]>([]);
 
   @ViewChild(MatSort, { read: MatSort }) sort?: MatSort;
 
@@ -218,16 +221,46 @@ export class DocumentsList implements OnInit, AfterViewInit, OnDestroy {
     this.store.dispatch(new TagsActions.Load());
     this.store.dispatch(new DocumentTypesActions.Load());
     this.store.dispatch(new CorrespondentsActions.Load());
+    
+    // Handle query parameters for filtering
+    this.route.queryParams.subscribe(params => {
+      if (params['tagId']) {
+        const tagId = parseInt(params['tagId'], 10);
+        if (!isNaN(tagId)) {
+          this.selectedTagIds.next([tagId]);
+        }
+      }
+      if (params['correspondentId']) {
+        const correspondentId = parseInt(params['correspondentId'], 10);
+        if (!isNaN(correspondentId)) {
+          this.selectedCorrespondentIds.next([correspondentId]);
+        }
+      }
+      if (params['documentTypeId']) {
+        const documentTypeId = parseInt(params['documentTypeId'], 10);
+        if (!isNaN(documentTypeId)) {
+          this.selectedDocumentTypeIds.next([documentTypeId]);
+        }
+      }
+      if (params['contractId']) {
+        const contractId = parseInt(params['contractId'], 10);
+        if (!isNaN(contractId)) {
+          // Filter by contract - need to add this to the filtering logic
+          this.filterByContract(contractId);
+        }
+      }
+    });
     this.sub.add(
       combineLatest({
         documents: this.documents,
         selectedTagIds: this.selectedTagIds.asObservable(),
         selectedCorrespondentIds: this.selectedCorrespondentIds.asObservable(),
         selectedDocumentTypeIds: this.selectedDocumentTypeIds.asObservable(),
+        selectedContractIds: this.selectedContractIds.asObservable(),
       })
         .pipe(
-          map(({ documents, selectedTagIds, selectedCorrespondentIds, selectedDocumentTypeIds }) => {
-            if (selectedTagIds.length === 0 && selectedCorrespondentIds.length === 0 && selectedDocumentTypeIds.length === 0) {
+          map(({ documents, selectedTagIds, selectedCorrespondentIds, selectedDocumentTypeIds, selectedContractIds }) => {
+            if (selectedTagIds.length === 0 && selectedCorrespondentIds.length === 0 && selectedDocumentTypeIds.length === 0 && selectedContractIds.length === 0) {
               return documents;
             }
             let result = documents;
@@ -246,6 +279,12 @@ export class DocumentsList implements OnInit, AfterViewInit, OnDestroy {
             if (selectedDocumentTypeIds.length != 0) {
               result = result.filter((doc) => {
                 return selectedDocumentTypeIds.includes(doc.documentTypeId!);
+              });
+            }
+
+            if (selectedContractIds.length != 0) {
+              result = result.filter((doc) => {
+                return selectedContractIds.includes(doc.contractId!);
               });
             }
 
@@ -288,6 +327,10 @@ export class DocumentsList implements OnInit, AfterViewInit, OnDestroy {
   }
   filterByDocumentTypes(documentTypeId: number) {
     this.selectedDocumentTypeIds.next([documentTypeId]);
+  }
+
+  filterByContract(contractId: number) {
+    this.selectedContractIds.next([contractId]);
   }
 
   onSelectionChange(documents: DocumentModel[]) {

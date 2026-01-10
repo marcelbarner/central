@@ -9,12 +9,13 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatBadgeModule } from '@angular/material/badge';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SelectionModel } from '@angular/cdk/collections';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Store } from '@ngxs/store';
 import { PageHeader } from '@shared';
-import { ContractsState, ContractsActions } from '@core';
+import { ContractsState, ContractsActions, DocumentsState, DocumentsActions } from '@core';
 import { Contract } from '../../models/contract.model';
 import { ContractDialogComponent } from './contract-dialog.component';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -33,6 +34,7 @@ import { firstValueFrom } from 'rxjs';
     MatTooltipModule,
     MatChipsModule,
     MatCheckboxModule,
+    MatBadgeModule,
     TranslateModule,
     PageHeader,
   ],
@@ -107,6 +109,16 @@ import { firstValueFrom } from 'rxjs';
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef>{{ 'common.actions' | translate }}</th>
               <td mat-cell *matCellDef="let contract">
+                <button
+                  mat-icon-button
+                  color="accent"
+                  [matTooltip]="'view_documents' | translate"
+                  [matBadge]="getDocumentCount(contract.id)"
+                  matBadgeSize="small"
+                  (click)="viewDocuments(contract.id); $event.stopPropagation()"
+                >
+                  <mat-icon>description</mat-icon>
+                </button>
                 <button
                   mat-icon-button
                   color="primary"
@@ -214,9 +226,11 @@ export class ContractsListComponent implements OnInit {
 
   contracts = this.store.selectSignal(ContractsState.contracts);
   loading = this.store.selectSignal(ContractsState.loading);
+  documents = this.store.selectSignal(DocumentsState.documents);
 
   ngOnInit() {
     this.store.dispatch(new ContractsActions.Load());
+    this.store.dispatch(new DocumentsActions.Load());
   }
 
   openDialog(contract?: Contract) {
@@ -336,5 +350,13 @@ export class ContractsListComponent implements OnInit {
         { duration: 5000 }
       );
     }
+  }
+
+  getDocumentCount(contractId: number): number {
+    return this.documents().filter(doc => doc.contractId === contractId).length;
+  }
+
+  viewDocuments(contractId: number): void {
+    this.router.navigate(['/documents'], { queryParams: { contractId } });
   }
 }
