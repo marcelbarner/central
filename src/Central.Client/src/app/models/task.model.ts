@@ -16,6 +16,7 @@ export interface TaskConfiguration {
   prompt?: string;
   temperature?: number;
   maxTokens?: number;
+  allowedTools?: string[];
   capabilities?: string;
   documentIntelligenceOptions?: string;
 }

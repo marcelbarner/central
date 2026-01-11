@@ -29,6 +29,12 @@ public sealed class TaskEntityConfiguration : IEntityTypeConfiguration<TaskEntit
         builder.Property(e => e.Created).IsRequired();
         builder.Property(e => e.Updated).IsRequired();
 
+        // Configure owned collection for AllowedTools
+        builder.OwnsMany(e => e.AllowedTools, tools =>
+        {
+            tools.Property(t => t.Tool).IsRequired();
+        });
+
         builder.HasIndex(e => e.Name).IsUnique();
         builder.HasIndex(e => e.Enabled);
         builder.HasIndex(e => e.TaskType);

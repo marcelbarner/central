@@ -36,6 +36,11 @@ public sealed record TaskConfiguration
     public int? MaxTokens { get; init; }
 
     /// <summary>
+    /// Gets the list of allowed tools for OpenAI tasks.
+    /// </summary>
+    public DocumentTool[]? AllowedTools { get; init; }
+
+    /// <summary>
     /// Gets enabled capabilities for OpenAI tasks (JSON array).
     /// Example: ["SetDocumentTitle", "GetDocumentTypes", "AddTags"]
     /// </summary>

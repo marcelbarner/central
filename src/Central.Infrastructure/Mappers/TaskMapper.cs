@@ -29,6 +29,9 @@ public static partial class TaskMapper
             Prompt = task.Configuration.Prompt,
             Temperature = task.Configuration.Temperature,
             MaxTokens = task.Configuration.MaxTokens,
+            AllowedTools = task.Configuration.AllowedTools?
+                .Select(tool => new TaskAllowedToolEntity { Tool = tool })
+                .ToList() ?? [],
             Capabilities = task.Configuration.Capabilities,
             DocumentIntelligenceOptions = task.Configuration.DocumentIntelligenceOptions,
             Created = task.Created,
@@ -56,6 +59,9 @@ public static partial class TaskMapper
                 Prompt = entity.Prompt,
                 Temperature = entity.Temperature,
                 MaxTokens = entity.MaxTokens,
+                AllowedTools = entity.AllowedTools
+                    .Select(t => t.Tool)
+                    .ToArray(),
                 Capabilities = entity.Capabilities,
                 DocumentIntelligenceOptions = entity.DocumentIntelligenceOptions
             },
@@ -79,6 +85,9 @@ public static partial class TaskMapper
         entity.Prompt = task.Configuration.Prompt;
         entity.Temperature = task.Configuration.Temperature;
         entity.MaxTokens = task.Configuration.MaxTokens;
+        entity.AllowedTools = task.Configuration.AllowedTools?
+            .Select(tool => new TaskAllowedToolEntity { Tool = tool })
+            .ToList() ?? [];
         entity.Capabilities = task.Configuration.Capabilities;
         entity.DocumentIntelligenceOptions = task.Configuration.DocumentIntelligenceOptions;
         entity.Updated = task.Updated;

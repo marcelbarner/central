@@ -75,6 +75,11 @@ public sealed class TaskEntity
     public int? MaxTokens { get; set; }
 
     /// <summary>
+    /// Gets or sets the list of allowed tools.
+    /// </summary>
+    public List<TaskAllowedToolEntity> AllowedTools { get; set; } = [];
+
+    /// <summary>
     /// Gets or sets enabled capabilities (JSON).
     /// </summary>
     [Column(TypeName = "TEXT")]

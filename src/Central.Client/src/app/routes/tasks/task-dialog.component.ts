@@ -10,6 +10,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSliderModule } from '@angular/material/slider';
 import { TranslateModule } from '@ngx-translate/core';
 import { Task, CreateTaskRequest, UpdateTaskRequest } from '../../models/task.model';
+import { ToolsSelectorComponent } from '../../shared/components/tools-selector/tools-selector.component';
 
 @Component({
   selector: 'app-task-dialog',
@@ -25,6 +26,7 @@ import { Task, CreateTaskRequest, UpdateTaskRequest } from '../../models/task.mo
     MatCheckboxModule,
     MatSliderModule,
     TranslateModule,
+    ToolsSelectorComponent,
   ],
   template: `
     <h2 mat-dialog-title>{{ data ? 'Edit Task' : 'Create Task' }}</h2>
@@ -89,6 +91,8 @@ import { Task, CreateTaskRequest, UpdateTaskRequest } from '../../models/task.mo
                 <mat-error>Prompt is required for Azure OpenAI</mat-error>
               }
             </mat-form-field>
+
+            <app-tools-selector formControlName="allowedTools" />
 
             <div class="slider-field">
               <mat-label>Temperature: {{ configForm.get('temperature')?.value }}</mat-label>
@@ -176,6 +180,7 @@ export class TaskDialogComponent implements OnInit {
           Validators.required,
         ],
         prompt: [this.data?.configuration.prompt || ''],
+        allowedTools: [this.data?.configuration.allowedTools || []],
         temperature: [this.data?.configuration.temperature ?? 0.7],
         maxTokens: [this.data?.configuration.maxTokens],
       }),
@@ -215,6 +220,7 @@ export class TaskDialogComponent implements OnInit {
           azureApiKey: formValue.configuration.azureApiKey.trim(),
           azureModelOrDeployment: formValue.configuration.azureModelOrDeployment.trim(),
           prompt: formValue.configuration.prompt?.trim() || null,
+          allowedTools: formValue.configuration.allowedTools || [],
           temperature: formValue.configuration.temperature,
           maxTokens: formValue.configuration.maxTokens,
         },
