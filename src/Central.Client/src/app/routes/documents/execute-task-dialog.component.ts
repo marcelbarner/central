@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,6 +8,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
+import { Store } from '@ngxs/store';
+import { TasksState, TasksActions } from '../../core/states/tasks.state';
 import { TaskService } from '../../services/task.service';
 import { Task } from '../../models/task.model';
 
@@ -33,7 +35,7 @@ export interface ExecuteTaskDialogData {
   template: `
     <h2 mat-dialog-title>Execute Task</h2>
     <mat-dialog-content>
-      @if (loadingTasks) {
+      @if (loadingTasks()) {
         <div class="loading">
           <mat-spinner diameter="40" />
           <p>Loading tasks...</p>
@@ -44,7 +46,7 @@ export interface ExecuteTaskDialogData {
           {{ data.documentCount === 1 ? 'this document' : data.documentCount + ' documents' }}.
         </p>
 
-        @if (availableTasks.length === 0) {
+        @if (enabledTasks().length === 0) {
           <div class="warning-message">
             <mat-icon>warning</mat-icon>
             <span>No enabled tasks available. Please create and enable tasks first.</span>
@@ -54,7 +56,7 @@ export interface ExecuteTaskDialogData {
             <mat-form-field appearance="outline" class="w-full">
               <mat-label>Task</mat-label>
               <mat-select formControlName="taskId" required>
-                @for (task of availableTasks; track task.id) {
+                @for (task of enabledTasks(); track task.id) {
                   <mat-option [value]="task.id">
                     {{ task.name }}
                     <span class="task-type">({{ getTaskTypeDisplay(task.taskType) }})</span>
@@ -85,7 +87,7 @@ export interface ExecuteTaskDialogData {
         mat-raised-button
         color="primary"
         (click)="onExecute()"
-        [disabled]="!form.valid || executing || availableTasks.length === 0"
+        [disabled]="!form.valid || executing || enabledTasks().length === 0"
       >
         @if (executing) {
           <mat-spinner diameter="20" style="display: inline-block; margin-right: 8px;" />
@@ -145,37 +147,26 @@ export interface ExecuteTaskDialogData {
 export class ExecuteTaskDialogComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly dialogRef = inject(MatDialogRef<ExecuteTaskDialogComponent>);
-  private readonly taskService = inject(TaskService);
+  private readonly store = inject(Store);
+  private readonly taskService = inject(TaskService); // Keep for execute() method
   readonly data = inject<ExecuteTaskDialogData>(MAT_DIALOG_DATA);
 
   form!: FormGroup;
-  availableTasks: Task[] = [];
-  loadingTasks = false;
+  availableTasks = this.store.selectSignal(TasksState.tasks);
+  loadingTasks = this.store.selectSignal(TasksState.loading);
+  enabledTasks = computed(() => this.availableTasks().filter(t => t.enabled));
   executing = false;
   selectedTask: Task | null = null;
 
   ngOnInit() {
+    this.store.dispatch(new TasksActions.Load());
+
     this.form = this.fb.group({
       taskId: [null, Validators.required],
     });
 
     this.form.get('taskId')?.valueChanges.subscribe(taskId => {
-      this.selectedTask = this.availableTasks.find(t => t.id === taskId) || null;
-    });
-
-    this.loadTasks();
-  }
-
-  loadTasks() {
-    this.taskService.getAll().subscribe({
-      next: tasks => {
-        this.availableTasks = tasks.filter(t => t.enabled);
-        this.loadingTasks = false;
-      },
-      error: error => {
-        console.error('Error loading tasks:', error);
-        this.loadingTasks = false;
-      },
+      this.selectedTask = this.availableTasks().find(t => t.id === taskId) || null;
     });
   }
 

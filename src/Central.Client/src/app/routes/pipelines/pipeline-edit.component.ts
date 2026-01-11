@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -25,7 +25,8 @@ import {
   PipelineStep,
 } from '../../models/pipeline.model';
 import { PipelineService } from '../../services/pipeline.service';
-import { TaskService } from '../../services/task.service';
+import { Store } from '@ngxs/store';
+import { TasksState, TasksActions } from '../../core/states/tasks.state';
 import { Task } from '../../models/task.model';
 
 @Component({
@@ -184,7 +185,7 @@ import { Task } from '../../models/task.model';
                           <mat-form-field appearance="outline" class="full-width">
                             <mat-label>Task</mat-label>
                             <mat-select formControlName="taskId" required>
-                              @for (task of availableTasks(); track task.id) {
+                              @for (task of enabledTasks(); track task.id) {
                                 <mat-option [value]="task.id">
                                   {{ task.name }}
                                   <span class="task-type">({{ task.taskType }})</span>
@@ -420,10 +421,11 @@ export class PipelineEditComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly pipelineService = inject(PipelineService);
-  private readonly taskService = inject(TaskService);
+  private readonly store = inject(Store);
 
   form!: FormGroup;
-  availableTasks = signal<Task[]>([]);
+  availableTasks = this.store.selectSignal(TasksState.tasks);
+  enabledTasks = computed(() => this.availableTasks().filter(t => t.enabled));
   loading = signal(true);
   saving = signal(false);
   isEditMode = signal(false);
@@ -434,14 +436,14 @@ export class PipelineEditComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.store.dispatch(new TasksActions.Load());
+
     this.form = this.fb.group({
       name: ['', Validators.required],
       description: [''],
       enabled: [true],
       steps: this.fb.array([]),
     });
-
-    this.loadTasks();
 
     const id = this.route.snapshot.paramMap.get('id');
     if (id && id !== 'new') {
@@ -451,17 +453,6 @@ export class PipelineEditComponent implements OnInit {
     } else {
       this.loading.set(false);
     }
-  }
-
-  loadTasks() {
-    this.taskService.getAll().subscribe({
-      next: tasks => {
-        this.availableTasks.set(tasks.filter(t => t.enabled));
-      },
-      error: error => {
-        console.error('Error loading tasks:', error);
-      },
-    });
   }
 
   loadPipeline(id: number) {

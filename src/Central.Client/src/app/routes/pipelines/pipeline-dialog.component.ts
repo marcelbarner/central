@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormArray,
@@ -23,7 +23,8 @@ import {
   UpdatePipelineRequest,
   PipelineStep,
 } from '../../models/pipeline.model';
-import { TaskService } from '../../services/task.service';
+import { Store } from '@ngxs/store';
+import { TasksState, TasksActions } from '../../core/states/tasks.state';
 import { Task } from '../../models/task.model';
 
 @Component({
@@ -152,7 +153,7 @@ import { Task } from '../../models/task.model';
                       <mat-form-field appearance="outline" class="full-width">
                         <mat-label>Task</mat-label>
                         <mat-select formControlName="taskId" required>
-                          @for (task of availableTasks(); track task.id) {
+                          @for (task of enabledTasks(); track task.id) {
                             <mat-option [value]="task.id">
                               {{ task.name }}
                               <span class="task-type">({{ task.taskType }})</span>
@@ -363,17 +364,20 @@ import { Task } from '../../models/task.model';
 export class PipelineDialogComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly dialogRef = inject(MatDialogRef<PipelineDialogComponent>);
-  private readonly taskService = inject(TaskService);
+  private readonly store = inject(Store);
   readonly data = inject<Pipeline | undefined>(MAT_DIALOG_DATA);
 
   form!: FormGroup;
-  availableTasks = signal<Task[]>([]);
+  availableTasks = this.store.selectSignal(TasksState.tasks);
+  enabledTasks = computed(() => this.availableTasks().filter(t => t.enabled));
 
   get stepsArray(): FormArray {
     return this.form.get('steps') as FormArray;
   }
 
   ngOnInit() {
+    this.store.dispatch(new TasksActions.Load());
+
     this.form = this.fb.group({
       name: [this.data?.name || '', Validators.required],
       description: [this.data?.description || ''],
@@ -382,24 +386,11 @@ export class PipelineDialogComponent implements OnInit {
       steps: this.fb.array([]),
     });
 
-    this.loadTasks();
-
     if (this.data?.steps) {
       this.data.steps.forEach((step) => {
         this.stepsArray.push(this.createStepFormGroup(step));
       });
     }
-  }
-
-  loadTasks() {
-    this.taskService.getAll().subscribe({
-      next: (tasks) => {
-        this.availableTasks.set(tasks.filter((t) => t.enabled));
-      },
-      error: (error) => {
-        console.error('Error loading tasks:', error);
-      },
-    });
   }
 
   createStepFormGroup(step?: PipelineStep): FormGroup {
