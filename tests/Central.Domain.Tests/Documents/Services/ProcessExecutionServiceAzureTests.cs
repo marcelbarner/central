@@ -3,9 +3,13 @@ using AwesomeAssertions;
 using Azure;
 using Azure.AI.OpenAI;
 
+using Central.Domain.Contracts.Ports;
+using Central.Domain.Correspondents.Ports;
 using Central.Domain.Documents;
 using Central.Domain.Documents.Ports;
 using Central.Domain.Documents.Services;
+using Central.Domain.DocumentTypes.Ports;
+using Central.Domain.Tags.Ports;
 
 using FakeItEasy;
 
@@ -20,6 +24,10 @@ public sealed class ProcessExecutionServiceAzureTests
     private readonly IProcessDefinitionRepository _processDefinitionRepository;
     private readonly IProcessExecutionRepository _processExecutionRepository;
     private readonly IDocumentRepository _documentRepository;
+    private readonly IContractRepository _contractRepository;
+    private readonly IDocumentTypeRepository _documentTypeRepository;
+    private readonly ICorrespondentRepository _correspondentRepository;
+    private readonly ITagRepository _tagRepository;
     private readonly ILogger<ProcessExecutionService> _logger;
     private readonly ProcessExecutionService _service;
 
@@ -28,12 +36,20 @@ public sealed class ProcessExecutionServiceAzureTests
         _processDefinitionRepository = A.Fake<IProcessDefinitionRepository>();
         _processExecutionRepository = A.Fake<IProcessExecutionRepository>();
         _documentRepository = A.Fake<IDocumentRepository>();
+        _contractRepository = A.Fake<IContractRepository>();
+        _documentTypeRepository = A.Fake<IDocumentTypeRepository>();
+        _correspondentRepository = A.Fake<ICorrespondentRepository>();
+        _tagRepository = A.Fake<ITagRepository>();
         _logger = A.Fake<ILogger<ProcessExecutionService>>();
 
         _service = new ProcessExecutionService(
             _processDefinitionRepository,
             _processExecutionRepository,
             _documentRepository,
+            _contractRepository,
+            _documentTypeRepository,
+            _correspondentRepository,
+            _tagRepository,
             _logger);
     }
 

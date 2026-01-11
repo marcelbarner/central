@@ -16,6 +16,7 @@ using Central.Infrastructure.Configuration;
 using Central.Infrastructure.Persistence;
 using Central.Infrastructure.Repositories;
 using Central.Infrastructure.Services;
+using Central.Infrastructure.Services.DocumentTools;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -97,6 +98,30 @@ public static class ServiceCollectionExtensions
         services.AddScoped<DocumentIntelligenceTaskExecuter>();
         services.AddScoped<WaitTaskExecuter>();
         services.AddScoped<ITaskExecuterFactory, TaskExecuterFactory>();
+
+        // Register document tools
+        services.AddScoped<IDocumentTool, SetDocumentTitleTool>();
+        services.AddScoped<IDocumentTool, SetDocumentDateTool>();
+        services.AddScoped<IDocumentTool, GetDocumentContentTool>();
+        services.AddScoped<IDocumentTool, GetSimilarDocumentsTool>();
+        services.AddScoped<IDocumentTool, SetContractTool>();
+        services.AddScoped<IDocumentTool, SetCorrespondentTool>();
+        services.AddScoped<IDocumentTool, SetDocumentTypeTool>();
+        services.AddScoped<IDocumentTool, SetTagsTool>();
+        services.AddScoped<IDocumentTool, SetContentTool>();
+        services.AddScoped<IDocumentTool, GetDocumentTool>();
+        services.AddScoped<IDocumentTool, GetContractsTool>();
+        services.AddScoped<IDocumentTool, GetDocumentTypesTool>();
+        services.AddScoped<IDocumentTool, GetCorrespondentsTool>();
+        services.AddScoped<IDocumentTool, GetTagsTool>();
+        services.AddScoped<IDocumentTool, CreateContractTool>();
+        services.AddScoped<IDocumentTool, CreateCorrespondentTool>();
+        services.AddScoped<IDocumentTool, CreateDocumentTypeTool>();
+        services.AddScoped<IDocumentTool, CreateTagTool>();
+        services.AddScoped<IDocumentToolFactory, DocumentToolFactory>();
+
+        // Register chat tool provider
+        services.AddSingleton<IChatToolProvider, ChatToolProvider>();
 
         // Register HttpClient for webhooks
         services.AddHttpClient("WebhookClient", client =>
