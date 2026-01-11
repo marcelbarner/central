@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Store } from '@ngxs/store';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -14,6 +15,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Task, CreateTaskRequest, UpdateTaskRequest } from '../../models/task.model';
 import { TaskService } from '../../services/task.service';
+import { TasksState, TasksActions } from '../../core/states/tasks.state';
 import { ToolsSelectorComponent } from '../../shared/components/tools-selector/tools-selector.component';
 
 @Component({
@@ -211,6 +213,7 @@ import { ToolsSelectorComponent } from '../../shared/components/tools-selector/t
 export class TaskFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly taskService = inject(TaskService);
+  private readonly store = inject(Store);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly location = inject(Location);
@@ -333,13 +336,11 @@ export class TaskFormComponent implements OnInit {
       };
 
       if (this.isEditMode && this.taskId) {
-        this.taskService.update(this.taskId, request as UpdateTaskRequest).subscribe(() => {
-          this.router.navigate(['/tasks']);
-        });
+        this.store.dispatch(new TasksActions.Update(this.taskId, request as UpdateTaskRequest));
+        this.router.navigate(['/tasks']);
       } else {
-        this.taskService.create(request as CreateTaskRequest).subscribe(() => {
-          this.router.navigate(['/tasks']);
-        });
+        this.store.dispatch(new TasksActions.Add(request as CreateTaskRequest));
+        this.router.navigate(['/tasks']);
       }
     }
   }

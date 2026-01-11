@@ -1,6 +1,7 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { Store } from '@ngxs/store';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -13,8 +14,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SelectionModel } from '@angular/cdk/collections';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PageHeader } from '@shared';
-import { TaskService } from '../../services/task.service';
 import { Task } from '../../models/task.model';
+import { TasksState, TasksActions } from '../../core/states/tasks.state';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 import { firstValueFrom } from 'rxjs';
 
@@ -197,33 +198,19 @@ import { firstValueFrom } from 'rxjs';
   `],
 })
 export class TasksListComponent implements OnInit {
-  private readonly taskService = inject(TaskService);
+  private readonly store = inject(Store);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
 
-  tasks = signal<Task[]>([]);
-  loading = signal(true);
+  tasks = this.store.selectSignal(TasksState.tasks);
+  loading = this.store.selectSignal(TasksState.loading);
   selection = new SelectionModel<Task>(true, []);
   displayedColumns = ['select', 'name', 'type', 'status', 'configuration', 'actions'];
 
   ngOnInit() {
-    this.loadTasks();
-  }
-
-  loadTasks() {
-    this.loading.set(true);
-    this.taskService.getAll().subscribe({
-      next: (tasks) => {
-        this.tasks.set(tasks);
-        this.loading.set(false);
-      },
-      error: (error) => {
-        console.error('Error loading tasks:', error);
-        this.loading.set(false);
-      },
-    });
+    this.store.dispatch(new TasksActions.Load());
   }
 
   createTask() {
@@ -247,14 +234,7 @@ export class TasksListComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
-        this.taskService.delete(task.id).subscribe(() => {
-          this.loadTasks();
-          this.snackBar.open(
-            this.translate.instant('tasks.delete_success'),
-            undefined,
-            { duration: 3000 }
-          );
-        });
+        this.store.dispatch(new TasksActions.Delete(task.id));
       }
     });
   }
@@ -294,28 +274,11 @@ export class TasksListComponent implements OnInit {
     const confirmed = await firstValueFrom(dialogRef.afterClosed());
     if (!confirmed) return;
 
-    try {
-      const deletePromises = selectedTasks.map(task =>
-        firstValueFrom(this.taskService.delete(task.id))
-      );
-
-      await Promise.all(deletePromises);
-
-      this.selection.clear();
-      this.loadTasks();
-      this.snackBar.open(
-        this.translate.instant('tasks.delete_multiple_success', { count }),
-        undefined,
-        { duration: 3000 }
-      );
-    } catch (error) {
-      console.error('Error deleting tasks:', error);
-      this.snackBar.open(
-        this.translate.instant('tasks.delete_error'),
-        undefined,
-        { duration: 5000 }
-      );
+    for (const task of selectedTasks) {
+      this.store.dispatch(new TasksActions.Delete(task.id));
     }
+    
+    this.selection.clear();
   }
 
   getEndpointDisplay(endpoint: string): string {

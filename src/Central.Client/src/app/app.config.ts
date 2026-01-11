@@ -37,6 +37,7 @@ import {
   CorrespondentsState,
   ContractsState,
   WebhooksState,
+  TasksState,
   AuthService,
 } from '@core';
 import { environment } from '@env/environment';
@@ -66,7 +67,7 @@ export const appConfig: ApplicationConfig = {
     ),
     provideMarkdown(),
     provideStore(
-      [DocumentsState, DocumentTypesState, TagsState, CorrespondentsState, ContractsState, WebhooksState],
+      [DocumentsState, DocumentTypesState, TagsState, CorrespondentsState, ContractsState, WebhooksState, TasksState],
       withNgxsLoggerPlugin({ disabled: environment.production }),
       withNgxsReduxDevtoolsPlugin({ disabled: environment.production })
     ),

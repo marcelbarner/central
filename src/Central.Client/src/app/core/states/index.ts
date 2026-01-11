@@ -4,3 +4,4 @@ export * from './tags.state';
 export * from './correspondents.state';
 export * from './contracts.state';
 export * from './webhooks.state';
+export * from './tasks.state';

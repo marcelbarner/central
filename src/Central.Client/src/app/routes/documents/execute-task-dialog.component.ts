@@ -51,7 +51,7 @@ export interface ExecuteTaskDialogData {
           </div>
         } @else {
           <form [formGroup]="form">
-            <mat-form-field appearance="outline" class="full-width">
+            <mat-form-field appearance="outline" class="w-full">
               <mat-label>Task</mat-label>
               <mat-select formControlName="taskId" required>
                 @for (task of availableTasks; track task.id) {
@@ -98,79 +98,47 @@ export interface ExecuteTaskDialogData {
   `,
   styles: [
     `
-      .full-width {
-        width: 100%;
-        margin-bottom: 16px;
-      }
+      // .loading {
+      //   display: flex;
+      //   flex-direction: column;
+      //   align-items: center;
+      //   justify-content: center;
+      //   padding: 40px;
+      //   text-align: center;
 
-      .dialog-description {
-        margin-bottom: 24px;
-        color: rgba(0, 0, 0, 0.7);
-      }
+      //   p {
+      //     margin-top: 16px;
+      //   }
+      // }
 
-      .loading {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 40px;
-        text-align: center;
+      // .warning-message {
+      //   display: flex;
+      //   align-items: center;
+      //   gap: 8px;
+      //   padding: 12px;
+      //   background-color: #fff3cd;
+      //   border: 1px solid #ffc107;
+      //   border-radius: 4px;
+      //   color: #856404;
 
-        p {
-          margin-top: 16px;
-        }
-      }
+      //   mat-icon {
+      //     font-size: 20px;
+      //     width: 20px;
+      //     height: 20px;
+      //   }
+      // }
 
-      .warning-message {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 12px;
-        background-color: #fff3cd;
-        border: 1px solid #ffc107;
-        border-radius: 4px;
-        color: #856404;
+      // .task-type {
+      //   font-size: 0.875rem;
+      //   color: rgba(0, 0, 0, 0.6);
+      //   margin-left: 8px;
+      // }
 
-        mat-icon {
-          font-size: 20px;
-          width: 20px;
-          height: 20px;
-        }
-      }
-
-      .task-type {
-        font-size: 0.875rem;
-        color: rgba(0, 0, 0, 0.6);
-        margin-left: 8px;
-      }
-
-      .task-info {
-        padding: 16px;
-        background-color: #f5f5f5;
-        border-radius: 4px;
-        margin-top: 8px;
-
-        h4 {
-          margin: 0 0 12px 0;
-          font-size: 14px;
-          font-weight: 500;
-        }
-
-        p {
-          margin: 8px 0;
-          font-size: 14px;
-
-          strong {
-            margin-right: 8px;
-          }
-        }
-      }
-
-      mat-dialog-content {
-        min-width: 400px;
-        max-height: 70vh;
-        overflow-y: auto;
-      }
+      // mat-dialog-content {
+      //   min-width: 400px;
+      //   max-height: 70vh;
+      //   overflow-y: auto;
+      // }
     `,
   ],
 })
@@ -182,7 +150,7 @@ export class ExecuteTaskDialogComponent implements OnInit {
 
   form!: FormGroup;
   availableTasks: Task[] = [];
-  loadingTasks = true;
+  loadingTasks = false;
   executing = false;
   selectedTask: Task | null = null;
 
