@@ -69,6 +69,16 @@ export const routes: Routes = [
           import('./routes/tasks/tasks-list.component').then((m) => m.TasksListComponent),
       },
       {
+        path: 'tasks/new',
+        loadComponent: () =>
+          import('./routes/tasks/task-form.component').then((m) => m.TaskFormComponent),
+      },
+      {
+        path: 'tasks/:id/edit',
+        loadComponent: () =>
+          import('./routes/tasks/task-form.component').then((m) => m.TaskFormComponent),
+      },
+      {
         path: 'pipelines',
         loadComponent: () =>
           import('./routes/pipelines/pipelines-list.component').then(

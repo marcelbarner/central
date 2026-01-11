@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -14,7 +15,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PageHeader } from '@shared';
 import { TaskService } from '../../services/task.service';
 import { Task } from '../../models/task.model';
-import { TaskDialogComponent } from './task-dialog.component';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 import { firstValueFrom } from 'rxjs';
 
@@ -45,7 +45,7 @@ import { firstValueFrom } from 'rxjs';
               {{ 'delete_selected' | translate }} ({{ selection.selected.length }})
             </button>
           }
-          <button mat-raised-button color="primary" (click)="openDialog()">
+          <button mat-raised-button color="primary" (click)="createTask()">
             <mat-icon>add</mat-icon>
             Create Task
           </button>
@@ -57,7 +57,7 @@ import { firstValueFrom } from 'rxjs';
           <div class="no-data">
             <mat-icon>psychology</mat-icon>
             <p>No tasks available</p>
-            <button mat-raised-button color="primary" (click)="openDialog()">
+            <button mat-raised-button color="primary" (click)="createTask()">
               Create your first task
             </button>
           </div>
@@ -130,7 +130,7 @@ import { firstValueFrom } from 'rxjs';
                   mat-icon-button
                   color="primary"
                   matTooltip="Edit"
-                  (click)="openDialog(task)"
+                  (click)="editTask(task)"
                 >
                   <mat-icon>edit</mat-icon>
                 </button>
@@ -201,6 +201,7 @@ export class TasksListComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
+  private readonly router = inject(Router);
 
   tasks = signal<Task[]>([]);
   loading = signal(true);
@@ -225,21 +226,12 @@ export class TasksListComponent implements OnInit {
     });
   }
 
-  openDialog(task?: Task) {
-    const dialogRef = this.dialog.open(TaskDialogComponent, {
-      width: '800px',
-      data: task,
-    });
+  createTask() {
+    this.router.navigate(['/tasks/new']);
+  }
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        if (task) {
-          this.taskService.update(task.id, result).subscribe(() => this.loadTasks());
-        } else {
-          this.taskService.create(result).subscribe(() => this.loadTasks());
-        }
-      }
-    });
+  editTask(task: Task) {
+    this.router.navigate(['/tasks', task.id, 'edit']);
   }
 
   deleteTask(task: Task) {
