@@ -3,6 +3,7 @@ using AwesomeAssertions;
 using Central.Domain.Documents;
 using Central.Domain.Documents.Ports;
 using Central.Domain.Documents.Services;
+using Central.Domain.Ports;
 
 using FakeItEasy;
 
@@ -17,6 +18,7 @@ public sealed class PipelineExecutionServiceTests
     private readonly IPipelineExecutionRepository _pipelineExecutionRepository;
     private readonly IDocumentRepository _documentRepository;
     private readonly TaskExecutionService _taskExecutionService;
+    private readonly ITaskExecuterFactory _taskExecuterFactory;
     private readonly ILogger<PipelineExecutionService> _logger;
     private readonly PipelineExecutionService _service;
 
@@ -27,6 +29,7 @@ public sealed class PipelineExecutionServiceTests
         _pipelineExecutionRepository = A.Fake<IPipelineExecutionRepository>();
         _documentRepository = A.Fake<IDocumentRepository>();
         _taskExecutionService = A.Fake<TaskExecutionService>();
+        _taskExecuterFactory = A.Fake<ITaskExecuterFactory>();
         _logger = A.Fake<ILogger<PipelineExecutionService>>();
 
         _service = new PipelineExecutionService(
@@ -35,6 +38,7 @@ public sealed class PipelineExecutionServiceTests
             _taskRepository,
             _documentRepository,
             _taskExecutionService,
+            _taskExecuterFactory,
             _logger);
     }
 
@@ -116,11 +120,16 @@ public sealed class PipelineExecutionServiceTests
         // Arrange
         var pipeline = CreateTestPipelineWithWaitStep();
         var document = CreateTestDocument();
+        var fakeWaitExecuter = A.Fake<ITaskExecuter>();
 
         A.CallTo(() => _pipelineRepository.GetByIdAsync(1, A<CancellationToken>._))
             .Returns(pipeline);
         A.CallTo(() => _documentRepository.GetByIdAsync(1, A<CancellationToken>._))
             .Returns(document);
+        A.CallTo(() => _taskExecuterFactory.GetWaitExecuter())
+            .Returns(fakeWaitExecuter);
+        A.CallTo(() => fakeWaitExecuter.ExecuteAsync(A<TaskExecutionContext>._, A<CancellationToken>._))
+            .ReturnsLazily(async () => { await Task.Delay(1000); return "{\"status\": \"completed\"}"; });
         A.CallTo(() => _pipelineExecutionRepository.CreateAsync(A<PipelineExecution>._, A<CancellationToken>._))
             .ReturnsLazily((PipelineExecution pe, CancellationToken _) => pe with { Id = 100 });
         A.CallTo(() => _pipelineExecutionRepository.UpdateAsync(A<PipelineExecution>._, A<CancellationToken>._))

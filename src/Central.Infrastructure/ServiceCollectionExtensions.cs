@@ -6,6 +6,7 @@ using Central.Domain.Documents.Ports;
 using Central.Domain.Documents.Services;
 using Central.Domain.DocumentTypes.Ports;
 using Central.Domain.DocumentTypes.Services;
+using Central.Domain.Ports;
 using Central.Domain.Tags.Ports;
 using Central.Domain.Tags.Services;
 using Central.Domain.Users;
@@ -90,6 +91,12 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IProcessExecutionService, ProcessExecutionService>();
         services.AddScoped<TaskExecutionService>();
         services.AddScoped<PipelineExecutionService>();
+
+        // Register task executers
+        services.AddScoped<OpenAITaskExecuter>();
+        services.AddScoped<DocumentIntelligenceTaskExecuter>();
+        services.AddScoped<WaitTaskExecuter>();
+        services.AddScoped<ITaskExecuterFactory, TaskExecuterFactory>();
 
         // Register HttpClient for webhooks
         services.AddHttpClient("WebhookClient", client =>

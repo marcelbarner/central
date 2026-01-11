@@ -1,4 +1,5 @@
 using Central.Domain.Documents.Ports;
+using Central.Domain.Ports;
 using Microsoft.Extensions.Logging;
 
 namespace Central.Domain.Documents.Services;
@@ -11,17 +12,20 @@ public sealed class TaskExecutionService
     private readonly ITaskRepository _taskRepository;
     private readonly ITaskExecutionRepository _taskExecutionRepository;
     private readonly IDocumentRepository _documentRepository;
+    private readonly ITaskExecuterFactory _taskExecuterFactory;
     private readonly ILogger<TaskExecutionService> _logger;
 
     public TaskExecutionService(
         ITaskRepository taskRepository,
         ITaskExecutionRepository taskExecutionRepository,
         IDocumentRepository documentRepository,
+        ITaskExecuterFactory taskExecuterFactory,
         ILogger<TaskExecutionService> logger)
     {
         _taskRepository = taskRepository;
         _taskExecutionRepository = taskExecutionRepository;
         _documentRepository = documentRepository;
+        _taskExecuterFactory = taskExecuterFactory;
         _logger = logger;
     }
 
@@ -78,13 +82,19 @@ public sealed class TaskExecutionService
 
         try
         {
-            // Execute the task based on its type
-            var result = task.TaskType switch
+            // Get the appropriate executer for this task type
+            var executer = _taskExecuterFactory.GetExecuter(task.TaskType);
+            
+            // Create execution context
+            var context = new TaskExecutionContext
             {
-                TaskType.AzureOpenAI => await ExecuteAzureOpenAITaskAsync(task, document, cancellationToken),
-                TaskType.AzureDocumentIntelligence => await ExecuteAzureDocumentIntelligenceTaskAsync(task, document, cancellationToken),
-                _ => throw new NotSupportedException($"Task type {task.TaskType} is not supported.")
+                Task = task,
+                Document = document,
+                PipelineExecutionId = pipelineExecutionId
             };
+
+            // Execute the task
+            var result = await executer.ExecuteAsync(context, cancellationToken);
 
             // Update execution with result
             execution = execution with
@@ -118,40 +128,5 @@ public sealed class TaskExecutionService
         }
 
         return await _taskExecutionRepository.UpdateAsync(execution, cancellationToken);
-    }
-
-    private async Task<string> ExecuteAzureOpenAITaskAsync(
-        ProcessingTask task,
-        Document document,
-        CancellationToken cancellationToken)
-    {
-        // TODO: Implement Azure OpenAI SDK integration
-        // This is a placeholder for the actual implementation
-        _logger.LogInformation(
-            "Executing Azure OpenAI task with deployment: {Deployment}, prompt: {Prompt}",
-            task.Configuration.AzureModelOrDeployment,
-            task.Configuration.Prompt?.Length > 50 
-                ? task.Configuration.Prompt[..50] + "..." 
-                : task.Configuration.Prompt);
-
-        await System.Threading.Tasks.Task.Delay(100, cancellationToken); // Simulate API call
-
-        return "{\"status\": \"success\", \"message\": \"Azure OpenAI task executed (placeholder)\"}";
-    }
-
-    private async Task<string> ExecuteAzureDocumentIntelligenceTaskAsync(
-        ProcessingTask task,
-        Document document,
-        CancellationToken cancellationToken)
-    {
-        // TODO: Implement Azure Document Intelligence SDK integration
-        // This is a placeholder for the actual implementation
-        _logger.LogInformation(
-            "Executing Azure Document Intelligence task with model: {Model}",
-            task.Configuration.AzureModelOrDeployment);
-
-        await System.Threading.Tasks.Task.Delay(100, cancellationToken); // Simulate API call
-
-        return "{\"status\": \"success\", \"message\": \"Azure Document Intelligence task executed (placeholder)\"}";
     }
 }

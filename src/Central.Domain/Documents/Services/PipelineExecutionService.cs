@@ -1,4 +1,5 @@
 using Central.Domain.Documents.Ports;
+using Central.Domain.Ports;
 using Microsoft.Extensions.Logging;
 
 namespace Central.Domain.Documents.Services;
@@ -13,6 +14,7 @@ public sealed class PipelineExecutionService
     private readonly ITaskRepository _taskRepository;
     private readonly IDocumentRepository _documentRepository;
     private readonly TaskExecutionService _taskExecutionService;
+    private readonly ITaskExecuterFactory _taskExecuterFactory;
     private readonly ILogger<PipelineExecutionService> _logger;
 
     public PipelineExecutionService(
@@ -21,6 +23,7 @@ public sealed class PipelineExecutionService
         ITaskRepository taskRepository,
         IDocumentRepository documentRepository,
         TaskExecutionService taskExecutionService,
+        ITaskExecuterFactory taskExecuterFactory,
         ILogger<PipelineExecutionService> logger)
     {
         _pipelineRepository = pipelineRepository;
@@ -28,6 +31,7 @@ public sealed class PipelineExecutionService
         _taskRepository = taskRepository;
         _documentRepository = documentRepository;
         _taskExecutionService = taskExecutionService;
+        _taskExecuterFactory = taskExecuterFactory;
         _logger = logger;
     }
 
@@ -124,14 +128,18 @@ public sealed class PipelineExecutionService
                             $"WaitStep '{step.Name}' has invalid WaitDurationSeconds: {step.WaitDurationSeconds}");
                     }
 
-                    _logger.LogInformation(
-                        "Waiting {Seconds} seconds for step '{StepName}'",
-                        step.WaitDurationSeconds.Value,
-                        step.Name);
+                    // Use wait executer from factory
+                    var waitExecuter = _taskExecuterFactory.GetWaitExecuter();
+                    
+                    var context = new TaskExecutionContext
+                    {
+                        Task = null!, // Wait steps don't have a task
+                        Document = document,
+                        PipelineExecutionId = execution.Id,
+                        WaitDurationSeconds = step.WaitDurationSeconds.Value
+                    };
 
-                    await System.Threading.Tasks.Task.Delay(
-                        TimeSpan.FromSeconds(step.WaitDurationSeconds.Value),
-                        cancellationToken);
+                    await waitExecuter.ExecuteAsync(context, cancellationToken);
                 }
             }
 

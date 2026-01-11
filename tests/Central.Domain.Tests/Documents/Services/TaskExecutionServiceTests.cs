@@ -3,6 +3,7 @@ using AwesomeAssertions;
 using Central.Domain.Documents;
 using Central.Domain.Documents.Ports;
 using Central.Domain.Documents.Services;
+using Central.Domain.Ports;
 
 using FakeItEasy;
 
@@ -15,6 +16,7 @@ public sealed class TaskExecutionServiceTests
     private readonly ITaskRepository _taskRepository;
     private readonly ITaskExecutionRepository _taskExecutionRepository;
     private readonly IDocumentRepository _documentRepository;
+    private readonly ITaskExecuterFactory _taskExecuterFactory;
     private readonly ILogger<TaskExecutionService> _logger;
     private readonly TaskExecutionService _service;
 
@@ -23,12 +25,14 @@ public sealed class TaskExecutionServiceTests
         _taskRepository = A.Fake<ITaskRepository>();
         _taskExecutionRepository = A.Fake<ITaskExecutionRepository>();
         _documentRepository = A.Fake<IDocumentRepository>();
+        _taskExecuterFactory = A.Fake<ITaskExecuterFactory>();
         _logger = A.Fake<ILogger<TaskExecutionService>>();
 
         _service = new TaskExecutionService(
             _taskRepository,
             _taskExecutionRepository,
             _documentRepository,
+            _taskExecuterFactory,
             _logger);
     }
 
@@ -38,11 +42,16 @@ public sealed class TaskExecutionServiceTests
         // Arrange
         var task = CreateTestTask();
         var document = CreateTestDocument();
+        var fakeExecuter = A.Fake<ITaskExecuter>();
 
         A.CallTo(() => _taskRepository.GetByIdAsync(1, A<CancellationToken>._))
             .Returns(task);
         A.CallTo(() => _documentRepository.GetByIdAsync(1, A<CancellationToken>._))
             .Returns(document);
+        A.CallTo(() => _taskExecuterFactory.GetExecuter(task.TaskType))
+            .Returns(fakeExecuter);
+        A.CallTo(() => fakeExecuter.ExecuteAsync(A<TaskExecutionContext>._, A<CancellationToken>._))
+            .Returns("{\"status\": \"success\"}");
         A.CallTo(() => _taskExecutionRepository.CreateAsync(A<TaskExecution>._, A<CancellationToken>._))
             .ReturnsLazily((TaskExecution te, CancellationToken _) => te with { Id = 100 });
         A.CallTo(() => _taskExecutionRepository.UpdateAsync(A<TaskExecution>._, A<CancellationToken>._))
