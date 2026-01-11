@@ -100,47 +100,65 @@ export interface ExecuteTaskDialogData {
   `,
   styles: [
     `
-      // .loading {
-      //   display: flex;
-      //   flex-direction: column;
-      //   align-items: center;
-      //   justify-content: center;
-      //   padding: 40px;
-      //   text-align: center;
+      .loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        text-align: center;
 
-      //   p {
-      //     margin-top: 16px;
-      //   }
-      // }
+        p {
+          margin-top: 16px;
+        }
+      }
 
-      // .warning-message {
-      //   display: flex;
-      //   align-items: center;
-      //   gap: 8px;
-      //   padding: 12px;
-      //   background-color: #fff3cd;
-      //   border: 1px solid #ffc107;
-      //   border-radius: 4px;
-      //   color: #856404;
+      .warning-message {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px;
+        background-color: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 4px;
+        color: #856404;
 
-      //   mat-icon {
-      //     font-size: 20px;
-      //     width: 20px;
-      //     height: 20px;
-      //   }
-      // }
+        mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+        }
+      }
 
-      // .task-type {
-      //   font-size: 0.875rem;
-      //   color: rgba(0, 0, 0, 0.6);
-      //   margin-left: 8px;
-      // }
+      .task-type {
+        font-size: 0.875rem;
+        color: rgba(0, 0, 0, 0.6);
+        margin-left: 8px;
+      }
 
-      // mat-dialog-content {
-      //   min-width: 400px;
-      //   max-height: 70vh;
-      //   overflow-y: auto;
-      // }
+      .task-info {
+        margin-top: 16px;
+        padding: 16px;
+        background-color: #f5f5f5;
+        border-radius: 4px;
+
+        h4 {
+          margin: 0 0 8px 0;
+          font-size: 14px;
+          font-weight: 500;
+        }
+
+        p {
+          margin: 4px 0;
+          font-size: 14px;
+        }
+      }
+
+      mat-dialog-content {
+        min-width: 400px;
+        max-height: 70vh;
+        overflow-y: auto;
+      }
     `,
   ],
 })
