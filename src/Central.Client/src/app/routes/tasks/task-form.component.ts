@@ -63,8 +63,8 @@ import { ToolsSelectorComponent } from '../../shared/components/tools-selector/t
               <mat-label>Task Type</mat-label>
               <mat-select formControlName="taskType" required (selectionChange)="onTaskTypeChange()">
                 <mat-option value="wait">Wait</mat-option>
-                <mat-option value="openai">OpenAI</mat-option>
-                <mat-option value="document_intelligence">Document Intelligence</mat-option>
+                <mat-option value="AzureOpenAI">OpenAI</mat-option>
+                <mat-option value="AzureDocumentIntelligence">Document Intelligence</mat-option>
               </mat-select>
               @if (form.get('taskType')?.hasError('required')) {
                 <mat-error>Task type is required</mat-error>
@@ -81,7 +81,7 @@ import { ToolsSelectorComponent } from '../../shared/components/tools-selector/t
             @if (form.get('taskType')?.value === 'openai') {
               <div class="configuration-section">
                 <h3>Azure OpenAI Configuration</h3>
-                
+
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>Azure Endpoint</mat-label>
                   <input matInput formControlName="azureEndpoint" placeholder="https://your-resource.openai.azure.com/" />
@@ -129,7 +129,7 @@ import { ToolsSelectorComponent } from '../../shared/components/tools-selector/t
             @if (form.get('taskType')?.value === 'document_intelligence') {
               <div class="configuration-section">
                 <h3>Azure Document Intelligence Configuration</h3>
-                
+
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>Azure Endpoint</mat-label>
                   <input matInput formControlName="azureEndpoint" placeholder="https://your-resource.cognitiveservices.azure.com/" />
@@ -221,7 +221,7 @@ export class TaskFormComponent implements OnInit {
 
   ngOnInit() {
     this.initializeForm();
-    
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode = true;
@@ -268,7 +268,7 @@ export class TaskFormComponent implements OnInit {
 
   onTaskTypeChange() {
     const taskType = this.form.get('taskType')?.value;
-    
+
     if (taskType === 'wait') {
       this.form.patchValue({
         azureEndpoint: '',
