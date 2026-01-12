@@ -277,7 +277,7 @@ export class TasksListComponent implements OnInit {
     for (const task of selectedTasks) {
       this.store.dispatch(new TasksActions.Delete(task.id));
     }
-    
+
     this.selection.clear();
   }
 

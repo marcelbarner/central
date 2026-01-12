@@ -24,7 +24,7 @@ public sealed class TaskEntityConfiguration : IEntityTypeConfiguration<TaskEntit
         builder.Property(e => e.Prompt).HasColumnType("TEXT");
         builder.Property(e => e.Temperature);
         builder.Property(e => e.MaxTokens);
-        builder.Property(e => e.Capabilities).HasColumnType("TEXT");
+        builder.Property(e => e.Capabilities);
         builder.Property(e => e.DocumentIntelligenceOptions).HasColumnType("TEXT");
         builder.Property(e => e.Created).IsRequired();
         builder.Property(e => e.Updated).IsRequired();

@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 
 using Azure;
 
@@ -91,7 +92,7 @@ public sealed class OpenAITaskExecuter : ITaskExecuter
         };
 
         // Build enabled tools from configuration
-        var enabledTools = context.Task.Configuration.AllowedTools ?? Array.Empty<DocumentTool>();
+        var enabledTools = context.Task.Configuration.Capabilities ?? [];
         var tools = _chatToolProvider.BuildChatTools(enabledTools);
 
         var chatOptions = new ChatCompletionOptions();

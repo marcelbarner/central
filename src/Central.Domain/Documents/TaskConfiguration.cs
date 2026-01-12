@@ -44,7 +44,7 @@ public sealed record TaskConfiguration
     /// Gets enabled capabilities for OpenAI tasks (JSON array).
     /// Example: ["SetDocumentTitle", "GetDocumentTypes", "AddTags"]
     /// </summary>
-    public string? Capabilities { get; init; }
+    public DocumentTool[]? Capabilities { get; init; }
 
     /// <summary>
     /// Gets Document Intelligence-specific options (JSON object).

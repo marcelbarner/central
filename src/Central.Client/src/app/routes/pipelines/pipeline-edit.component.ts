@@ -172,8 +172,11 @@ import { Task } from '../../models/task.model';
                           <mat-form-field appearance="outline" class="full-width">
                             <mat-label>Trigger Event</mat-label>
                             <mat-select formControlName="triggerState" required>
-                              <mat-option value="Consumed">On Document Consumed</mat-option>
-                              <mat-option value="Downloaded">On Document Downloaded</mat-option>
+                              <mat-option value="Imported">On Document Imported</mat-option>
+                              <mat-option value="Processing">On Document Processing</mat-option>
+                              <mat-option value="Review">On Document Review</mat-option>
+                              <mat-option value="Approved">On Document Approved</mat-option>
+                              <mat-option value="Failed">On Document Failed</mat-option>
                               <mat-option value="Processed">On Document Processed</mat-option>
                             </mat-select>
                             @if (stepGroup.get('triggerState')?.hasError('required')) {
@@ -505,7 +508,7 @@ export class PipelineEditComponent implements OnInit {
   addTriggerStep() {
     // Trigger can only be the first step
     if (this.stepsArray.length === 0) {
-      const step = this.createStepFormGroup({ stepType: 'TriggerStep', triggerState: 'Consumed' } as any);
+      const step = this.createStepFormGroup({ stepType: 'TriggerStep', triggerState: 'Imported' } as any);
       this.stepsArray.insert(0, step);
       this.updateStepOrders();
     }
@@ -542,7 +545,7 @@ export class PipelineEditComponent implements OnInit {
     stepGroup.patchValue({
       taskId: null,
       waitDurationSeconds: null,
-      triggerState: stepType === 'TriggerStep' ? 'Consumed' : null,
+      triggerState: stepType === 'TriggerStep' ? 'Imported' : null,
     });
 
     this.updateStepValidation(stepGroup, stepType);
@@ -609,18 +612,20 @@ export class PipelineEditComponent implements OnInit {
     if (this.form.valid) {
       this.saving.set(true);
       const formValue = this.form.value;
-      
+
       // Extract trigger from first step if present
       let triggerState: string | null = null;
       const steps: PipelineStep[] = [];
-      
+
       formValue.steps.forEach((step: any, index: number) => {
         if (step.stepType === 'TriggerStep' && index === 0) {
           triggerState = step.triggerState;
         } else if (step.stepType !== 'TriggerStep') {
+          const adjustedOrder = step.order - (triggerState ? 1 : 0);
           steps.push({
+            name: step.stepType === 'TaskStep' ? `Task Step ${adjustedOrder}` : `Wait Step ${adjustedOrder}`,
             stepType: step.stepType,
-            order: step.order - (triggerState ? 1 : 0),
+            order: adjustedOrder,
             taskId: step.stepType === 'TaskStep' ? step.taskId : null,
             waitDurationSeconds: step.stepType === 'WaitStep' ? step.waitDurationSeconds : null,
           } as PipelineStep);

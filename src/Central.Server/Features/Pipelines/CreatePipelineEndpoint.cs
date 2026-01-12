@@ -4,9 +4,11 @@ using Central.Server.Mappers;
 
 using FastEndpoints;
 
+using Microsoft.Extensions.Logging;
+
 namespace Central.Server.Features.Pipelines;
 
-public sealed class CreatePipelineEndpoint(IPipelineRepository repository)
+public sealed class CreatePipelineEndpoint(IPipelineRepository repository, ILogger<CreatePipelineEndpoint> logger)
     : Endpoint<CreatePipelineRequest, PipelineDto>
 {
     public override void Configure()
@@ -17,6 +19,8 @@ public sealed class CreatePipelineEndpoint(IPipelineRepository repository)
 
     public override async Task HandleAsync(CreatePipelineRequest req, CancellationToken ct)
     {
+        logger.LogInformation("Creating pipeline: {@Request}", req);
+        
         var steps = req.Steps.Select(s => new PipelineStep
         {
             Id = 0,

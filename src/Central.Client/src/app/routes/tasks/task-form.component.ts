@@ -64,21 +64,13 @@ import { ToolsSelectorComponent } from '../../shared/components/tools-selector/t
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Task Type</mat-label>
               <mat-select formControlName="taskType" required (selectionChange)="onTaskTypeChange()">
-                <mat-option value="wait">Wait</mat-option>
-                <mat-option value="AzureOpenAI">OpenAI</mat-option>
-                <mat-option value="AzureDocumentIntelligence">Document Intelligence</mat-option>
+                <mat-option value="AzureOpenAI">Azure OpenAI</mat-option>
+                <mat-option value="AzureDocumentIntelligence">Azure Document Intelligence</mat-option>
               </mat-select>
               @if (form.get('taskType')?.hasError('required')) {
                 <mat-error>Task type is required</mat-error>
               }
             </mat-form-field>
-
-            @if (form.get('taskType')?.value === 'wait') {
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Wait Duration (seconds)</mat-label>
-                <input matInput type="number" formControlName="waitDuration" min="1" />
-              </mat-form-field>
-            }
 
             @if (form.get('taskType')?.value === 'AzureOpenAI') {
               <div class="configuration-section">
@@ -100,13 +92,8 @@ import { ToolsSelectorComponent } from '../../shared/components/tools-selector/t
                 </mat-form-field>
 
                 <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>System Prompt</mat-label>
-                  <textarea matInput formControlName="systemPrompt" rows="4" placeholder="You are a helpful assistant..."></textarea>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>User Prompt</mat-label>
-                  <textarea matInput formControlName="userPrompt" rows="4" placeholder="Analyze this document..."></textarea>
+                  <mat-label>Prompt</mat-label>
+                  <textarea matInput formControlName="systemPrompt" rows="8" placeholder="You are a helpful assistant..."></textarea>
                 </mat-form-field>
 
                 <div class="slider-field">
@@ -180,7 +167,6 @@ import { ToolsSelectorComponent } from '../../shared/components/tools-selector/t
       .configuration-section {
         margin: 24px 0;
         padding: 16px;
-        background-color: #f5f5f5;
         border-radius: 4px;
       }
 
@@ -198,7 +184,6 @@ import { ToolsSelectorComponent } from '../../shared/components/tools-selector/t
         display: block;
         margin-bottom: 8px;
         font-size: 14px;
-        color: rgba(0, 0, 0, 0.6);
       }
 
       .form-actions {
@@ -243,7 +228,6 @@ export class TaskFormComponent implements OnInit {
       azureApiKey: [''],
       azureModelOrDeployment: [''],
       systemPrompt: [''],
-      userPrompt: [''],
       temperature: [0.7],
       maxTokens: [1000],
       allowedTools: [[]],
@@ -260,38 +244,26 @@ export class TaskFormComponent implements OnInit {
         azureEndpoint: task.configuration?.azureEndpoint,
         azureApiKey: task.configuration?.azureApiKey,
         azureModelOrDeployment: task.configuration?.azureModelOrDeployment,
-        systemPrompt: task.configuration?.systemPrompt,
-        userPrompt: task.configuration?.userPrompt,
+        systemPrompt: task.configuration?.prompt || '',
         temperature: task.configuration?.temperature,
         maxTokens: task.configuration?.maxTokens,
-        allowedTools: task.configuration?.allowedTools || [],
+        allowedTools: task.configuration?.capabilities || [],
       });
     });
   }
 
   onTaskTypeChange() {
+    // Clear all fields when switching task types
     const taskType = this.form.get('taskType')?.value;
 
-    if (taskType === 'wait') {
+    if (taskType === 'AzureOpenAI') {
       this.form.patchValue({
-        azureEndpoint: '',
-        azureApiKey: '',
-        azureModelOrDeployment: '',
-        systemPrompt: '',
-        userPrompt: '',
-        temperature: 0.7,
-        maxTokens: 1000,
-        allowedTools: [],
+        waitDuration: null,
       });
-    } else if (taskType === 'openai') {
+    } else if (taskType === 'AzureDocumentIntelligence') {
       this.form.patchValue({
-        waitDuration: 5,
-      });
-    } else if (taskType === 'document_intelligence') {
-      this.form.patchValue({
-        waitDuration: 5,
+        waitDuration: null,
         systemPrompt: '',
-        userPrompt: '',
         temperature: 0.7,
         maxTokens: 1000,
         allowedTools: [],
@@ -304,22 +276,17 @@ export class TaskFormComponent implements OnInit {
       const taskType = this.form.value.taskType;
       let configuration: any = {};
 
-      if (taskType === 'wait') {
-        configuration = {
-          waitDuration: this.form.value.waitDuration,
-        };
-      } else if (taskType === 'openai') {
+      if (taskType === 'AzureOpenAI') {
         configuration = {
           azureEndpoint: this.form.value.azureEndpoint,
           azureApiKey: this.form.value.azureApiKey,
           azureModelOrDeployment: this.form.value.azureModelOrDeployment,
-          systemPrompt: this.form.value.systemPrompt,
-          userPrompt: this.form.value.userPrompt,
+          prompt: this.form.value.systemPrompt,
           temperature: this.form.value.temperature,
           maxTokens: this.form.value.maxTokens,
-          allowedTools: this.form.value.allowedTools,
+          capabilities: this.form.value.allowedTools,
         };
-      } else if (taskType === 'document_intelligence') {
+      } else if (taskType === 'AzureDocumentIntelligence') {
         configuration = {
           azureEndpoint: this.form.value.azureEndpoint,
           azureApiKey: this.form.value.azureApiKey,

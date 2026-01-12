@@ -82,8 +82,7 @@ public sealed class TaskEntity
     /// <summary>
     /// Gets or sets enabled capabilities (JSON).
     /// </summary>
-    [Column(TypeName = "TEXT")]
-    public string? Capabilities { get; set; }
+    public DocumentTool[]? Capabilities { get; set; }
 
     /// <summary>
     /// Gets or sets Document Intelligence options (JSON).

@@ -92,8 +92,8 @@ import { DocumentTypesSelect } from '@shared/components/document-types-select/do
             </button>
           </div>
         } @else {
-          <app-documents-table 
-            [documents]="filteredDocuments" 
+          <app-documents-table
+            [documents]="filteredDocuments"
             (selectionChange)="onSelectionChange($event)"
           />
         }
@@ -221,7 +221,7 @@ export class DocumentsList implements OnInit, AfterViewInit, OnDestroy {
     this.store.dispatch(new TagsActions.Load());
     this.store.dispatch(new DocumentTypesActions.Load());
     this.store.dispatch(new CorrespondentsActions.Load());
-    
+
     // Handle query parameters for filtering
     this.route.queryParams.subscribe(params => {
       if (params['tagId']) {
@@ -353,7 +353,7 @@ export class DocumentsList implements OnInit, AfterViewInit, OnDestroy {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         const { successCount, failedCount, totalCount } = result;
-        
+
         if (failedCount === 0) {
           this.snackBar.open(
             this.translate.instant('documents.task_execution_success', { count: successCount }),
@@ -368,10 +368,10 @@ export class DocumentsList implements OnInit, AfterViewInit, OnDestroy {
           );
         } else {
           this.snackBar.open(
-            this.translate.instant('documents.task_execution_partial', { 
-              success: successCount, 
-              failed: failedCount, 
-              total: totalCount 
+            this.translate.instant('documents.task_execution_partial', {
+              success: successCount,
+              failed: failedCount,
+              total: totalCount
             }),
             this.translate.instant('close'),
             { duration: 5000 }

@@ -1,6 +1,6 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-var postgres = builder.AddPostgres("postgres");
+var postgres = builder.AddPostgres("postgres").WithLifetime(ContainerLifetime.Persistent);
 var postgresdb = postgres.AddDatabase("centraldb");
 
 // Use absolute path resolution for the project

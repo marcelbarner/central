@@ -1,3 +1,5 @@
+using Central.Domain.Documents;
+
 namespace Central.Server.Features.Tasks;
 
 public sealed record TaskDto
@@ -20,7 +22,7 @@ public sealed record TaskConfigurationDto
     public string? Prompt { get; init; }
     public double? Temperature { get; init; }
     public int? MaxTokens { get; init; }
-    public string? Capabilities { get; init; }
+    public DocumentTool[]? Capabilities { get; init; }
     public string? DocumentIntelligenceOptions { get; init; }
 }
 

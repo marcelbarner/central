@@ -33,7 +33,7 @@ export interface OpenAITool {
     },
   ],
   template: `
-    <mat-form-field appearance="outline" class="full-width">
+    <mat-form-field appearance="outline" class="w-full">
       <mat-label>{{ label }}</mat-label>
       <mtx-select
         [items]="availableTools"
@@ -47,38 +47,7 @@ export interface OpenAITool {
       />
       <mat-hint>{{ hint }}</mat-hint>
     </mat-form-field>
-
-    @if (value && value.length > 0) {
-      <div class="selected-tools">
-        <mat-chip-set>
-          @for (toolValue of value; track toolValue) {
-            <mat-chip [removable]="!disabled" (removed)="removeTool(toolValue)">
-              {{ getToolLabel(toolValue) }}
-              @if (!disabled) {
-                <button matChipRemove>
-                  <mat-icon>cancel</mat-icon>
-                </button>
-              }
-            </mat-chip>
-          }
-        </mat-chip-set>
-      </div>
-    }
   `,
-  styles: [`
-    .full-width {
-      width: 100%;
-      margin-bottom: 16px;
-    }
-
-    .selected-tools {
-      margin-bottom: 16px;
-    }
-
-    mat-chip {
-      margin: 4px;
-    }
-  `],
 })
 export class ToolsSelectorComponent implements ControlValueAccessor {
   @Input() label = 'Allowed Tools';

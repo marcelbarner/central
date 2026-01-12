@@ -695,7 +695,7 @@ export class DocumentDetails implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         const { successCount, failedCount } = result;
-        
+
         if (failedCount === 0) {
           this.snackBar.open(
             this.translate.instant('documents.task_execution_success', { count: successCount }),

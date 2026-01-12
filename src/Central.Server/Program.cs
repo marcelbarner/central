@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 using Central.Domain.Users;
 using Central.Domain.Users.Ports;
 using Central.Infrastructure;
@@ -49,7 +51,10 @@ bld.Services.AddHostedService<DatabaseInitializerService>();
 bld.Services.AddHostedService<ProcessExecutionWorker>();
 
 bld.Services
-   .AddFastEndpoints(o => o.SourceGeneratorDiscoveredTypes = DiscoveredTypes.All)
+   .AddFastEndpoints(o =>
+   {
+       o.SourceGeneratorDiscoveredTypes = DiscoveredTypes.All;
+   })
    .SwaggerDocument();
 
 // Add default Aspire health checks
@@ -68,6 +73,7 @@ app.UseFastEndpoints(
        c =>
        {
            c.Errors.UseProblemDetails();
+           c.Serializer.Options.Converters.Add(new JsonStringEnumConverter());
        })
    .UseSwaggerGen();
 

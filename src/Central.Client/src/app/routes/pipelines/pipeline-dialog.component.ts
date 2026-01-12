@@ -72,8 +72,11 @@ import { Task } from '../../models/task.model';
             <mat-label>Trigger State (Optional)</mat-label>
             <mat-select formControlName="triggerState">
               <mat-option [value]="null">Manual (No automatic trigger)</mat-option>
-              <mat-option value="Consumed">On Document Consumed</mat-option>
-              <mat-option value="Downloaded">On Document Downloaded</mat-option>
+              <mat-option value="Imported">On Document Imported</mat-option>
+              <mat-option value="Processing">On Document Processing</mat-option>
+              <mat-option value="Review">On Document Review</mat-option>
+              <mat-option value="Approved">On Document Approved</mat-option>
+              <mat-option value="Failed">On Document Failed</mat-option>
               <mat-option value="Processed">On Document Processed</mat-option>
             </mat-select>
             <mat-hint>Leave empty for manual execution only</mat-hint>
@@ -475,6 +478,7 @@ export class PipelineDialogComponent implements OnInit {
     if (this.form.valid) {
       const formValue = this.form.value;
       const steps: PipelineStep[] = formValue.steps.map((step: any) => ({
+        name: step.stepType === 'TaskStep' ? `Task Step ${step.order}` : `Wait Step ${step.order}`,
         stepType: step.stepType,
         order: step.order,
         taskId: step.stepType === 'TaskStep' ? step.taskId : null,

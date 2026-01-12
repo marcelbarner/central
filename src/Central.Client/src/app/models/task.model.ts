@@ -14,12 +14,10 @@ export interface TaskConfiguration {
   azureApiKey?: string;
   azureModelOrDeployment?: string;
   prompt?: string;
-  systemPrompt?: string;
-  userPrompt?: string;
   temperature?: number;
   maxTokens?: number;
   allowedTools?: string[];
-  capabilities?: string;
+  capabilities?: string[];
   documentIntelligenceOptions?: string;
   waitDuration?: number;
 }
